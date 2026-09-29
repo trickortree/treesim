@@ -3889,6 +3889,7 @@ button {
     </div>
 </div>
 
+<script>
 /* =========================================================
    IN-GAME AUTO UPDATER
 ========================================================= */
@@ -3941,6 +3942,9 @@ function openUpdateModal(data) {
 
     updateOverlay.classList.add("open");
 }
+
+window.openUpdateModal = openUpdateModal;
+window.ipcRenderer = ipcRenderer;
 
 updateAction.addEventListener("click", () => {
     if (!updateAvailable) {
@@ -4051,6 +4055,8 @@ ipcRenderer.on("update-error", (event, data) => {
         }, 100);
     };
 });
+
+</script>
 
 <script>
 /* =========================================================
