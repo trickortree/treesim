@@ -1073,6 +1073,16 @@ button {
 .chicken-celestial { --chicken-body:#fef3c7; --chicken-shadow:#7c3aed; --chicken-accent:#fef08a; }
 .chicken-divine { --chicken-body:#fff7ed; --chicken-shadow:#ca8a04; --chicken-accent:#fde68a; }
 .chicken-godly { --chicken-body:#fbcfe8; --chicken-shadow:#be185d; --chicken-accent:#f9a8d4; }
+.chicken-pinecone { --chicken-body:#d9f99d; --chicken-shadow:#3f6212; --chicken-accent:#a16207; }
+.chicken-saffron { --chicken-body:#fef3c7; --chicken-shadow:#b45309; --chicken-accent:#dc2626; }
+.chicken-bluejay { --chicken-body:#bfdbfe; --chicken-shadow:#1d4ed8; --chicken-accent:#f97316; }
+.chicken-glasswing { --chicken-body:#cffafe; --chicken-shadow:#0891b2; --chicken-accent:#f0abfc; }
+.chicken-stormcrest { --chicken-body:#e0e7ff; --chicken-shadow:#3730a3; --chicken-accent:#facc15; }
+.chicken-embercrest { --chicken-body:#ffedd5; --chicken-shadow:#c2410c; --chicken-accent:#7f1d1d; }
+.chicken-lunarfrost { --chicken-body:#e0f2fe; --chicken-shadow:#475569; --chicken-accent:#c4b5fd; }
+.chicken-elderbloom { --chicken-body:#ecfccb; --chicken-shadow:#3f6212; --chicken-accent:#f0abfc; }
+.chicken-cometplume { --chicken-body:#dbeafe; --chicken-shadow:#4338ca; --chicken-accent:#fef08a; }
+.chicken-worldsong { --chicken-body:#fce7f3; --chicken-shadow:#9d174d; --chicken-accent:#86efac; }
 
 @keyframes chickenFloat {
     0%,100% { transform: translateY(0) rotateY(-3deg); }
@@ -4760,6 +4770,16 @@ const AXE_SKINS = [
     { name: "Gravemoss", rarity: "Mythic", color: "#344a39", accent: "#bef264", handle: "#17231a", edge: "#ecfccb", glow: "rgba(132,204,22,.78)", pattern: "void" },
     { name: "Star-Eater", rarity: "Ancient", color: "#172b52", accent: "#67e8f9", handle: "#101827", edge: "#cffafe", glow: "rgba(34,211,238,.88)", pattern: "cosmic" },
     { name: "Worldroot Crown", rarity: "Godly", color: "#7b1e4b", accent: "#f9a8d4", handle: "#27131e", edge: "#fff1f7", glow: "rgba(244,63,94,.98)", pattern: "godly" },
+    { name: "Pinecone Splitter", rarity: "Common", color: "#566746", accent: "#c5a66a", handle: "#39291b", edge: "#e8dfc4", glow: "rgba(132,153,93,.35)", pattern: "rust" },
+    { name: "Saffron Talon", rarity: "Uncommon", color: "#b65f19", accent: "#ffe08a", handle: "#462515", edge: "#fff0ba", glow: "rgba(245,158,11,.48)", pattern: "gold" },
+    { name: "Bluejay's Edge", rarity: "Rare", color: "#185e9d", accent: "#b8e2ff", handle: "#142842", edge: "#f0f9ff", glow: "rgba(56,189,248,.55)", pattern: "frost" },
+    { name: "Glasswing", rarity: "Epic", color: "#087f8c", accent: "#a5f3fc", handle: "#15383d", edge: "#ecfeff", glow: "rgba(34,211,238,.62)", pattern: "cosmic" },
+    { name: "Stormcrest", rarity: "Legendary", color: "#3730a3", accent: "#c7d2fe", handle: "#1e1b4b", edge: "#fef3c7", glow: "rgba(129,140,248,.72)", pattern: "sapphire" },
+    { name: "Embercrest", rarity: "Mythic", color: "#9a3412", accent: "#fed7aa", handle: "#351812", edge: "#fff7ed", glow: "rgba(249,115,22,.78)", pattern: "flame" },
+    { name: "Lunarfrost", rarity: "Exotic", color: "#475569", accent: "#c4b5fd", handle: "#172033", edge: "#e0f2fe", glow: "rgba(147,197,253,.82)", pattern: "frost" },
+    { name: "Elderbloom", rarity: "Ancient", color: "#3f6212", accent: "#d9f99d", handle: "#1b2615", edge: "#f5f5dc", glow: "rgba(163,230,53,.88)", pattern: "ancient" },
+    { name: "Cometplume", rarity: "Celestial", color: "#4338ca", accent: "#dbeafe", handle: "#19153c", edge: "#fef08a", glow: "rgba(129,140,248,.9)", pattern: "celestial" },
+    { name: "Worldsong", rarity: "Godly", color: "#9d174d", accent: "#fbcfe8", handle: "#311226", edge: "#dcfce7", glow: "rgba(244,114,182,.98)", pattern: "godly" },
 ];
 
 
@@ -6620,6 +6640,16 @@ const MUTANT_CASE_ITEMS = [
     { name: "Transcendent Chick", kind: "chicken", chickenType: "transcendentchick", rarity: "Godly", color: "#fb7185" },
     { name: "Omega Rooster", kind: "chicken", chickenType: "omegarooster", rarity: "Godly", color: "#fb7185" },
     { name: "Godforge Hen", kind: "chicken", chickenType: "godforgehen", rarity: "Godly", color: "#fb7185" },
+    { name: "Pinecone Chick", kind: "chicken", chickenType: "pinecone", rarity: "Uncommon", color: "#84a84a" },
+    { name: "Saffron Hen", kind: "chicken", chickenType: "saffron", rarity: "Rare", color: "#f59e0b" },
+    { name: "Bluejay Rooster", kind: "chicken", chickenType: "bluejay", rarity: "Rare", color: "#38bdf8" },
+    { name: "Glasswing Chick", kind: "chicken", chickenType: "glasswing", rarity: "Epic", color: "#22d3ee" },
+    { name: "Stormcrest Hen", kind: "chicken", chickenType: "stormcrest", rarity: "Epic", color: "#818cf8" },
+    { name: "Embercrest Rooster", kind: "chicken", chickenType: "embercrest", rarity: "Legendary", color: "#f97316" },
+    { name: "Lunarfrost Chick", kind: "chicken", chickenType: "lunarfrost", rarity: "Mythic", color: "#c4b5fd" },
+    { name: "Elderbloom Hen", kind: "chicken", chickenType: "elderbloom", rarity: "Ancient", color: "#a3e635" },
+    { name: "Cometplume Rooster", kind: "chicken", chickenType: "cometplume", rarity: "Celestial", color: "#a5b4fc" },
+    { name: "Worldsong Chick", kind: "chicken", chickenType: "worldsong", rarity: "Godly", color: "#f472b6" },
 ];
 
 function pickCaseItem(items, rarities) {
