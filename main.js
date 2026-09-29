@@ -399,22 +399,18 @@ function setupAutoUpdater() {
 
 app.whenReady().then(async () => {
 
-    createWindow();
-
-    setupAutoUpdater();
-
-    // Check whether the previous version
-    // downloaded an update and restarted.
     const previousUpdate =
         await loadPendingUpdate();
 
+    createWindow();
+
+    // Register this immediately after creating the window,
+    // so the page cannot finish loading before we listen.
     if (
         previousUpdate &&
-        previousUpdate.version ===
-            app.getVersion()
+        previousUpdate.version === app.getVersion()
     ) {
 
-        // Wait until index.html has loaded.
         mainWindow.webContents.once(
             "did-finish-load",
             async () => {
@@ -434,20 +430,17 @@ app.whenReady().then(async () => {
                     }
                 );
 
-                // Delete the file so the
-                // changelog only shows once.
                 await clearPendingUpdate();
-
             }
         );
 
     } else if (previousUpdate) {
 
-        // Safety cleanup if the saved
-        // version doesn't match.
         await clearPendingUpdate();
 
     }
+
+    setupAutoUpdater();
 
     app.on(
         "activate",
