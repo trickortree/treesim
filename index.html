@@ -3991,6 +3991,37 @@ ipcRenderer.on("update-downloaded", () => {
     updateAction.disabled = true;
 });
 
+ipcRenderer.on("post-update", (event, data) => {
+    updateAvailable = false;
+
+    updateVersion.textContent =
+        `Updated to version ${data.version}`;
+
+    updateNotes.textContent =
+        data.releaseNotes || "No release notes provided.";
+
+    updateStatus.textContent =
+        "The update has been installed successfully.";
+
+    updateAction.textContent =
+        "CONTINUE";
+
+    updateAction.disabled = false;
+
+    updateProgressContainer.style.display =
+        "none";
+
+    updateProgressBar.style.width =
+        "100%";
+
+    updateOverlay.classList.add("open");
+
+    updateAction.onclick = () => {
+        updateOverlay.classList.remove("open");
+        updateAction.onclick = null;
+    };
+});
+
 ipcRenderer.on("update-error", (event, data) => {
     updateStatus.textContent =
         "The update failed to download.";
