@@ -5,8 +5,11 @@ const { autoUpdater } = require("electron-updater");
 
 app.setAppUserModelId("com.trickortree.treesim");
 
-let mainWindow;
+let mainWindow = null;
+
 let pendingUpdateInfo = null;
+let rendererReady = false;
+let queuedUpdate = null;
 
 function getUpdateInfoFile() {
     return path.join(
@@ -19,8 +22,13 @@ function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1280,
         height: 820,
-        minWidth: 1000,
-        minHeight: 680,
+        minWidth: 1280,
+        minHeight: 820,
+        maxWidth: 1280,
+        maxHeight: 820,
+        resizable: false,
+        maximizable: false,
+        fullscreenable: false,
         backgroundColor: "#080a0f",
         show: false,
         title: "Hypergamous Tree Chopping Simulator 3",
@@ -33,25 +41,59 @@ function createWindow() {
         }
     });
 
+    rendererReady = false;
+
     mainWindow.loadFile(
         path.join(__dirname, "index.html")
     );
 
-    mainWindow.once("ready-to-show", () => {
-        mainWindow.show();
-    });
+    mainWindow.webContents.on(
+        "did-finish-load",
+        () => {
+            rendererReady = true;
 
-    mainWindow.on("closed", () => {
-        mainWindow = null;
-    });
+            console.log(
+                "Game HTML finished loading."
+            );
+
+            // Send an update that was discovered
+            // before the renderer was ready.
+            if (queuedUpdate) {
+                sendToGame(
+                    "update-available",
+                    queuedUpdate
+                );
+
+                queuedUpdate = null;
+            }
+        }
+    );
+
+    mainWindow.once(
+        "ready-to-show",
+        () => {
+            mainWindow.show();
+        }
+    );
+
+    mainWindow.on(
+        "closed",
+        () => {
+            mainWindow = null;
+            rendererReady = false;
+        }
+    );
 }
 
 function cleanReleaseNotes(releaseNotes) {
+
     let text = "";
 
     if (Array.isArray(releaseNotes)) {
+
         text = releaseNotes
             .map(entry => {
+
                 if (typeof entry === "string") {
                     return entry;
                 }
@@ -60,11 +102,13 @@ function cleanReleaseNotes(releaseNotes) {
             })
             .filter(Boolean)
             .join("\n\n");
+
     } else if (releaseNotes) {
+
         text = String(releaseNotes);
+
     }
 
-    // Convert common HTML formatting into clean text
     text = text
         .replace(/\r/g, "")
         .replace(/<br\s*\/?>/gi, "\n")
@@ -83,23 +127,31 @@ function cleanReleaseNotes(releaseNotes) {
 }
 
 function sendToGame(channel, data) {
+
     if (
         mainWindow &&
-        !mainWindow.isDestroyed()
+        !mainWindow.isDestroyed() &&
+        rendererReady
     ) {
         mainWindow.webContents.send(
             channel,
             data
         );
+
+        return true;
     }
+
+    return false;
 }
 
 async function savePendingUpdate() {
+
     if (!pendingUpdateInfo) {
         return;
     }
 
     try {
+
         await fs.promises.writeFile(
             getUpdateInfoFile(),
             JSON.stringify(
@@ -113,7 +165,9 @@ async function savePendingUpdate() {
         console.log(
             "Saved post-update information."
         );
+
     } catch (error) {
+
         console.error(
             "Failed to save post-update information:",
             error
@@ -122,13 +176,13 @@ async function savePendingUpdate() {
 }
 
 async function loadPendingUpdate() {
+
     try {
+
         const file =
             getUpdateInfoFile();
 
-        if (
-            !fs.existsSync(file)
-        ) {
+        if (!fs.existsSync(file)) {
             return null;
         }
 
@@ -139,7 +193,9 @@ async function loadPendingUpdate() {
             );
 
         return JSON.parse(data);
+
     } catch (error) {
+
         console.error(
             "Failed to load post-update information:",
             error
@@ -150,16 +206,18 @@ async function loadPendingUpdate() {
 }
 
 async function clearPendingUpdate() {
+
     try {
+
         const file =
             getUpdateInfoFile();
 
-        if (
-            fs.existsSync(file)
-        ) {
+        if (fs.existsSync(file)) {
             await fs.promises.unlink(file);
         }
+
     } catch (error) {
+
         console.error(
             "Failed to clear post-update information:",
             error
@@ -170,6 +228,7 @@ async function clearPendingUpdate() {
 function setupAutoUpdater() {
 
     if (!app.isPackaged) {
+
         console.log(
             "Auto-updater disabled in development mode."
         );
@@ -188,7 +247,6 @@ function setupAutoUpdater() {
             console.log(
                 "Checking for updates..."
             );
-
         }
     );
 
@@ -197,7 +255,7 @@ function setupAutoUpdater() {
         info => {
 
             console.log(
-                `Update available: ${info.version}`
+                `UPDATE AVAILABLE: ${info.version}`
             );
 
             const releaseNotes =
@@ -206,39 +264,47 @@ function setupAutoUpdater() {
                 ) ||
                 "No release notes provided.";
 
-            // Remember the update information
-            // while the current game is running.
-            pendingUpdateInfo = {
-                version: info.version,
+            const updateData = {
+                currentVersion:
+                    app.getVersion(),
+
+                newVersion:
+                    info.version,
+
                 releaseNotes
             };
 
-            // Tell the HTML game to show
-            // the in-game update modal.
-            sendToGame(
+            pendingUpdateInfo = {
+                version:
+                    info.version,
+
+                releaseNotes
+            };
+
+            // If HTML is already ready, show it now.
+            // Otherwise queue it until did-finish-load.
+            if (!sendToGame(
                 "update-available",
-                {
-                    currentVersion:
-                        app.getVersion(),
+                updateData
+            )) {
 
-                    newVersion:
-                        info.version,
+                console.log(
+                    "Renderer not ready; queuing update modal."
+                );
 
-                    releaseNotes
-                }
-            );
-
+                queuedUpdate =
+                    updateData;
+            }
         }
     );
 
     autoUpdater.on(
         "update-not-available",
-        () => {
+        info => {
 
             console.log(
-                "Game is up to date."
+                `No update available. Current version: ${app.getVersion()}`
             );
-
         }
     );
 
@@ -264,7 +330,6 @@ function setupAutoUpdater() {
                         progress.bytesPerSecond
                 }
             );
-
         }
     );
 
@@ -276,17 +341,12 @@ function setupAutoUpdater() {
                 "Update downloaded."
             );
 
-            // Save the release information
-            // so the NEW version can show
-            // the changelog after restarting.
             await savePendingUpdate();
 
             sendToGame(
                 "update-downloaded"
             );
 
-            // Give the HTML modal time
-            // to display "Restarting..."
             setTimeout(
                 () => {
 
@@ -295,7 +355,6 @@ function setupAutoUpdater() {
                 },
                 1200
             );
-
         }
     );
 
@@ -304,7 +363,7 @@ function setupAutoUpdater() {
         error => {
 
             console.error(
-                "Auto-updater error:",
+                "AUTO-UPDATER ERROR:",
                 error
             );
 
@@ -315,14 +374,16 @@ function setupAutoUpdater() {
                         String(error)
                 }
             );
-
         }
     );
 
-    // User clicked UPDATE NOW
     ipcMain.on(
         "download-update",
         async () => {
+
+            console.log(
+                "Downloading update..."
+            );
 
             try {
 
@@ -342,16 +403,17 @@ function setupAutoUpdater() {
                             String(error)
                     }
                 );
-
             }
-
         }
     );
 
-    // User clicked RETRY UPDATE
     ipcMain.on(
         "retry-update",
         async () => {
+
+            console.log(
+                "Retrying update check..."
+            );
 
             try {
 
@@ -360,7 +422,7 @@ function setupAutoUpdater() {
             } catch (error) {
 
                 console.error(
-                    "Update check failed:",
+                    "Update retry failed:",
                     error
                 );
 
@@ -371,15 +433,17 @@ function setupAutoUpdater() {
                             String(error)
                     }
                 );
-
             }
-
         }
     );
 
-    // Check for updates 5 seconds after launch
+    // Check shortly after startup.
     setTimeout(
         () => {
+
+            console.log(
+                "Starting automatic update check..."
+            );
 
             autoUpdater
                 .checkForUpdates()
@@ -389,7 +453,6 @@ function setupAutoUpdater() {
                         "Update check failed:",
                         error
                     );
-
                 });
 
         },
@@ -404,11 +467,12 @@ app.whenReady().then(async () => {
 
     createWindow();
 
-    // Register this immediately after creating the window,
-    // so the page cannot finish loading before we listen.
+    // Show the "What's New" screen after
+    // the game has restarted into the new version.
     if (
         previousUpdate &&
-        previousUpdate.version === app.getVersion()
+        previousUpdate.version ===
+            app.getVersion()
     ) {
 
         mainWindow.webContents.once(
@@ -437,7 +501,6 @@ app.whenReady().then(async () => {
     } else if (previousUpdate) {
 
         await clearPendingUpdate();
-
     }
 
     setupAutoUpdater();
@@ -453,10 +516,8 @@ app.whenReady().then(async () => {
             ) {
                 createWindow();
             }
-
         }
     );
-
 });
 
 app.on(
@@ -468,6 +529,5 @@ app.on(
         ) {
             app.quit();
         }
-
     }
 );

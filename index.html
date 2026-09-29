@@ -12,17 +12,14 @@
 
 <style>
 :root {
-    --bg: #07090d;
-    --bg2: #0b0e14;
-    --panel: #10141c;
-    --panel2: #141923;
-    --panel3: #191f2a;
-    --border: #252d3a;
-    --text: #f1f5f9;
-    --muted: #7f8a9b;
-
-    --blue: #3182f6;
-    --blue2: #1d4ed8;
+    --bg: #080d0a;
+    --bg2: #0d1510;
+    --panel: #111a14;
+    --panel2: #17221a;
+    --panel3: #1d2a20;
+    --border: #2b3c30;
+    --text: #f1f4e9;
+    --muted: #92a08f;
     --green: #22c55e;
     --yellow: #f59e0b;
     --purple: #a855f7;
@@ -74,8 +71,9 @@ body {
 
 body {
     background:
-        radial-gradient(circle at 70% -20%, rgba(49,130,246,.12), transparent 35%),
-        radial-gradient(circle at 0% 100%, rgba(168,85,247,.06), transparent 35%),
+        radial-gradient(circle at 72% -18%, rgba(135,174,74,.16), transparent 34%),
+        radial-gradient(circle at 2% 100%, rgba(208,151,66,.08), transparent 33%),
+        repeating-linear-gradient(135deg, rgba(255,255,255,.008) 0 1px, transparent 1px 8px),
         var(--bg);
     color: var(--text);
     font-family:
@@ -106,8 +104,8 @@ button {
     flex-shrink: 0;
     padding: 22px 14px;
     background:
-        linear-gradient(180deg, #0c1017 0%, #090c11 100%);
-    border-right: 1px solid #1c232e;
+        linear-gradient(180deg, #101811 0%, #090e0a 100%);
+    border-right: 1px solid #263329;
     display: flex;
     flex-direction: column;
     position: relative;
@@ -212,7 +210,7 @@ button {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: rgba(7,9,13,.82);
+    background: rgba(8,13,10,.88);
 }
 
 .page-title {
@@ -293,7 +291,7 @@ button {
         linear-gradient(145deg, rgba(255,255,255,.025), transparent 40%),
         var(--panel);
     border: 1px solid var(--border);
-    border-radius: 14px;
+    border-radius: 10px;
     box-shadow: var(--shadow);
 }
 
@@ -673,7 +671,7 @@ button {
     border: 0;
     border-radius: 8px;
     color: white;
-    background: #1d4ed8;
+    background: linear-gradient(135deg, #729a3c, #4e722d);
     cursor: pointer;
     font-size: 11px;
     font-weight: 800;
@@ -681,7 +679,7 @@ button {
 }
 
 .buy-btn:hover:not(:disabled) {
-    background: #2563eb;
+    background: linear-gradient(135deg, #8eaf51, #658a36);
 }
 
 .buy-btn:active:not(:disabled) {
@@ -741,6 +739,24 @@ button {
 .purple {
     background: linear-gradient(135deg, #8b45df, #6d28d9);
 }
+
+.prestige-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 22px;
+    margin-top: 14px;
+    padding: 20px 23px;
+    border-color: #66552d;
+    background: radial-gradient(circle at 4% 50%, rgba(245,158,11,.12), transparent 34%), linear-gradient(120deg,#171b13,#111612);
+}
+
+.prestige-title { color: #f2d27b; font-size: 15px; font-weight: 950; }
+.prestige-copy { margin-top: 5px; color: #aab49f; font-size: 10px; }
+.prestige-bonus { margin-top: 7px; color: #d4e5b5; font-size: 10px; font-weight: 900; }
+.prestige-btn { width: 210px; flex: 0 0 210px; background: linear-gradient(135deg,#9f6b21,#694515); }
+.prestige-btn:hover:not(:disabled) { background: linear-gradient(135deg,#bf8730,#80581c); }
+.prestige-btn:disabled { background: #1a2029; }
 
 /* COOP */
 
@@ -1140,44 +1156,285 @@ button {
 
 /* MARKET */
 
-.market-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
+.atlas-summary,
+.achievement-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 14px;
+    padding: 16px 19px;
+    border-radius: 9px;
+    color: #dce8d1;
 }
 
-.market-card {
-    min-height: 270px;
-    padding: 24px;
+.atlas-summary strong,
+.achievement-summary strong { color: #f2d27b; }
+
+.atlas-grid,
+.achievement-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.atlas-entry,
+.achievement-entry {
+    min-width: 0;
+    padding: 14px 16px;
+    border: 1px solid #2b3c30;
+    border-radius: 9px;
+    background: linear-gradient(145deg, #141e16, #0d140f);
+}
+
+.atlas-entry.reached { border-color: #607b43; }
+.atlas-entry.current { box-shadow: inset 3px 0 #bfd879; }
+.atlas-entry.locked { opacity: .52; }
+
+.atlas-entry-head,
+.achievement-entry-head {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.atlas-entry-name,
+.achievement-entry-name { font-size: 12px; font-weight: 900; }
+.atlas-entry-tier,
+.achievement-entry-status { color: #94a28d; font-size: 9px; font-weight: 900; text-transform: uppercase; }
+.atlas-entry-state { margin-top: 8px; color: #9eaa99; font-size: 10px; }
+
+.achievement-entry-desc {
+    min-height: 30px;
+    margin-top: 6px;
+    color: #98a594;
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.achievement-progress {
+    height: 5px;
+    margin: 11px 0 7px;
+    overflow: hidden;
+    border-radius: 99px;
+    background: #263229;
+}
+
+.achievement-progress > span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #769e43, #d4cb75);
+}
+
+.achievement-entry-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    color: #b5c2ae;
+    font-size: 9px;
+}
+
+.achievement-entry .buy-btn { width: auto; min-width: 100px; height: 30px; padding: 0 10px; font-size: 9px; }
+.achievement-entry.claimed { opacity: .62; }
+
+.achievement-empty,
+.atlas-empty {
+    padding: 22px;
+    color: #99a596;
     text-align: center;
 }
 
+.market-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.market-card {
+    min-height: 340px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    text-align: left;
+    border-color: color-mix(in srgb, var(--case-accent, #92bd4d) 32%, var(--border));
+    background:
+        radial-gradient(circle at 92% 3%, color-mix(in srgb, var(--case-accent, #92bd4d) 13%, transparent), transparent 33%),
+        linear-gradient(150deg, #17221a, #101711 72%);
+    transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+
+.market-card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--case-accent, #92bd4d) 62%, var(--border));
+    box-shadow: 0 20px 46px rgba(0,0,0,.38), 0 0 30px color-mix(in srgb, var(--case-accent, #92bd4d) 9%, transparent);
+}
+
 .market-icon {
-    font-size: 52px;
-    margin-bottom: 8px;
+    align-self: flex-start;
+    font-size: 38px;
+    line-height: 1;
+    margin-bottom: 12px;
 }
 
 .market-title {
-    font-size: 17px;
+    font-size: 18px;
     font-weight: 900;
 }
 
 .market-desc {
-    max-width: 350px;
-    margin: 7px auto 14px;
+    max-width: 440px;
+    margin: 7px 0 14px;
     color: var(--muted);
     font-size: 11px;
     line-height: 1.6;
 }
 
 .market-result {
-    min-height: 18px;
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    border-left: 2px solid var(--case-accent, #92bd4d);
+    background: rgba(255,255,255,.025);
     color: #aab5c6;
     font-size: 11px;
-    margin-bottom: 12px;
+    margin: 0 0 12px;
+}
+
+.market-case-metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin: 0 0 13px;
+}
+
+.market-case-metrics span {
+    padding: 5px 8px;
+    border: 1px solid #344436;
+    border-radius: 6px;
+    background: rgba(7,12,8,.5);
+    color: #c1cbb9;
+    font-size: 9px;
+    font-weight: 800;
+}
+
+.market-case-metrics strong { color: #f4d27a; }
+
+.market-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(100px, .7fr);
+    gap: 8px;
+}
+
+.market-actions .buy-btn { height: 40px; }
+
+.market-actions .case-quick-btn {
+    border: 1px solid #536442;
+    background: #202b1e;
+    color: #dbe8c7;
+}
+
+.market-actions .case-quick-btn:hover:not(:disabled) {
+    background: #2b3a25;
+}
+
+.case-table-toggle {
+    width: 100%;
+    margin-top: 9px;
+    padding: 9px 10px;
+    border: 1px solid #2d3c30;
+    border-radius: 7px;
+    background: transparent;
+    color: #9eae98;
+    font-family: inherit;
+    font-size: 9px;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: .7px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.case-table-toggle:hover { border-color: #6b8d48; color: #dce9ca; }
+
+.case-drop-table {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #2a372b;
+}
+
+.case-drop-table[hidden] { display: none; }
+
+.case-drop-list {
+    min-width: 0;
+    display: grid;
+    align-content: start;
+    gap: 4px;
+}
+
+.case-drop-pool { min-width: 0; }
+
+.case-drop-search {
+    width: 100%;
+    height: 31px;
+    margin-bottom: 6px;
+    padding: 0 9px;
+    border: 1px solid #344436;
+    border-radius: 6px;
+    background: #0d140f;
+    color: #e7eddf;
+    font: inherit;
+    font-size: 10px;
+}
+
+.case-drop-search:focus { outline: 1px solid #88ad4b; border-color: #88ad4b; }
+.case-drop-search::placeholder { color: #748271; }
+
+.case-drop-list {
+    max-height: 188px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow-y: auto;
+    padding-right: 3px;
+}
+
+.case-table-heading {
+    grid-column: 1 / -1;
+    margin: 0 0 3px;
+    color: #788978;
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.case-drop-entry {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 7px;
+    min-width: 0;
+    padding: 5px 6px;
+    border-radius: 5px;
+    background: rgba(255,255,255,.025);
+    color: #c1cbb9;
+    font-size: 9px;
+}
+
+.case-drop-entry { justify-content: flex-start; overflow: hidden; }
+.case-drop-entry[hidden] { display: none; }
+.case-drop-entry span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.case-drop-entry .rarity-dot { flex: 0 0 6px; }
+
+@media (max-width: 520px) {
+    .market-actions { grid-template-columns: 1fr; }
 }
 
 .red {
@@ -1309,6 +1566,12 @@ button {
     pointer-events: none;
 }
 
+.skin-item-preview .case-axe-svg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
 .skin-item-info { min-width: 0; }
 .skin-item-name { font-size: 13px; font-weight: 900; white-space: nowrap; overflow:hidden; text-overflow:ellipsis; }
 .skin-item-rarity { margin-top: 3px; color: var(--rarity-color,#aeb8c7); font-size: 9px; font-weight: 900; text-transform:uppercase; letter-spacing:.9px; }
@@ -1398,12 +1661,12 @@ button {
 }
 
 .axe-view-window {
-    width: min(820px, 92vw);
+    width: min(980px, 92vw);
     min-height: 690px;
     padding: 27px;
     border: 1px solid #2c3543;
     border-radius: 17px;
-    background: radial-gradient(circle at 50% 0, rgba(49,130,246,.12), transparent 45%), #0b1018;
+    background: radial-gradient(circle at 50% 0, rgba(135,174,74,.12), transparent 45%), #0b1018;
     box-shadow: 0 35px 100px rgba(0,0,0,.7);
 }
 
@@ -1414,7 +1677,8 @@ button {
 }
 
 .axe-3d-stage {
-    height: 450px;
+    --preview-rarity: #92bd4d;
+    height: 460px;
     margin-top: 15px;
     position: relative;
     display: grid;
@@ -1423,12 +1687,42 @@ button {
     overflow: hidden;
     border-radius: 13px;
     background:
-        radial-gradient(circle at 50% 42%, rgba(255,255,255,.065), transparent 40%),
-        radial-gradient(circle at 50% 75%, rgba(49,130,246,.08), transparent 50%),
+        radial-gradient(circle at 50% 54%, color-mix(in srgb, var(--preview-rarity) 15%, transparent), transparent 42%),
+        radial-gradient(ellipse at 50% 94%, color-mix(in srgb, var(--preview-rarity) 12%, transparent), transparent 47%),
         #070b11;
     border: 1px solid #202936;
     cursor: grab;
 }
+
+.axe-3d-stage::before,
+.axe-3d-stage::after {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    left: 50%;
+    top: 53%;
+    width: 270px;
+    height: 270px;
+    border: 1px solid color-mix(in srgb, var(--preview-rarity) 24%, transparent);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) rotateX(68deg);
+    box-shadow: 0 0 32px color-mix(in srgb, var(--preview-rarity) 11%, transparent), inset 0 0 25px color-mix(in srgb, var(--preview-rarity) 8%, transparent);
+    pointer-events: none;
+}
+
+.axe-3d-stage::after {
+    width: 205px;
+    height: 205px;
+    border-style: dashed;
+    opacity: .48;
+    animation: axeStageOrbit 22s linear infinite;
+}
+
+@keyframes axeStageOrbit { to { transform: translate(-50%, -50%) rotateX(68deg) rotateZ(360deg); } }
+
+.axe-3d-stage > canvas { z-index: 2; }
+.axe-3d-stage .axe-platform,
+.axe-3d-stage .axe-stage-glow { z-index: 1; }
 
 .axe-3d-stage.dragging { cursor: grabbing; }
 
@@ -1743,6 +2037,7 @@ button {
 }
 
 .case-window {
+    position: relative;
     width: min(1120px, 94vw);
     padding: 24px 24px 20px;
     border: 1px solid rgba(255,255,255,.09);
@@ -2004,6 +2299,73 @@ button {
 .case-close:hover {
     background: #303946;
 }
+
+.case-close:disabled {
+    border-color: #333b45;
+    background: #171c22;
+    color: #818a96;
+    cursor: wait;
+}
+
+.case-reveal-panel {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    pointer-events: none;
+    background: radial-gradient(circle at center, color-mix(in srgb, var(--reveal-color) 20%, transparent), rgba(4,7,10,.82) 70%);
+}
+
+.case-reveal-panel.open { display: flex; }
+.case-reveal-panel.rarity-ancient { animation: ancientCurtain 2.8s ease both; }
+.case-reveal-panel.rarity-celestial,
+.case-reveal-panel.rarity-divine { animation: celestialCurtain 3.8s ease both; }
+.case-reveal-panel.rarity-godly { animation: godlyCurtain 5.2s cubic-bezier(.16,.8,.2,1) both; }
+
+.case-reveal-panel::before,
+.case-reveal-panel::after {
+    content: "";
+    position: absolute;
+    width: min(540px, 76%);
+    aspect-ratio: 1;
+    border: 1px solid color-mix(in srgb, var(--reveal-color) 72%, white 10%);
+    border-radius: 50%;
+    box-shadow: 0 0 42px color-mix(in srgb, var(--reveal-color) 42%, transparent), inset 0 0 36px color-mix(in srgb, var(--reveal-color) 18%, transparent);
+    opacity: 0;
+}
+
+.case-reveal-panel::before { animation: revealRing 2.4s ease-out both; }
+.case-reveal-panel::after { width: min(430px, 62%); border-style: dashed; animation: revealRing 3s .12s ease-out both; }
+
+.case-reveal-content {
+    position: relative;
+    z-index: 1;
+    width: min(440px, 78%);
+    padding: 26px 28px 22px;
+    border: 1px solid color-mix(in srgb, var(--reveal-color) 62%, white 8%);
+    border-radius: 16px;
+    background: linear-gradient(155deg,rgba(25,29,35,.97),rgba(7,10,14,.98));
+    box-shadow: 0 25px 90px rgba(0,0,0,.72), 0 0 55px color-mix(in srgb, var(--reveal-color) 32%, transparent), inset 0 1px rgba(255,255,255,.12);
+    text-align: center;
+    animation: revealCard .72s cubic-bezier(.16,.9,.22,1) both;
+}
+
+.case-reveal-kicker { color: var(--reveal-color); font-size: 10px; font-weight: 1000; letter-spacing: 2.4px; text-transform: uppercase; }
+.case-reveal-visual { height: 150px; display: grid; place-items: center; margin: 8px 0 6px; filter: drop-shadow(0 0 25px color-mix(in srgb, var(--reveal-color) 48%, transparent)); }
+.case-reveal-visual .case-axe-svg { width: 190px; height: 145px; }
+.case-reveal-visual .case-chicken-preview { transform: scale(1.16); }
+.case-reveal-name { color: #fff9e9; font-size: 22px; font-weight: 1000; text-shadow: 0 0 24px color-mix(in srgb, var(--reveal-color) 64%, transparent); }
+.case-reveal-rarity { margin-top: 6px; color: var(--reveal-color); font-size: 11px; font-weight: 950; letter-spacing: 2px; text-transform: uppercase; }
+.case-reveal-caption { margin-top: 8px; color: #c4c9c1; font-size: 10px; }
+
+@keyframes ancientCurtain { 0%{opacity:0} 12%,78%{opacity:1} 100%{opacity:0} }
+@keyframes celestialCurtain { 0%{opacity:0;filter:brightness(1)} 12%,78%{opacity:1} 34%{filter:brightness(1.7)} 100%{opacity:0;filter:brightness(1)} }
+@keyframes godlyCurtain { 0%{opacity:0;filter:brightness(1)} 8%,82%{opacity:1} 28%,55%{filter:brightness(1.8) saturate(1.4)} 100%{opacity:0;filter:brightness(1)} }
+@keyframes revealRing { 0%{opacity:0;transform:scale(.3) rotate(-24deg)} 35%{opacity:.72} 100%{opacity:0;transform:scale(1.25) rotate(22deg)} }
+@keyframes revealCard { from{opacity:0;transform:translateY(22px) scale(.72)} 68%{opacity:1;transform:translateY(-5px) scale(1.035)} to{opacity:1;transform:translateY(0) scale(1)} }
 
 .case-result {
     text-align: center;
@@ -3245,8 +3607,8 @@ button {
     <aside class="sidebar">
 
         <div class="logo">
-            <div class="logo-title">🌲 HYPERGAMOUS</div>
-            <div class="logo-sub">Tree Chopping Deluxe</div>
+            <div class="logo-title">HYPERGAMOUS</div>
+            <div class="logo-sub">TREE CHOPPING SIMULATOR 3</div>
         </div>
 
         <div class="nav-section">MAIN</div>
@@ -3283,8 +3645,20 @@ button {
             <span class="nav-text">Case Market</span>
         </button>
 
+        <div class="nav-section">PROGRESSION</div>
+
+        <button class="nav-btn" data-page="worlds">
+            <span class="nav-icon">🗺️</span>
+            <span class="nav-text">Forest Atlas</span>
+        </button>
+
+        <button class="nav-btn" data-page="achievements">
+            <span class="nav-icon">🏆</span>
+            <span class="nav-text">Achievements</span>
+        </button>
+
         <div class="sidebar-bottom">
-            <div class="version">DELUXE EDITION • v2.0</div>
+            <div class="version">HYPERGAMOUS TREE CHOPPING SIMULATOR 3</div>
         </div>
 
     </aside>
@@ -3596,6 +3970,15 @@ button {
 
                 </div>
 
+                <div class="prestige-card card">
+                    <div>
+                        <div class="prestige-title" id="prestige-name">Prestige 0 / 5</div>
+                        <div class="prestige-copy" id="prestige-info">Reach the final rebirth and buy every unlocked axe to prestige.</div>
+                        <div class="prestige-bonus" id="prestige-bonus">Permanent forest power: x1.00</div>
+                    </div>
+                    <button class="buy-btn prestige-btn" id="prestige-btn" type="button" disabled>PRESTIGE LOCKED</button>
+                </div>
+
             </section>
 
             <!-- COOP -->
@@ -3718,6 +4101,20 @@ button {
 
             </section>
 
+            <section class="page" id="page-worlds">
+                <div class="section-title">Forest Atlas</div>
+                <div class="section-sub">Every rebirth opens a stranger frontier. Your existing rebirth record reveals every region already reached.</div>
+                <div class="atlas-summary card" id="atlas-summary"></div>
+                <div class="atlas-grid" id="atlas-grid"></div>
+            </section>
+
+            <section class="page" id="page-achievements">
+                <div class="section-title">Field Record</div>
+                <div class="section-sub">Milestones turn your chopping, workshops and discoveries into bonus logs and shards.</div>
+                <div class="achievement-summary card" id="achievement-summary"></div>
+                <div class="achievement-grid" id="achievement-grid"></div>
+            </section>
+
             <!-- MARKET -->
 
             <section class="page" id="page-market">
@@ -3729,7 +4126,7 @@ button {
 
                 <div class="market-grid">
 
-                    <div class="market-card card">
+                    <div class="market-card card" style="--case-accent:#a7c95c">
 
                         <div class="market-icon">📦</div>
 
@@ -3738,20 +4135,33 @@ button {
                         </div>
 
                         <div class="market-desc">
-                            A dedicated axe-skin case. Every winning pull is an axe skin. Better skin odds are balanced by condition-based sell values.
+                            Every pull is a real axe skin. Browse the complete collection before opening.
+                        </div>
+
+                        <div class="market-case-metrics">
+                            <span><strong id="normal-case-count">--</strong> possible skins</span>
                         </div>
 
                         <div class="market-result" id="crate-result">
                             Ready to open.
                         </div>
 
-                        <button class="buy-btn red" id="crate-btn">
-                            Open Case — 250 Logs
-                        </button>
+                        <div class="market-actions">
+                            <button class="buy-btn red" id="crate-btn" type="button">SPIN CASE — 250 LOGS</button>
+                            <button class="buy-btn case-quick-btn" id="crate-quick-btn" type="button">QUICK OPEN</button>
+                        </div>
+
+                        <button class="case-table-toggle" id="normal-drop-toggle" type="button" aria-expanded="false" aria-controls="normal-drop-table">+ VIEW FULL COLLECTION</button>
+                        <div class="case-drop-table" id="normal-drop-table" hidden>
+                            <div class="case-drop-pool">
+                                <input class="case-drop-search" id="normal-drop-search" type="search" placeholder="Search all axe skins">
+                                <div class="case-drop-list" id="normal-case-drops"></div>
+                            </div>
+                        </div>
 
                     </div>
 
-                    <div class="market-card card">
+                    <div class="market-card card" style="--case-accent:#e4a64c">
 
                         <div class="market-icon">🕵️</div>
 
@@ -3760,16 +4170,29 @@ button {
                         </div>
 
                         <div class="market-desc">
-                            Chicken-only mega case with 18 different breeds and mutations, from barn chickens to Godly-tier monsters.
+                            A flock-only collection with breeds and mutations from barnyard classics to Godly-tier monsters.
+                        </div>
+
+                        <div class="market-case-metrics">
+                            <span><strong id="mutant-case-count">--</strong> possible breeds</span>
                         </div>
 
                         <div class="market-result" id="darkweb-result">
                             Ready to open.
                         </div>
 
-                        <button class="buy-btn dark" id="darkweb-btn">
-                            Open Mutant Case — 1,500 Logs
-                        </button>
+                        <div class="market-actions">
+                            <button class="buy-btn dark" id="darkweb-btn" type="button">SPIN MUTANT CASE — 1,500 LOGS</button>
+                            <button class="buy-btn case-quick-btn" id="darkweb-quick-btn" type="button">QUICK OPEN</button>
+                        </div>
+
+                        <button class="case-table-toggle" id="mutant-drop-toggle" type="button" aria-expanded="false" aria-controls="mutant-drop-table">+ VIEW FULL COLLECTION</button>
+                        <div class="case-drop-table" id="mutant-drop-table" hidden>
+                            <div class="case-drop-pool">
+                                <input class="case-drop-search" id="mutant-drop-search" type="search" placeholder="Search all chicken drops">
+                                <div class="case-drop-list" id="mutant-case-drops"></div>
+                            </div>
+                        </div>
 
                     </div>
 
@@ -3845,6 +4268,16 @@ button {
             </button>
         </div>
 
+        <div class="case-reveal-panel" id="case-reveal-panel" aria-live="polite" aria-hidden="true">
+            <div class="case-reveal-content">
+                <div class="case-reveal-kicker" id="case-reveal-kicker">RARE DISCOVERY</div>
+                <div class="case-reveal-visual" id="case-reveal-visual"></div>
+                <div class="case-reveal-name" id="case-reveal-name"></div>
+                <div class="case-reveal-rarity" id="case-reveal-rarity"></div>
+                <div class="case-reveal-caption" id="case-reveal-caption">Added to your collection</div>
+            </div>
+        </div>
+
     </div>
 
 </div>
@@ -3858,7 +4291,7 @@ button {
 
         <div class="update-icon">⬆</div>
 
-        <div class="update-title">
+        <div class="update-title" id="update-title">
             UPDATE AVAILABLE
         </div>
 
@@ -3902,6 +4335,9 @@ const updateOverlay =
 const updateVersion =
     document.getElementById("update-version");
 
+const updateTitle =
+    document.getElementById("update-title");
+
 const updateNotes =
     document.getElementById("update-notes");
 
@@ -3921,6 +4357,9 @@ let updateAvailable = false;
 
 function openUpdateModal(data) {
     updateAvailable = true;
+
+    updateTitle.textContent =
+        "UPDATE AVAILABLE";
 
     updateVersion.textContent =
         `Version ${data.currentVersion} → ${data.newVersion}`;
@@ -3997,6 +4436,9 @@ ipcRenderer.on("update-downloaded", () => {
 
 ipcRenderer.on("post-update", (event, data) => {
     updateAvailable = false;
+
+    updateTitle.textContent =
+        "UPDATE COMPLETE";
 
     updateVersion.textContent =
         `Updated to version ${data.version}`;
@@ -4088,6 +4530,7 @@ const DEFAULT_DATA = {
     addNum: 1,
     upgrGoal: 10,
     rebirth: 0,
+    prestige: 0,
     treeName: "hypergamous trees",
     current_axe_index: 0,
     axe_skins: {},
@@ -4312,6 +4755,11 @@ const AXE_SKINS = [
     { name: "Transcendent Breaker", rarity: "Godly", color: "#075985", accent: "#cffafe", handle: "#3b0764", edge: "#ecfeff", glow: "rgba(7,89,133,.50)", pattern: "flame" },
     { name: "Omega Axe", rarity: "Godly", color: "#7c2d12", accent: "#fed7aa", handle: "#431407", edge: "#fff7ed", glow: "rgba(124,45,18,.50)", pattern: "void" },
     { name: "Godforge Crescent", rarity: "Godly", color: "#374151", accent: "#e5e7eb", handle: "#083344", edge: "#f8fafc", glow: "rgba(55,65,81,.50)", pattern: "neon" },
+    { name: "Aurora Borealis", rarity: "Epic", color: "#087f8c", accent: "#a7f3d0", handle: "#14383b", edge: "#e0fff7", glow: "rgba(45,212,191,.62)", pattern: "cosmic" },
+    { name: "Cinderfall", rarity: "Legendary", color: "#a52b17", accent: "#ffc857", handle: "#351812", edge: "#fff0bd", glow: "rgba(249,115,22,.72)", pattern: "flame" },
+    { name: "Gravemoss", rarity: "Mythic", color: "#344a39", accent: "#bef264", handle: "#17231a", edge: "#ecfccb", glow: "rgba(132,204,22,.78)", pattern: "void" },
+    { name: "Star-Eater", rarity: "Ancient", color: "#172b52", accent: "#67e8f9", handle: "#101827", edge: "#cffafe", glow: "rgba(34,211,238,.88)", pattern: "cosmic" },
+    { name: "Worldroot Crown", rarity: "Godly", color: "#7b1e4b", accent: "#f9a8d4", handle: "#27131e", edge: "#fff1f7", glow: "rgba(244,63,94,.98)", pattern: "godly" },
 ];
 
 
@@ -4400,9 +4848,50 @@ const AXE_UPGRADES = [
     { name: "Universal Destroyer", cost: 10000000000000000000000000, base_add: 25000000000000000000000 },
     { name: "Infinite Woodcutter", cost: 50000000000000000000000000, base_add: 100000000000000000000000 },
     { name: "God of Axes", cost: 250000000000000000000000000, base_add: 500000000000000000000000 },
-    { name: "THE FINAL AXE", cost: 1000000000000000000000000000, base_add: 10000000000000000000000000 }
+    { name: "THE FINAL AXE", cost: 1000000000000000000000000000, base_add: 10000000000000000000000000 },
+    { name: "Worldroot Maul", cost: 5000000000000000000000000000, base_add: 50000000000000000000000000 },
+    { name: "Eclipse Edge", cost: 25000000000000000000000000000, base_add: 250000000000000000000000000 },
+    { name: "Starforged Hatchet", cost: 125000000000000000000000000000, base_add: 1250000000000000000000000000 },
+    { name: "Primal Riftcleaver", cost: 625000000000000000000000000000, base_add: 6250000000000000000000000000 },
+    { name: "Astral Heartwood Axe", cost: 3125000000000000000000000000000, base_add: 31250000000000000000000000000 },
+    { name: "Eventide Timberfall", cost: 15625000000000000000000000000000, base_add: 156250000000000000000000000000 },
+    { name: "Worldbreaker Arborist", cost: 78125000000000000000000000000000, base_add: 781250000000000000000000000000 },
+    { name: "Primeval Singularity", cost: 390625000000000000000000000000000, base_add: 3906250000000000000000000000000 },
+    { name: "The Last Timber", cost: 1953125000000000000000000000000000, base_add: 19531250000000000000000000000000 },
+    { name: "Hypergamous Worldroot", cost: 9765625000000000000000000000000000, base_add: 97656250000000000000000000000000 }
 
 ];
+
+const BASE_AXE_UPGRADE_COUNT = AXE_UPGRADES.length;
+const PRESTIGE_LIMIT = 5;
+const PRESTIGE_AXE_UPGRADES = [
+    { name: "Rootbound Axe", cost: 1e35, base_add: 1e33 },
+    { name: "Verdant Singularity", cost: 1e36, base_add: 1e34 },
+    { name: "Worldroot Breaker", cost: 1e37, base_add: 1e35 },
+    { name: "Elder Canopy Cleaver", cost: 1e38, base_add: 1e36 },
+    { name: "Heartwood Genesis", cost: 1e39, base_add: 1e37 },
+    { name: "Solarbark Axe", cost: 1e40, base_add: 1e38 },
+    { name: "Crownfire Chopper", cost: 1e41, base_add: 1e39 },
+    { name: "Astral Timberfall", cost: 1e42, base_add: 1e40 },
+    { name: "Riftwood Reaver", cost: 1e43, base_add: 1e41 },
+    { name: "Everstar Hatchet", cost: 1e44, base_add: 1e42 },
+    { name: "Nightroot Cleaver", cost: 1e45, base_add: 1e43 },
+    { name: "Eclipse Arborist", cost: 1e46, base_add: 1e44 },
+    { name: "Voidbloom Axe", cost: 1e47, base_add: 1e45 },
+    { name: "Darkstar Timbermaul", cost: 1e48, base_add: 1e46 },
+    { name: "Oblivion Heartwood", cost: 1e49, base_add: 1e47 },
+    { name: "Dawnbreaker Axe", cost: 1e50, base_add: 1e48 },
+    { name: "Worldsong Cleaver", cost: 1e51, base_add: 1e49 },
+    { name: "Celestial Rootcutter", cost: 1e52, base_add: 1e50 },
+    { name: "Infinite Bough", cost: 1e53, base_add: 1e51 },
+    { name: "Origin Treebane", cost: 1e54, base_add: 1e52 },
+    { name: "Paragon Worldroot", cost: 1e55, base_add: 1e53 },
+    { name: "Eonfire Axe", cost: 1e56, base_add: 1e54 },
+    { name: "The Unmaking Edge", cost: 1e57, base_add: 1e55 },
+    { name: "Worldseed Reaper", cost: 1e58, base_add: 1e56 },
+    { name: "Hypergamous Origin", cost: 1e59, base_add: 1e57 }
+];
+AXE_UPGRADES.push(...PRESTIGE_AXE_UPGRADES);
 
 const REBIRTH_DATA = {
 
@@ -4488,11 +4977,53 @@ const REBIRTH_DATA = {
         name: "Infinite Hyper Trees",
         cost: 1000000000000000000000000,
         shards: 200000
+    },
+
+    13: {
+        penalty: 60.00,
+        name: "The Rootbound Expanse",
+        cost: 10000000000000000000000000000,
+        shards: 500000
+    },
+
+    14: {
+        penalty: 90.00,
+        name: "The Starfall Canopy",
+        cost: 10000000000000000000000000000000,
+        shards: 1250000
+    },
+
+    15: {
+        penalty: 140.00,
+        name: "The First Forest",
+        cost: 10000000000000000000000000000000000,
+        shards: 3000000
+    },
+
+    16: {
+        penalty: 220.00,
+        name: "The Hypergamous Worldtree",
+        cost: 10000000000000000000000000000000000000,
+        shards: 7500000
     }
 
 };
 
+const ACHIEVEMENT_DEFS = [
+    { id: "first-chop", name: "First Ring", description: "Make your first manual chop.", goal: 1, progress: () => game.total_clicks, reward: { logs: 100 } },
+    { id: "steady-hands", name: "Steady Hands", description: "Land 1,000 manual chops.", goal: 1000, progress: () => game.total_clicks, reward: { logs: 25000 } },
+    { id: "timber-millionaire", name: "Timber Millionaire", description: "Chop a total of one million logs.", goal: 1000000, progress: () => game.total_chopped, reward: { shards: 25 } },
+    { id: "working-forest", name: "Working Forest", description: "Own ten machines across your workshops.", goal: 10, progress: () => game.auto_clickers + game.sawmills + game.steam_engines, reward: { logs: 100000 } },
+    { id: "first-flock", name: "A Small Flock", description: "Raise ten chickens of any kind.", goal: 10, progress: () => totalChickens(), reward: { logs: 5000 } },
+    { id: "skin-curator", name: "Skin Curator", description: "Collect ten different axe skins.", goal: 10, progress: () => new Set(game.axe_inventory.map(item => item.skinName)).size, reward: { shards: 50 } },
+    { id: "axe-vault", name: "Axe Vault", description: "Keep fifty axes in your locker at once.", goal: 50, progress: () => game.axe_inventory.length, reward: { logs: 500000 } },
+    { id: "world-walker", name: "World Walker", description: "Reach rebirth tier eight.", goal: 8, progress: () => game.rebirth, reward: { shards: 250 } },
+    { id: "beyond-the-boughs", name: "Beyond the Boughs", description: "Reach rebirth tier twelve.", goal: 12, progress: () => game.rebirth, reward: { shards: 1000 } },
+    { id: "worldtree-keeper", name: "Worldtree Keeper", description: "Reach the final atlas frontier.", goal: 16, progress: () => game.rebirth, reward: { shards: 5000 } }
+];
+
 let game = loadGame();
+game.prestige = Math.max(0, Math.min(PRESTIGE_LIMIT, Math.floor(Number(game.prestige) || 0)));
 game.axe_skins = game.axe_skins || {};
 game.axe_inventory = Array.isArray(game.axe_inventory) ? game.axe_inventory : [];
 game.next_axe_item_id = Number.isFinite(game.next_axe_item_id) ? game.next_axe_item_id : 1;
@@ -4601,6 +5132,7 @@ let lastDarkwebResult = "Ready to open.";
 let gameTick = 0;
 let caseOpening = false;
 let caseAnimationFrame = null;
+let caseRevealTimer = null;
 let uiAccumulator = 0;
 let axeLockerDirty = true;
 let coopVisualDirty = true;
@@ -4705,6 +5237,23 @@ function formatNumber(value) {
     }
 
     const units = [
+        ["Vg", 1e63],
+        ["Nod", 1e60],
+        ["Ocd", 1e57],
+        ["Spd", 1e54],
+        ["Sxd", 1e51],
+        ["Qid", 1e48],
+        ["Qad", 1e45],
+        ["Td", 1e42],
+        ["Dd", 1e39],
+        ["Ud", 1e36],
+        ["Dc", 1e33],
+        ["No", 1e30],
+        ["Oc", 1e27],
+        ["Sp", 1e24],
+        ["Sx", 1e21],
+        ["Qi", 1e18],
+        ["Qa", 1e15],
         ["T", 1e12],
         ["B", 1e9],
         ["M", 1e6],
@@ -4738,7 +5287,11 @@ function getRebirthPenalty() {
     const upgradeBonus =
         1 + game.rebirth_upgrades.mult * 0.2;
 
-    return base * upgradeBonus;
+    return base * upgradeBonus * getPrestigeMultiplier();
+}
+
+function getPrestigeMultiplier() {
+    return 1 + game.prestige * 0.35;
 }
 
 function getPassiveRate() {
@@ -4783,9 +5336,23 @@ function getPassiveRate() {
     );
 }
 
+function getAvailableAxeCount() {
+    return Math.min(
+        AXE_UPGRADES.length,
+        BASE_AXE_UPGRADE_COUNT + game.prestige * 5
+    );
+}
+
+function canPrestige() {
+    const maxRebirth = Math.max(...Object.keys(REBIRTH_DATA).map(Number));
+    return game.prestige < PRESTIGE_LIMIT &&
+        game.rebirth >= maxRebirth &&
+        game.current_axe_index >= getAvailableAxeCount();
+}
+
 function getNextCost() {
 
-    if (game.current_axe_index < AXE_UPGRADES.length) {
+    if (game.current_axe_index < getAvailableAxeCount()) {
         return AXE_UPGRADES[game.current_axe_index].cost;
     }
 
@@ -4921,7 +5488,11 @@ function updateProgress() {
     if (!nextCost) {
 
         $("goal-text").textContent =
-            "✨ MAX LEVEL REACHED";
+            canPrestige()
+                ? `🌳 PRESTIGE ${game.prestige + 1} READY`
+                : game.prestige >= PRESTIGE_LIMIT
+                    ? "🌳 ALL PRESTIGES COMPLETE"
+                    : "✨ MAX LEVEL REACHED";
 
         $("goal-percent").textContent =
             "100%";
@@ -5008,15 +5579,16 @@ function updateAxeInventoryUI() {
                 </div>
             </div>`;
 
-        // The 3D model is centered in a dedicated viewport so every skin remains visible.
         const preview = card.querySelector(".skin-item-preview");
-        preview.appendChild(createWebGLAxeCanvas(item.skinName, item.condition, { compact: true, autoRotate: true }));
+        preview.appendChild(createCaseAxeVisual(item.skinName, item.condition));
         locker.appendChild(card);
     }
 }
 function updateEquipment() {
 
-    if (game.current_axe_index < AXE_UPGRADES.length) {
+    const availableAxes = getAvailableAxeCount();
+
+    if (game.current_axe_index < availableAxes) {
 
         const axe =
             AXE_UPGRADES[game.current_axe_index];
@@ -5025,7 +5597,9 @@ function updateEquipment() {
             axe.name;
 
         $("axe-level").textContent =
-            `LV. ${game.current_axe_index + 1}`;
+            game.current_axe_index >= BASE_AXE_UPGRADE_COUNT
+                ? `P${game.prestige} • LV. ${game.current_axe_index + 1}`
+                : `LV. ${game.current_axe_index + 1}`;
 
         const skin = getEquippedAxeSkin();
         $("axe-info").textContent =
@@ -5040,7 +5614,7 @@ function updateEquipment() {
     } else {
 
         $("axe-name").textContent =
-            "Singularity Breaker";
+            AXE_UPGRADES[Math.max(0, availableAxes - 1)].name;
 
         $("axe-level").textContent =
             "MAX";
@@ -5119,7 +5693,7 @@ function updateRebirth() {
     } else {
 
         $("rebirth-name").textContent =
-            "Cosmic Transcendence";
+            REBIRTH_DATA[max].name;
 
         $("rebirth-info").textContent =
             "All expansion gates unlocked.";
@@ -5129,6 +5703,120 @@ function updateRebirth() {
 
         $("rebirth-btn").disabled = true;
     }
+
+    const availableAxes = getAvailableAxeCount();
+    const axesRemaining = Math.max(0, availableAxes - game.current_axe_index);
+    const prestigeReady = canPrestige();
+    $("prestige-name").textContent =
+        `Prestige ${game.prestige} / ${PRESTIGE_LIMIT}`;
+    $("prestige-bonus").textContent =
+        `Permanent forest power: x${getPrestigeMultiplier().toFixed(2)} • Next prestige unlocks 5 axes`;
+
+    if (game.prestige >= PRESTIGE_LIMIT) {
+        $("prestige-info").textContent = "All five prestige forests conquered. Your collection and permanent power remain yours.";
+        $("prestige-btn").textContent = "ALL PRESTIGES COMPLETE";
+        $("prestige-btn").disabled = true;
+    } else if (prestigeReady) {
+        $("prestige-info").textContent = `Final rebirth reached and all ${availableAxes} unlocked axes owned. Prestige to unlock the next five.`;
+        $("prestige-btn").textContent = `PRESTIGE ${game.prestige + 1}`;
+        $("prestige-btn").disabled = false;
+    } else if (game.rebirth < max) {
+        $("prestige-info").textContent = `Reach rebirth ${max}, then buy the remaining ${axesRemaining} unlocked axes.`;
+        $("prestige-btn").textContent = "PRESTIGE LOCKED";
+        $("prestige-btn").disabled = true;
+    } else {
+        $("prestige-info").textContent = `Buy the remaining ${axesRemaining} unlocked axes to unlock prestige.`;
+        $("prestige-btn").textContent = "PRESTIGE LOCKED";
+        $("prestige-btn").disabled = true;
+    }
+}
+
+function renderForestAtlas() {
+    const summary = $("atlas-summary");
+    const grid = $("atlas-grid");
+    const max = Math.max(...Object.keys(REBIRTH_DATA).map(Number));
+    const currentName = game.rebirth === 0
+        ? "Hypergamous Trees"
+        : REBIRTH_DATA[game.rebirth]?.name || "Uncharted Forest";
+    const nextName = REBIRTH_DATA[game.rebirth + 1]?.name || "Every frontier reached";
+
+    summary.replaceChildren();
+    const current = document.createElement("span");
+    current.innerHTML = `CURRENT FRONTIER <strong>${currentName}</strong>`;
+    const next = document.createElement("span");
+    next.innerHTML = `NEXT FRONTIER <strong>${nextName}</strong>`;
+    summary.append(current, next);
+
+    const fragment = document.createDocumentFragment();
+    const base = document.createElement("article");
+    base.className = `atlas-entry reached${game.rebirth === 0 ? " current" : ""}`;
+    base.innerHTML = `<div class="atlas-entry-head"><div class="atlas-entry-name">Hypergamous Trees</div><div class="atlas-entry-tier">Starting forest</div></div><div class="atlas-entry-state">${game.rebirth === 0 ? "Your current frontier" : "Reached"}</div>`;
+    fragment.appendChild(base);
+
+    for (const [tierText, region] of Object.entries(REBIRTH_DATA)) {
+        const tier = Number(tierText);
+        const reached = game.rebirth >= tier;
+        const entry = document.createElement("article");
+        entry.className = `atlas-entry${reached ? " reached" : " locked"}${game.rebirth === tier ? " current" : ""}`;
+        const state = game.rebirth === tier ? "Your current frontier" : reached ? "Frontier reached" : `Unlock at rebirth ${tier}`;
+        entry.innerHTML = `<div class="atlas-entry-head"><div class="atlas-entry-name">${region.name}</div><div class="atlas-entry-tier">Tier ${tier} / ${max}</div></div><div class="atlas-entry-state">${state}</div>`;
+        fragment.appendChild(entry);
+    }
+
+    grid.replaceChildren(fragment);
+}
+
+function renderAchievements() {
+    const grid = $("achievement-grid");
+    const claimed = new Set(Array.isArray(game.achievements) ? game.achievements : []);
+    let claimedCount = 0;
+    let readyCount = 0;
+    const fragment = document.createDocumentFragment();
+
+    for (const achievement of ACHIEVEMENT_DEFS) {
+        const value = Math.max(0, Number(achievement.progress()) || 0);
+        const progress = Math.min(achievement.goal, value);
+        const isClaimed = claimed.has(achievement.id);
+        const isReady = progress >= achievement.goal && !isClaimed;
+        if (isClaimed) claimedCount++;
+        if (isReady) readyCount++;
+
+        const reward = achievement.reward.logs
+            ? `${formatNumber(achievement.reward.logs)} Logs`
+            : `${formatNumber(achievement.reward.shards)} Shards`;
+        const entry = document.createElement("article");
+        entry.className = `achievement-entry${isClaimed ? " claimed" : ""}`;
+        entry.innerHTML = `
+            <div class="achievement-entry-head">
+                <div class="achievement-entry-name">${achievement.name}</div>
+                <div class="achievement-entry-status">${isClaimed ? "Claimed" : isReady ? "Ready" : `${formatNumber(progress)} / ${formatNumber(achievement.goal)}`}</div>
+            </div>
+            <div class="achievement-entry-desc">${achievement.description}</div>
+            <div class="achievement-progress"><span style="width:${(progress / achievement.goal) * 100}%"></span></div>
+            <div class="achievement-entry-footer">
+                <span>Reward: ${reward}</span>
+                <button class="buy-btn" type="button" data-claim-achievement="${achievement.id}" ${isReady ? "" : "disabled"}>${isClaimed ? "CLAIMED" : "CLAIM"}</button>
+            </div>`;
+        fragment.appendChild(entry);
+    }
+
+    grid.replaceChildren(fragment);
+    $("achievement-summary").innerHTML = `<span><strong>${claimedCount}</strong> / ${ACHIEVEMENT_DEFS.length} milestones claimed</span><span><strong>${readyCount}</strong> rewards ready</span>`;
+}
+
+function claimAchievement(id) {
+    const achievement = ACHIEVEMENT_DEFS.find(entry => entry.id === id);
+    if (!achievement) return;
+    if (!Array.isArray(game.achievements)) game.achievements = [];
+    if (game.achievements.includes(id) || achievement.progress() < achievement.goal) return;
+
+    game.achievements.push(id);
+    game.numOC += achievement.reward.logs || 0;
+    game.rebirth_shards += achievement.reward.shards || 0;
+    saveGame();
+    updateUI();
+    renderAchievements();
+    toast(`${achievement.name} claimed!`);
 }
 
 function createChickenModel(kind = "normal", compact = false) {
@@ -5258,7 +5946,13 @@ function updateMarket() {
     $("crate-btn").disabled =
         game.numOC < 250;
 
+    $("crate-quick-btn").disabled =
+        game.numOC < 250;
+
     $("darkweb-btn").disabled =
+        game.numOC < 1500;
+
+    $("darkweb-quick-btn").disabled =
         game.numOC < 1500;
 }
 
@@ -5424,7 +6118,7 @@ function createFloatText(text, parent) {
 
 function buyUpgrade() {
 
-    if (game.current_axe_index >= AXE_UPGRADES.length) {
+    if (game.current_axe_index >= getAvailableAxeCount()) {
         return;
     }
 
@@ -5442,7 +6136,7 @@ function buyUpgrade() {
     game.addNum =
         axe.base_add * getRebirthPenalty();
 
-    if (game.current_axe_index < AXE_UPGRADES.length) {
+    if (game.current_axe_index < getAvailableAxeCount()) {
         game.upgrGoal =
             AXE_UPGRADES[game.current_axe_index].cost;
     } else {
@@ -5553,6 +6247,30 @@ function doRebirth() {
         `💎 REBIRTH ${game.rebirth}! +${data.shards} Shards`
     );
 
+    updateUI();
+}
+
+function doPrestige() {
+    if (!canPrestige()) return;
+
+    game.prestige++;
+    game.rebirth = 0;
+    game.rebirth_shards = 0;
+    game.rebirth_upgrades = { mult: 0, speed: 0, start_logs: 0 };
+    game.numOC = 1000 * game.prestige;
+    game.current_axe_index = 0;
+    game.auto_clickers = 0;
+    game.auto_clicker_cost = 25;
+    game.sawmills = 0;
+    game.sawmill_cost = 250;
+    game.steam_engines = 0;
+    game.steam_cost = 2500;
+    game.treeName = "hypergamous trees";
+    game.addNum = getRebirthPenalty();
+    game.upgrGoal = AXE_UPGRADES[0].cost;
+
+    saveGame();
+    toast(`🌳 PRESTIGE ${game.prestige}! Five new axes unlocked.`);
     updateUI();
 }
 
@@ -5910,37 +6628,112 @@ function pickCaseItem(items, rarities) {
     return pool[Math.floor(Math.random() * pool.length)];
 }
 
-function weightedNormalItem() {
-    // Axe Skin Case: skins only. Commons are common, but better skins are attainable.
+const CASE_RARITY_CHANCES = {
+    normal: [
+        { rarity: "Common", chance: 35 },
+        { rarity: "Uncommon", chance: 23.5 },
+        { rarity: "Rare", chance: 18 },
+        { rarity: "Epic", chance: 10.5 },
+        { rarity: "Legendary", chance: 6.5 },
+        { rarity: "Mythic", chance: 3.2 },
+        { rarity: "Exotic", chance: 1.9 },
+        { rarity: "Ancient", chance: 0.9 },
+        { rarity: "Celestial", chance: 0.35 },
+        { rarity: "Divine", chance: 0.1 },
+        { rarity: "Godly", chance: 0.05 }
+    ],
+    mutant: [
+        { rarity: "Common", chance: 35 },
+        { rarity: "Uncommon", chance: 22 },
+        { rarity: "Rare", chance: 16 },
+        { rarity: "Epic", chance: 10.5 },
+        { rarity: "Legendary", chance: 7.5 },
+        { rarity: "Mythic", chance: 4.5 },
+        { rarity: "Exotic", chance: 2.7 },
+        { rarity: "Ancient", chance: 1.1 },
+        { rarity: "Celestial", chance: 0.5 },
+        { rarity: "Divine", chance: 0.15 },
+        { rarity: "Godly", chance: 0.05 }
+    ]
+};
+
+function weightedCaseItem(items, chances) {
     const roll = Math.random() * 100;
-    if (roll < 35.0) return pickCaseItem(NORMAL_CASE_ITEMS, ["Common"]);
-    if (roll < 58.5) return pickCaseItem(NORMAL_CASE_ITEMS, ["Uncommon"]);
-    if (roll < 76.5) return pickCaseItem(NORMAL_CASE_ITEMS, ["Rare"]);
-    if (roll < 87.0) return pickCaseItem(NORMAL_CASE_ITEMS, ["Epic"]);
-    if (roll < 93.5) return pickCaseItem(NORMAL_CASE_ITEMS, ["Legendary"]);
-    if (roll < 96.7) return pickCaseItem(NORMAL_CASE_ITEMS, ["Mythic"]);
-    if (roll < 98.6) return pickCaseItem(NORMAL_CASE_ITEMS, ["Exotic"]);
-    if (roll < 99.5) return pickCaseItem(NORMAL_CASE_ITEMS, ["Ancient"]);
-    if (roll < 99.85) return pickCaseItem(NORMAL_CASE_ITEMS, ["Celestial"]);
-    if (roll < 99.95) return pickCaseItem(NORMAL_CASE_ITEMS, ["Divine"]);
-    return pickCaseItem(NORMAL_CASE_ITEMS, ["Godly"]);
+    let threshold = 0;
+
+    for (const entry of chances) {
+        threshold += entry.chance;
+        if (roll < threshold) return pickCaseItem(items, [entry.rarity]);
+    }
+
+    return pickCaseItem(items, [chances[chances.length - 1].rarity]);
+}
+
+function weightedNormalItem() {
+    return weightedCaseItem(NORMAL_CASE_ITEMS, CASE_RARITY_CHANCES.normal);
 }
 
 function weightedMutantItem() {
-    // Chicken-only mega case with a full progression of breeds and mutations.
-    const roll = Math.random() * 100;
+    return weightedCaseItem(MUTANT_CASE_ITEMS, CASE_RARITY_CHANCES.mutant);
+}
 
-    if (roll < 35.0) return pickCaseItem(MUTANT_CASE_ITEMS, ["Common"]);
-    if (roll < 57.0) return pickCaseItem(MUTANT_CASE_ITEMS, ["Uncommon"]);
-    if (roll < 73.0) return pickCaseItem(MUTANT_CASE_ITEMS, ["Rare"]);
-    if (roll < 83.5) return pickCaseItem(MUTANT_CASE_ITEMS, ["Epic"]);
-    if (roll < 91.0) return pickCaseItem(MUTANT_CASE_ITEMS, ["Legendary"]);
-    if (roll < 95.5) return pickCaseItem(MUTANT_CASE_ITEMS, ["Mythic"]);
-    if (roll < 98.2) return pickCaseItem(MUTANT_CASE_ITEMS, ["Exotic"]);
-    if (roll < 99.3) return pickCaseItem(MUTANT_CASE_ITEMS, ["Ancient"]);
-    if (roll < 99.8) return pickCaseItem(MUTANT_CASE_ITEMS, ["Celestial"]);
-    if (roll < 99.95) return pickCaseItem(MUTANT_CASE_ITEMS, ["Divine"]);
-    return pickCaseItem(MUTANT_CASE_ITEMS, ["Godly"]);
+function renderCaseDropTable(type) {
+    const isMutant = type === "mutant";
+    const prefix = isMutant ? "mutant" : "normal";
+    const items = isMutant ? MUTANT_CASE_ITEMS : NORMAL_CASE_ITEMS;
+    const dropList = $(`${prefix}-case-drops`);
+
+    $(`${prefix}-case-count`).textContent = items.length;
+
+    const dropsHeading = document.createElement("div");
+    dropsHeading.className = "case-table-heading";
+    dropsHeading.textContent = `All possible drops (${items.length})`;
+    dropList.replaceChildren(dropsHeading);
+
+    const sortedItems = [...items].sort((left, right) =>
+        RARITY_ORDER.indexOf(right.rarity) - RARITY_ORDER.indexOf(left.rarity)
+        || left.name.localeCompare(right.name)
+    );
+
+    for (const item of sortedItems) {
+        const row = document.createElement("div");
+        row.className = "case-drop-entry";
+        row.dataset.searchText = item.name.toLowerCase();
+        row.style.setProperty("--rarity-color", RARITY_COLORS[item.rarity] || "#aeb8c7");
+        row.title = `${item.name} · ${item.rarity}`;
+
+        const dot = document.createElement("span");
+        dot.className = "rarity-dot";
+        const name = document.createElement("span");
+        name.textContent = item.name;
+        row.append(dot, name);
+        dropList.appendChild(row);
+    }
+}
+
+function renderCaseDropTables() {
+    renderCaseDropTable("normal");
+    renderCaseDropTable("mutant");
+}
+
+function filterCaseDropTable(type, query) {
+    const prefix = type === "mutant" ? "mutant" : "normal";
+    const normalizedQuery = query.trim().toLowerCase();
+    const entries = $(`${prefix}-case-drops`).querySelectorAll(".case-drop-entry");
+
+    for (const entry of entries) {
+        entry.hidden = normalizedQuery.length > 0 && !entry.dataset.searchText.includes(normalizedQuery);
+    }
+}
+
+function toggleCaseDropTable(type) {
+    const isMutant = type === "mutant";
+    const prefix = isMutant ? "mutant" : "normal";
+    const panel = $(`${prefix}-drop-table`);
+    const button = $(`${prefix}-drop-toggle`);
+    panel.hidden = !panel.hidden;
+    button.setAttribute("aria-expanded", String(!panel.hidden));
+    button.textContent = panel.hidden ? "+ VIEW FULL COLLECTION" : "- HIDE COLLECTION";
 }
 
 function randomVisualItem(pool) {
@@ -6041,9 +6834,11 @@ const CASE_AXE_SNAPSHOT_PENDING = new Map();
 let CASE_AXE_SNAPSHOT_QUEUE = [];
 let CASE_AXE_SNAPSHOT_QUEUE_RUNNING = false;
 let CASE_AXE_SNAPSHOT_RENDERER = null;
+let CASE_AXE_SNAPSHOT_UNAVAILABLE = false;
 
 function getCaseAxeSnapshotRenderer() {
     if (CASE_AXE_SNAPSHOT_RENDERER) return CASE_AXE_SNAPSHOT_RENDERER;
+    if (CASE_AXE_SNAPSHOT_UNAVAILABLE) return null;
 
     const canvas = document.createElement("canvas");
     canvas.width = 320;
@@ -6071,6 +6866,7 @@ function getCaseAxeSnapshotRenderer() {
     }
 
     if (!gl) {
+        CASE_AXE_SNAPSHOT_UNAVAILABLE = true;
         canvas.remove();
         return null;
     }
@@ -6080,6 +6876,7 @@ function getCaseAxeSnapshotRenderer() {
         program = createProgram(gl, VS, FS);
     } catch (err) {
         console.warn("Case snapshot shader setup failed:", err);
+        CASE_AXE_SNAPSHOT_UNAVAILABLE = true;
         canvas.remove();
         return null;
     }
@@ -6198,20 +6995,21 @@ function renderCaseAxeSnapshot(skinName, conditionName) {
     }
 }
 
-function queueCaseAxeSnapshot(img, skinName) {
-    const cached = CASE_AXE_SNAPSHOT_CACHE.get(`${skinName}\u0000Factory New`);
+function queueCaseAxeSnapshot(img, skinName, conditionName = "Factory New") {
+    const cacheKey = `${skinName}\u0000${conditionName}`;
+    const cached = CASE_AXE_SNAPSHOT_CACHE.get(cacheKey);
     if (cached) {
         img.src = cached;
         img.classList.add("case-axe-ready");
         return;
     }
 
-    const existing = CASE_AXE_SNAPSHOT_PENDING.get(skinName);
+    const existing = CASE_AXE_SNAPSHOT_PENDING.get(cacheKey);
     if (existing) {
         existing.push(img);
     } else {
-        CASE_AXE_SNAPSHOT_PENDING.set(skinName, [img]);
-        CASE_AXE_SNAPSHOT_QUEUE.push(skinName);
+        CASE_AXE_SNAPSHOT_PENDING.set(cacheKey, [img]);
+        CASE_AXE_SNAPSHOT_QUEUE.push({ skinName, conditionName, cacheKey });
     }
 
     if (!CASE_AXE_SNAPSHOT_QUEUE_RUNNING) {
@@ -6225,17 +7023,19 @@ function flushCaseAxeSnapshotQueue() {
     // the actual 3D previews are filled in behind it.
     let budget = 3;
     while (budget-- > 0 && CASE_AXE_SNAPSHOT_QUEUE.length) {
-        const skinName = CASE_AXE_SNAPSHOT_QUEUE.shift();
-        const images = CASE_AXE_SNAPSHOT_PENDING.get(skinName) || [];
-        const snapshot = renderCaseAxeSnapshot(skinName, "Factory New");
+        const job = CASE_AXE_SNAPSHOT_QUEUE.shift();
+        const images = CASE_AXE_SNAPSHOT_PENDING.get(job.cacheKey) || [];
+        const snapshot = renderCaseAxeSnapshot(job.skinName, job.conditionName)
+            || createAxeFallbackSnapshot(job.skinName, job.conditionName);
         if (snapshot) {
+            CASE_AXE_SNAPSHOT_CACHE.set(job.cacheKey, snapshot);
             for (const img of images) {
                 if (!img.isConnected) continue;
                 img.src = snapshot;
                 img.classList.add("case-axe-ready");
             }
         }
-        CASE_AXE_SNAPSHOT_PENDING.delete(skinName);
+        CASE_AXE_SNAPSHOT_PENDING.delete(job.cacheKey);
     }
 
     if (CASE_AXE_SNAPSHOT_QUEUE.length) {
@@ -6245,16 +7045,23 @@ function flushCaseAxeSnapshotQueue() {
     }
 }
 
-function createCaseAxeVisual(skinName) {
+function createAxeFallbackSnapshot(skinName, conditionName = "Factory New") {
+    const skin = getSkinDefinition(skinName);
+    const condition = getConditionDefinition(conditionName);
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 140"><defs><linearGradient id="h" x2="1" y2="1"><stop stop-color="${skin.accent || "#f8fafc"}"/><stop offset="1" stop-color="${skin.color || "#94a3b8"}"/></linearGradient><linearGradient id="g" x2="0" y2="1"><stop stop-color="#d6b58a"/><stop offset="1" stop-color="#704727"/></linearGradient></defs><ellipse cx="82" cy="121" rx="43" ry="8" fill="#000" opacity=".5"/><path d="M68 45h14v69H68z" rx="6" fill="url(#g)"/><path d="M70 53l-5 9m18 32-5 8" stroke="#f4ddbd" stroke-opacity=".5" stroke-width="3"/><path d="M70 47 47 40 34 52l9 16 22 4 8 13 9-3-5-24z" fill="url(#h)" stroke="#fff" stroke-opacity=".6" stroke-width="2"/><path d="m35 52 31 11" stroke="#fff" stroke-opacity=".7" stroke-width="2"/><circle cx="57" cy="54" r="4" fill="#fff" opacity=".72"/><text x="80" y="133" text-anchor="middle" fill="#fff" fill-opacity=".7" font-family="sans-serif" font-size="8" font-weight="700">${skin.rarity.toUpperCase()} AXE</text></svg>`;
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
+function createCaseAxeVisual(skinName, conditionName = "Factory New") {
     const img = document.createElement("img");
     img.className = "case-axe-svg";
-    img.alt = `${skinName} 3D preview`;
-    img.setAttribute("aria-label", `${skinName} actual 3D axe preview`);
+    img.alt = `${skinName} axe preview`;
+    img.setAttribute("aria-label", `${skinName} axe preview`);
 
     // Transparent until the shared renderer fills it. This prevents a broken
     // image icon while keeping the reel animation completely responsive.
     img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
-    queueCaseAxeSnapshot(img, skinName);
+    queueCaseAxeSnapshot(img, skinName, conditionName);
     return img;
 }
 
@@ -6338,6 +7145,37 @@ function triggerCaseRevealEffect(item) {
         burst.remove();
         overlay.classList.remove("case-big-win", rarityClass(item.rarity));
     }, 1150);
+
+    if (tier < RARITY_ORDER.indexOf("Ancient")) return;
+
+    const panel = $("case-reveal-panel");
+    const visual = $("case-reveal-visual");
+    clearTimeout(caseRevealTimer);
+    panel.className = `case-reveal-panel open ${rarityClass(item.rarity)}`;
+    panel.style.setProperty("--reveal-color", color);
+    panel.setAttribute("aria-hidden", "false");
+    $("case-reveal-kicker").textContent = ({
+        Ancient: "ANCIENT DISCOVERY",
+        Celestial: "CELESTIAL ARRIVAL",
+        Divine: "DIVINE RELIC AWAKENED",
+        Godly: "GODLY TIER UNLEASHED"
+    })[item.rarity] || "RARE DISCOVERY";
+    $("case-reveal-name").textContent = item.name;
+    $("case-reveal-rarity").textContent = item.rarity;
+    $("case-reveal-caption").textContent = item.kind === "skin"
+        ? "Axe skin added to your locker"
+        : "New flock member added to your coop";
+    visual.replaceChildren(item.kind === "skin"
+        ? createCaseAxeVisual(item.skinName, "Factory New")
+        : createChickenCaseVisual(item.chickenType || "normal"));
+
+    const revealDuration = item.rarity === "Godly" ? 5200 : item.rarity === "Ancient" ? 2800 : 3800;
+    caseRevealTimer = setTimeout(() => {
+        panel.classList.remove("open");
+        panel.setAttribute("aria-hidden", "true");
+        visual.replaceChildren();
+        caseRevealTimer = null;
+    }, revealDuration);
 }
 
 function handleCaseReward(winningItem, isMutant) {
@@ -6382,6 +7220,16 @@ function handleCaseReward(winningItem, isMutant) {
     updateUI();
 }
 
+function quickOpenCase(type) {
+    const isMutant = type === "mutant";
+    const cost = isMutant ? 1500 : 250;
+    if (game.numOC < cost || caseOpening) return;
+
+    game.numOC -= cost;
+    const winningItem = isMutant ? weightedMutantItem() : weightedNormalItem();
+    handleCaseReward(winningItem, isMutant);
+}
+
 function openCase(type) {
     const isMutant = type === "mutant";
     const cost = isMutant ? 1500 : 250;
@@ -6393,6 +7241,11 @@ function openCase(type) {
     }
 
     caseOpening = true;
+    $("case-close").disabled = true;
+    $("case-close").textContent = "OPENING...";
+    clearTimeout(caseRevealTimer);
+    $("case-reveal-panel").classList.remove("open");
+    $("case-reveal-panel").setAttribute("aria-hidden", "true");
     game.numOC -= cost;
 
     const overlay = $("case-overlay");
@@ -6427,6 +7280,8 @@ function openCase(type) {
         const track = overlay.querySelector(".case-track");
         if (!winning || !track) {
             caseOpening = false;
+            $("case-close").disabled = false;
+            $("case-close").textContent = "CLOSE";
             $("case-cost").textContent = "OPENING FAILED";
             return;
         }
@@ -6486,6 +7341,8 @@ function openCase(type) {
             winning.classList.add("case-winner-tile");
             caseAnimationFrame = null;
             caseOpening = false;
+            $("case-close").disabled = false;
+            $("case-close").textContent = "CLOSE";
 
             handleCaseReward(winningItem, isMutant);
             triggerCaseRevealEffect(winningItem);
@@ -6497,12 +7354,17 @@ function openCase(type) {
 }
 
 function closeCase() {
+    if (caseOpening) return;
+
     if (caseAnimationFrame) {
         cancelAnimationFrame(caseAnimationFrame);
         caseAnimationFrame = null;
     }
+    clearTimeout(caseRevealTimer);
     $("case-overlay").classList.remove("open");
-    caseOpening = false;
+    $("case-reveal-panel").classList.remove("open");
+    $("case-reveal-panel").setAttribute("aria-hidden", "true");
+    $("case-reveal-visual").replaceChildren();
     $("case-items").style.transform = "translate3d(0px,0,0)";
 }
 
@@ -6565,7 +7427,6 @@ function createChopSparks(parent) {
 
 let axeViewerItemId = null;
 let axeViewerCanvas = null;
-let axeViewerGL = null;
 
 function openAxeViewer(itemId = null) {
     const item = itemId ? getAxeItemById(itemId) : getEquippedAxeItem();
@@ -6574,6 +7435,7 @@ function openAxeViewer(itemId = null) {
     axeViewerItemId = item.id;
     const skin = getSkinDefinition(item.skinName);
     const stage = $("axe-3d-stage");
+    stage.style.setProperty("--preview-rarity", RARITY_COLORS[skin.rarity] || "#92bd4d");
     const oldCanvas = stage.querySelector("canvas.axe-webgl-canvas");
     if (oldCanvas) oldCanvas.remove();
 
@@ -6587,11 +7449,6 @@ function openAxeViewer(itemId = null) {
     axeViewerCanvas.style.width = "100%";
     axeViewerCanvas.style.height = "100%";
     stage.insertBefore(axeViewerCanvas, stage.querySelector(".axe-platform"));
-
-    if (axeViewerCanvas.__axe3d) {
-        axeViewerGL = axeViewerCanvas.__axe3d;
-        axeViewerGL.rotation.y = THREELESS?.rotation?.y || 0;
-    }
 
     $("axe-view-name").textContent = item.skinName;
     $("axe-view-subtitle").textContent = `${skin.rarity} • ${item.condition}`;
@@ -6687,9 +7544,25 @@ function addTorus(V,N,I,M,cx,cy,cz,major,minor,segments=24,tube=8,material=2){
     const P=(a,b)=>[cx+(major+minor*Math.cos(b))*Math.cos(a),cy+minor*Math.sin(b),cz+(major+minor*Math.cos(b))*Math.sin(a)];for(let i=0;i<segments;i++){const a0=i/segments*Math.PI*2,a1=(i+1)/segments*Math.PI*2;for(let j=0;j<tube;j++){const b0=j/tube*Math.PI*2,b1=(j+1)/tube*Math.PI*2;const p00=P(a0,b0),p10=P(a1,b0),p01=P(a0,b1),p11=P(a1,b1);pushTri(V,N,I,M,p00,p01,p10,material);pushTri(V,N,I,M,p10,p01,p11,material);}}
 }
 
+function addBladeHalo(V,N,I,M,cx,cy,cz,radius,thickness,material){
+    const first=V.length/3;
+    addTorus(V,N,I,M,cx,cy,cz,radius,thickness,40,8,material);
+    for(let index=first;index<V.length/3;index++){
+        const offset=index*3;
+        const y=V[offset+1]-cy;
+        const z=V[offset+2]-cz;
+        V[offset+1]=cy+z;
+        V[offset+2]=cz-y;
+        const normalY=N[offset+1];
+        const normalZ=N[offset+2];
+        N[offset+1]=normalZ;
+        N[offset+2]=-normalY;
+    }
+}
+
 /* Open-source reference: the particle motion below follows the same general concepts as NewKrok/three-particles (MIT): velocity, lifetime-like motion, force/wind-style drift and trails. */
 const VS=`attribute vec3 aPos;attribute vec3 aNormal;attribute float aPart;uniform mat4 uMVP;uniform mat4 uModel;varying vec3 vN;varying vec3 vP;varying float vPart;void main(){vN=mat3(uModel)*aNormal;vP=(uModel*vec4(aPos,1.0)).xyz;vPart=aPart;gl_Position=uMVP*vec4(aPos,1.0);}`;
-const FS=`precision mediump float;uniform vec3 uBase,uAccent,uHandle,uEdge,uRarity;uniform float uEmissive,uTime,uPulse,uWear,uChromaflux;varying vec3 vN,vP;varying float vPart;void main(){vec3 n=normalize(vN);vec3 l=normalize(vec3(-.55,.9,.72));vec3 v=normalize(-vP);float ndl=abs(dot(n,l));float diff=ndl*.62+.38;float spec=pow(max(abs(dot(reflect(-l,n),v)),0.0),48.0)*(0.18+0.08*uEmissive);vec3 c=vPart<.5?uHandle:(vPart<1.5?uBase:(vPart<2.5?uAccent:uEdge));float stripe=.5+.5*sin(vP.x*9.0+vP.y*2.7);if(vPart>0.5&&vPart<2.5)c=mix(c,uAccent,stripe*.10);if(uChromaflux>.5&&vPart>=1.0&&vPart<2.5){float band=.5+.5*sin(vP.y*6.2+vP.x*2.0);c=mix(uBase,uAccent,band*.55);}float scratch=step(.82,.5+.5*sin(vP.x*41.0+vP.y*27.0+vP.z*17.0))*uWear*.14;c*=1.0-scratch;float rim=pow(1.0-max(abs(dot(n,v)),0.0),2.2);c*=diff;c+=spec*vec3(1.0);c+=uRarity*(uEmissive*.55+rim*.05+sin(uTime*4.0+vP.y*8.0)*.012*uPulse);gl_FragColor=vec4(c,1.0);}`;
+const FS=`precision mediump float;uniform vec3 uBase,uAccent,uHandle,uEdge,uRarity;uniform float uEmissive,uTime,uPulse,uWear,uChromaflux;varying vec3 vN,vP;varying float vPart;void main(){vec3 n=normalize(vN);vec3 l=normalize(vec3(-.48,.82,.62));vec3 fill=normalize(vec3(.62,.18,-.74));vec3 v=normalize(-vP);float ndl=max(dot(n,l),0.0);float fillLight=max(dot(n,fill),0.0);float diff=.24+ndl*.72+fillLight*.18;float spec=pow(max(dot(reflect(-l,n),v),0.0),56.0)*(.32+.12*uEmissive);vec3 c=vPart<.5?uHandle:(vPart<1.5?uBase:(vPart<2.5?uAccent:uEdge));float stripe=.5+.5*sin(vP.x*9.0+vP.y*2.7);if(vPart>.5&&vPart<2.5)c=mix(c,uAccent,stripe*.12);if(uChromaflux>.5&&vPart>=1.0&&vPart<2.5){float band=.5+.5*sin(vP.y*6.2+vP.x*2.0);c=mix(uBase,uAccent,band*.62);}float scratch=step(.82,.5+.5*sin(vP.x*41.0+vP.y*27.0+vP.z*17.0))*uWear*.18;c*=1.0-scratch;float facing=max(dot(n,v),0.0);float rim=pow(1.0-facing,3.0);c*=diff;c+=spec*vec3(1.0,.96,.86);c+=uRarity*(uEmissive*.36+rim*(.08+uPulse*.12)+sin(uTime*3.0+vP.y*8.0)*.018*uPulse);gl_FragColor=vec4(c,1.0);}`;
 const PVS=`attribute vec3 aPos;attribute float aSeed;uniform mat4 uMVP;uniform float uSize,uTime,uSpread;varying float vLife;void main(){vec3 p=aPos;float s=aSeed;float t=uTime*(.7+fract(s*19.17)*2.3);p.x+=sin(t+s*6.4)*uSpread*(.35+fract(s*4.1));p.y+=cos(t*1.13+s*7.0)*uSpread*.62+sin(t*.43+s*2.0)*.08;p.z+=sin(t*.81+s*9.3)*uSpread*.8;float pulse=.78+.28*sin(t*2.1+s*5.0);gl_Position=uMVP*vec4(p,1.0);gl_PointSize=uSize*pulse;vLife=pulse;}`;
 const PFS=`precision mediump float;uniform vec3 uColor;uniform float uAlpha;varying float vLife;void main(){vec2 p=gl_PointCoord-.5;float a=smoothstep(.5,.02,length(p))*uAlpha*vLife;gl_FragColor=vec4(uColor,a);}`;
 function compileShader(gl,type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s));return s;}
@@ -6723,35 +7596,33 @@ function buildAxeGeometry(skinName){
         [[-.55,.12],[-.26,1.28],[.6,1.28],[1.92,.24],[1.32,-.18],[1.64,-.86],[.18,-.76]],
         [[-.46,.14],[-.2,1.16],[.45,1.26],[1.72,.68],[1.92,-.05],[1.2,-.95],[.02,-.68]]
     ];
-    const base=shapes[style].map(([x,y])=>[x*w,y*(1+(h%4)*.08)+.28]);
+    const base=shapes[style].map(([x,y])=>[.18 + x*w*.72,y*(1+(h%4)*.08)*.76+.12]);
     addPrismPolygon(V,N,I,M,base,z,1);
 
+    const inset = base.map(([x,y]) => [x * .82 + .12, y * .82 + .04]);
+    addPrismPolygon(V,N,I,M,inset,z + .025,2);
+    addPrismPolygon(V,N,I,M,[[.74,-.34],[.92,.64],[1.02,.72],[.9,-.3]],z+.055,3);
+
     // Distinct silhouettes/secondary heads by family.
-    if(style===1||style===7||style===10){
+    if(/\b(twin|double|dual|executioner)\b/i.test(skinName)){
         const p=base.map(([x,y])=>[-x*.92,y]); addPrismPolygon(V,N,I,M,p,z*.9,1);
     }
-    if(style===3||style===8){addPrismPolygon(V,N,I,M,[[1.15,.4],[1.78,.75],[2.15,.18],[1.8,-.08],[1.22,.05]],z*.8,1);}
-    if(style===4||style===12){addBox(V,N,I,M,1.25,.38,0,.22,.96,z+.15,2);}
-    if(style===5||style===9||style===14){addBox(V,N,I,M,.28,1.25,0,.18,.72,z+.12,3);addBox(V,N,I,M,1.2,-.32,0,.18,.76,z+.12,3);}
-    if(style===15){addBox(V,N,I,M,1.55,.35,0,.62,.18,z+.18,3);addBox(V,N,I,M,1.55,-.35,0,.62,.18,z+.18,3);}
-
-    addBox(V,N,I,M,.52,.25,0,.68,.2,z+.14,2);
-    addBox(V,N,I,M,.92,.62,0,.12,1.12,z+.12,3);
+    if(ri>=3)addBladeHalo(V,N,I,M,.82,.28,z*.7,.56,.027,3);
+    if(ri>=5)addBladeHalo(V,N,I,M,.82,.28,z*.72,.78,.024,2);
+    if(ri>=8)addBladeHalo(V,N,I,M,.82,.28,z*.74,.98,.022,3);
+    for(let grip=0;grip<5;grip++){
+        addTorus(V,N,I,M,0,-.95-grip*.32,0,hr*1.2,.025,18,6,2);
+    }
     addCylinder(V,N,I,M,.22,0,-.02,.2,.2,12,2);
-    addSphere(V,N,I,M,.34,1.02,z*.66,.12+ri*.005,15,9,3);
-    if(ri>=3){addSphere(V,N,I,M,.34,1.02,z*.78,.16+ri*.006,16,10,3);addTorus(V,N,I,M,.34,1.02,z*.78,.24+ri*.008,.028,24,7,3);}
-    if(ri>=5){addTorus(V,N,I,M,.34,1.02,-z*.78,.24+ri*.008,.028,24,7,3);addBox(V,N,I,M,-.03,.95,0,.12,.9,z+.14,2);}
-    if(ri>=7){addSphere(V,N,I,M,.78,.35,z*.8,.11,14,8,3);addTorus(V,N,I,M,.78,.35,z*.8,.19,.024,22,6,3);}
-    if(ri>=9){addBox(V,N,I,M,.55,.72,0,.3,.3,z+.2,3);addBox(V,N,I,M,1.45,.58,0,.58,.16,z+.16,3);}
     return {vertices:new Float32Array(V),normals:new Float32Array(N),parts:new Float32Array(M),indices:new Uint16Array(I),hash:h};
 }
 
 function createWebGLAxeCanvas(skinName,conditionName,opts={}){
     const canvas=document.createElement('canvas');canvas.className='axe-webgl-canvas';canvas.dataset.skin=skinName;canvas.dataset.condition=conditionName;
-    const state={canvas,skinName,conditionName,autoRotate:!!opts.autoRotate,viewer:!!opts.viewer,held:!!opts.held,rotation:{x:-.12,y:-.68},vel:{x:0,y:0},drag:false,lastX:0,lastY:0,compact:!!opts.compact,attack:0};
+    const state={canvas,skinName,conditionName,autoRotate:!!opts.autoRotate,viewer:!!opts.viewer,held:!!opts.held,rotation:{x:-.12,y:.32},vel:{x:0,y:0},drag:false,lastX:0,lastY:0,compact:!!opts.compact,attack:0};
     let gl=null;
     try {
-        gl=canvas.getContext('webgl',{antialias:true,alpha:false,depth:true,stencil:false,premultipliedAlpha:false,preserveDrawingBuffer:false});
+        gl=canvas.getContext('webgl',{antialias:true,alpha:true,depth:true,stencil:false,premultipliedAlpha:false,preserveDrawingBuffer:false});
     } catch (err) {
         console.warn('WebGL axe preview unavailable:', err);
     }
@@ -6760,16 +7631,13 @@ function createWebGLAxeCanvas(skinName,conditionName,opts={}){
         canvas.setAttribute('aria-label', `3D preview unavailable for ${skinName}`);
         return canvas;
     }
-    const program=createProgram(gl,VS,FS),particleProgram=createProgram(gl,PVS,PFS),geom=buildAxeGeometry(skinName);
+    const program=createProgram(gl,VS,FS),geom=buildAxeGeometry(skinName);
     const vb=gl.createBuffer(),nb=gl.createBuffer(),mb=gl.createBuffer(),ib=gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER,vb);gl.bufferData(gl.ARRAY_BUFFER,geom.vertices,gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER,nb);gl.bufferData(gl.ARRAY_BUFFER,geom.normals,gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER,mb);gl.bufferData(gl.ARRAY_BUFFER,geom.parts,gl.STATIC_DRAW);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ib);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,geom.indices,gl.STATIC_DRAW);
     const ri=Math.max(0,RARITY_ORDER.indexOf(getSkinDefinition(skinName).rarity));
-    const pCount=ri>=3?34+ri*4:0,pBase=[],pSeed=[];
-    for(let i=0;i<pCount;i++){const a=i/pCount*Math.PI*2,r=.45+(i%9)*.075;pBase.push(Math.cos(a)*r,.7+Math.sin(a*1.9)*.9,Math.sin(a)*(.5+(i%5)*.08));pSeed.push(((hashString(skinName)+i*131)%10000)/10000);}
-    const pb=gl.createBuffer(),sb=gl.createBuffer();if(pCount){gl.bindBuffer(gl.ARRAY_BUFFER,pb);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(pBase),gl.STATIC_DRAW);gl.bindBuffer(gl.ARRAY_BUFFER,sb);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(pSeed),gl.STATIC_DRAW);}
     const skin=getSkinDefinition(skinName),rarityColor=getRarityColor(skin.rarity);let bH=skin.color||'#888',aH=skin.accent||'#ccc',hH=skin.handle||'#333',eH=skin.edge||'#fff';if(String(skinName).toLowerCase().includes('chromaflux')){bH='#7c3aed';aH='#22d3ee';hH='#111827';eH='#f8fafc';}
     const base=webglColor(bH),accent=webglColor(aH),handle=webglColor(hH),edge=webglColor(eH),rar=webglColor(rarityColor),wear=getConditionDefinition(conditionName).wear,chrom=String(skinName).toLowerCase().includes('chromaflux')?1:0;
     let lastW=0,lastH=0;
@@ -6781,10 +7649,9 @@ function createWebGLAxeCanvas(skinName,conditionName,opts={}){
     function frame(now){
         if(!document.body.contains(canvas)){WEBGL_AXE_INSTANCES.delete(state);state.resizeObserver?.disconnect();return;}resize();const tm=now*.001;
         if(state.autoRotate&&!state.drag)state.rotation.y+=.0026+ri*.00025;state.rotation.x+=state.vel.x*.008;state.rotation.y+=state.vel.y*.008;state.vel.x*=.90;state.vel.y*=.90;if(state.attack>0)state.attack=Math.max(0,state.attack-1/60);
-        gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.CULL_FACE);gl.frontFace(gl.CCW);gl.clearColor(.008,.012,.02,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-        let view=mat4Identity();view=mat4Translate(view,0,Math.sin(tm*1.9)*.028*(state.held?1:.35),-7.0);view=mat4RotX(view,state.rotation.x);view=mat4RotY(view,state.rotation.y);const kick=state.attack>0?Math.sin((.42-state.attack)*38)*.11*(state.attack/.42):0;view=mat4RotZ(view,(state.held?Math.sin(tm*7.0)*.018:0)+kick);const sc=(state.compact?.72:1)*(state.held?1.06:1);view=mat4Scale(view,sc,sc,sc);const mvp=mat4Multiply(mat4Perspective(.66,canvas.width/canvas.height,.05,100),view);
-        gl.useProgram(program);const ap=gl.getAttribLocation(program,'aPos'),an=gl.getAttribLocation(program,'aNormal'),am=gl.getAttribLocation(program,'aPart');gl.bindBuffer(gl.ARRAY_BUFFER,vb);gl.enableVertexAttribArray(ap);gl.vertexAttribPointer(ap,3,gl.FLOAT,false,0,0);gl.bindBuffer(gl.ARRAY_BUFFER,nb);gl.enableVertexAttribArray(an);gl.vertexAttribPointer(an,3,gl.FLOAT,false,0,0);gl.bindBuffer(gl.ARRAY_BUFFER,mb);gl.enableVertexAttribArray(am);gl.vertexAttribPointer(am,1,gl.FLOAT,false,0,0);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ib);gl.uniformMatrix4fv(gl.getUniformLocation(program,'uMVP'),false,new Float32Array(mvp));gl.uniformMatrix4fv(gl.getUniformLocation(program,'uModel'),false,new Float32Array(view));gl.uniform3fv(gl.getUniformLocation(program,'uBase'),new Float32Array(base));gl.uniform3fv(gl.getUniformLocation(program,'uAccent'),new Float32Array(accent));gl.uniform3fv(gl.getUniformLocation(program,'uHandle'),new Float32Array(handle));gl.uniform3fv(gl.getUniformLocation(program,'uEdge'),new Float32Array(edge));gl.uniform3fv(gl.getUniformLocation(program,'uRarity'),new Float32Array(rar));gl.uniform1f(gl.getUniformLocation(program,'uEmissive'),.08+ri*.038);gl.uniform1f(gl.getUniformLocation(program,'uTime'),tm);gl.uniform1f(gl.getUniformLocation(program,'uPulse'),Math.min(1,ri/7));gl.uniform1f(gl.getUniformLocation(program,'uWear'),wear);gl.uniform1f(gl.getUniformLocation(program,'uChromaflux'),chrom);gl.drawElements(gl.TRIANGLES,geom.indices.length,gl.UNSIGNED_SHORT,0);
-        if(pCount){gl.useProgram(particleProgram);const pp=gl.getAttribLocation(particleProgram,'aPos'),ps=gl.getAttribLocation(particleProgram,'aSeed');gl.bindBuffer(gl.ARRAY_BUFFER,pb);gl.enableVertexAttribArray(pp);gl.vertexAttribPointer(pp,3,gl.FLOAT,false,0,0);gl.bindBuffer(gl.ARRAY_BUFFER,sb);gl.enableVertexAttribArray(ps);gl.vertexAttribPointer(ps,1,gl.FLOAT,false,0,0);gl.uniformMatrix4fv(gl.getUniformLocation(particleProgram,'uMVP'),false,new Float32Array(mvp));gl.uniform1f(gl.getUniformLocation(particleProgram,'uSize'),Math.min(4+ri*1.25,18)*(canvas.width/320));gl.uniform1f(gl.getUniformLocation(particleProgram,'uTime'),tm);gl.uniform1f(gl.getUniformLocation(particleProgram,'uSpread'),.17+.012*ri);gl.uniform3fv(gl.getUniformLocation(particleProgram,'uColor'),new Float32Array(rar));gl.uniform1f(gl.getUniformLocation(particleProgram,'uAlpha'),.16+.05*ri);gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE);gl.depthMask(false);gl.drawArrays(gl.POINTS,0,pCount);gl.depthMask(true);gl.disable(gl.BLEND);}
+        gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.CULL_FACE);gl.frontFace(gl.CCW);gl.clearColor(.008,.012,.02,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+        let view=mat4Identity();view=mat4Translate(view,0,(state.viewer?.4:0)+Math.sin(tm*1.9)*.028*(state.held?1:.35),state.viewer?-8.7:-7.0);view=mat4RotX(view,state.rotation.x);view=mat4RotY(view,state.rotation.y);const kick=state.attack>0?Math.sin((.42-state.attack)*38)*.11*(state.attack/.42):0;view=mat4RotZ(view,(state.held?Math.sin(tm*7.0)*.018:0)+kick);const sc=(state.compact?.72:1)*(state.held?1.06:1)*(state.viewer?.8:1);view=mat4Scale(view,sc,sc,sc);const mvp=mat4Multiply(mat4Perspective(.66,canvas.width/canvas.height,.05,100),view);
+        gl.useProgram(program);const ap=gl.getAttribLocation(program,'aPos'),an=gl.getAttribLocation(program,'aNormal'),am=gl.getAttribLocation(program,'aPart');gl.bindBuffer(gl.ARRAY_BUFFER,vb);gl.enableVertexAttribArray(ap);gl.vertexAttribPointer(ap,3,gl.FLOAT,false,0,0);gl.bindBuffer(gl.ARRAY_BUFFER,nb);gl.enableVertexAttribArray(an);gl.vertexAttribPointer(an,3,gl.FLOAT,false,0,0);gl.bindBuffer(gl.ARRAY_BUFFER,mb);gl.enableVertexAttribArray(am);gl.vertexAttribPointer(am,1,gl.FLOAT,false,0,0);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ib);gl.uniformMatrix4fv(gl.getUniformLocation(program,'uMVP'),false,new Float32Array(mvp));gl.uniformMatrix4fv(gl.getUniformLocation(program,'uModel'),false,new Float32Array(view));gl.uniform3fv(gl.getUniformLocation(program,'uBase'),new Float32Array(base));gl.uniform3fv(gl.getUniformLocation(program,'uAccent'),new Float32Array(accent));gl.uniform3fv(gl.getUniformLocation(program,'uHandle'),new Float32Array(handle));gl.uniform3fv(gl.getUniformLocation(program,'uEdge'),new Float32Array(edge));gl.uniform3fv(gl.getUniformLocation(program,'uRarity'),new Float32Array(rar));gl.uniform1f(gl.getUniformLocation(program,'uEmissive'),.14+ri*.065);gl.uniform1f(gl.getUniformLocation(program,'uTime'),tm);gl.uniform1f(gl.getUniformLocation(program,'uPulse'),Math.min(1,ri/4));gl.uniform1f(gl.getUniformLocation(program,'uWear'),wear);gl.uniform1f(gl.getUniformLocation(program,'uChromaflux'),chrom);gl.drawElements(gl.TRIANGLES,geom.indices.length,gl.UNSIGNED_SHORT,0);
         requestAnimationFrame(frame);
     }
     canvas.__axe3d=state;WEBGL_AXE_INSTANCES.add(state);
@@ -6796,12 +7663,9 @@ function createWebGLAxeCanvas(skinName,conditionName,opts={}){
     requestAnimationFrame(()=>resize());
     setTimeout(()=>resize(),0);
     canvas.addEventListener('pointerdown',e=>{state.drag=true;state.lastX=e.clientX;state.lastY=e.clientY;canvas.setPointerCapture?.(e.pointerId);});
-    canvas.addEventListener('pointermove',e=>{if(!state.drag)return;const dx=e.clientX-state.lastX,dy=e.clientY-state.lastY;state.lastX=e.clientX;state.lastY=e.clientY;state.vel.y=dx*.38;state.vel.x=-dy*.32;state.rotation.y+=dx*.008;state.rotation.x=Math.max(-1.35,Math.min(1.35,state.rotation.x-dy*.006));});
-    canvas.addEventListener('pointerup',e=>{state.drag=false;canvas.releasePointerCapture?.(e.pointerId);});canvas.addEventListener('pointercancel',()=>state.drag=false);canvas.addEventListener('dblclick',()=>{state.rotation.x=-.12;state.rotation.y=-.68;state.vel.x=state.vel.y=0;});requestAnimationFrame(frame);return canvas;
+    canvas.addEventListener('pointermove',e=>{if(!state.drag)return;const dx=e.clientX-state.lastX,dy=e.clientY-state.lastY;state.lastX=e.clientX;state.lastY=e.clientY;state.vel.y=dx*.38;state.vel.x=dy*.32;state.rotation.y+=dx*.008;state.rotation.x=Math.max(-1.35,Math.min(1.35,state.rotation.x+dy*.006));});
+    canvas.addEventListener('pointerup',e=>{state.drag=false;canvas.releasePointerCapture?.(e.pointerId);});canvas.addEventListener('pointercancel',()=>state.drag=false);canvas.addEventListener('dblclick',()=>{state.rotation.x=-.12;state.rotation.y=.32;state.vel.x=state.vel.y=0;});requestAnimationFrame(frame);return canvas;
 }
-
-// Compatibility object so the viewer no longer depends on the old DOM-3D rotation code.
-const THREELESS = { rotation: { y: 0 } };
 
 $('axe-view-equip').onclick=()=>{if(axeViewerItemId){equipAxeItem(axeViewerItemId);openAxeViewer(axeViewerItemId);}};
 $('axe-view-sell').onclick=()=>{if(!axeViewerItemId)return;const item=getAxeItemById(axeViewerItemId);if(!item||item.skinName==='Default Axe')return;const value=getSkinSellValue(item.skinName,item.condition);if(sellAxeItem(item.id)){axeViewerItemId=getEquippedAxeItem()?.id||null;openAxeViewer(axeViewerItemId);toast(`💰 Sold for ${formatNumber(value)} Logs.`);}};
@@ -6840,7 +7704,17 @@ const pageInfo = {
 
     market: [
         "Case Market",
-        "Open specialized axe and chicken cases with full-rarity effects."
+        "Browse every axe skin and flock breed."
+    ],
+
+    worlds: [
+        "Forest Atlas",
+        "Track the frontiers uncovered by your rebirths."
+    ],
+
+    achievements: [
+        "Field Record",
+        "Claim rewards for the milestones in your forestry career."
     ],
 
     arena: [
@@ -6880,7 +7754,17 @@ document.querySelectorAll(".nav-btn").forEach(btn => {
             pageInfo[page][1];
 
         updateUI();
+
+        if (page === "worlds") renderForestAtlas();
+        if (page === "achievements") renderAchievements();
     });
+});
+
+$("achievement-grid").addEventListener("click", event => {
+    const button = event.target.closest("[data-claim-achievement]");
+    if (button && !button.disabled) {
+        claimAchievement(button.dataset.claimAchievement);
+    }
 });
 
 
@@ -6962,6 +7846,9 @@ $("steam-btn")
 $("rebirth-btn")
     .addEventListener("click", doRebirth);
 
+$("prestige-btn")
+    .addEventListener("click", doPrestige);
+
 $("mult-btn")
     .addEventListener("click", () => {
         buyRebirthUpgrade("mult");
@@ -7009,10 +7896,32 @@ $("crate-btn")
         openCase("normal");
     });
 
+$("crate-quick-btn")
+    .addEventListener("click", () => {
+        quickOpenCase("normal");
+    });
+
 $("darkweb-btn")
     .addEventListener("click", () => {
         openCase("mutant");
     });
+
+$("darkweb-quick-btn")
+    .addEventListener("click", () => {
+        quickOpenCase("mutant");
+    });
+
+$("normal-drop-toggle")
+    .addEventListener("click", () => toggleCaseDropTable("normal"));
+
+$("mutant-drop-toggle")
+    .addEventListener("click", () => toggleCaseDropTable("mutant"));
+
+$("normal-drop-search")
+    .addEventListener("input", event => filterCaseDropTable("normal", event.target.value));
+
+$("mutant-drop-search")
+    .addEventListener("input", event => filterCaseDropTable("mutant", event.target.value));
 
 $("case-close")
     .addEventListener("click", closeCase);
@@ -7122,6 +8031,7 @@ function gameLoop(now) {
    START
 ========================================================= */
 
+renderCaseDropTables();
 updateUI();
 renderChopAxe();
 

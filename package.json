@@ -1,6 +1,6 @@
 {
   "name": "hypergamous-tree-chopping-simulator-3",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Hypergamous Tree Chopping Simulator 3",
   "main": "main.js",
   "scripts": {
@@ -40,6 +40,9 @@
       "provider": "github",
       "owner": "trickortree",
       "repo": "treesim"
+    },
+    "releaseInfo": {
+      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.0.5\n\n- Rebuilt axe previews with clearer facing, rarity-specific halos, and improved drag direction.\n- Added five collectible axe skins and five prestige levels, each with five new axe upgrades.\n- Ancient, Celestial, Divine, and Godly case rewards now receive a dedicated reveal.\n- Case spins cannot be closed or canceled before the reel stops.\n- Added the post-update changelog completion screen."
     }
   }
 }
