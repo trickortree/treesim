@@ -1,0 +1,7 @@
+node_modules/
+dist/
+HypergamousBuild/
+.venv/
+*.log
+.env
+.DS_Store
