@@ -1,6 +1,6 @@
 {
   "name": "hypergamous-tree-chopping-simulator-3",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Hypergamous Tree Chopping Simulator 3",
   "main": "main.js",
   "scripts": {
@@ -17,30 +17,25 @@
   "build": {
     "appId": "com.trickortree.treesim",
     "productName": "Hypergamous Tree Chopping Simulator 3",
-
     "directories": {
       "output": "dist"
     },
-
     "files": [
       "index.html",
       "main.js",
       "package.json",
       "build/**/*"
     ],
-
     "win": {
       "target": "nsis",
       "icon": "build/icon.ico"
     },
-
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true
     },
-
     "publish": {
       "provider": "github",
       "owner": "trickortree",
