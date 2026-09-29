@@ -3068,6 +3068,172 @@ button {
     .axe-model.rarity-godly .axe-energy-node { animation: none !important; }
 }
 
+/* =========================================================
+   IN-GAME UPDATE MODAL
+========================================================= */
+
+#update-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(20, 25, 35, 0.55),
+            rgba(0, 0, 0, 0.88)
+        );
+
+    backdrop-filter: blur(8px);
+}
+
+#update-overlay.open {
+    display: flex;
+}
+
+#update-modal {
+    width: min(620px, calc(100vw - 40px));
+    max-height: calc(100vh - 40px);
+
+    padding: 32px;
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(25, 29, 40, 0.98),
+            rgba(10, 13, 20, 0.98)
+        );
+
+    box-shadow:
+        0 30px 100px rgba(0, 0, 0, 0.65),
+        0 0 50px rgba(120, 170, 255, 0.08);
+
+    text-align: center;
+
+    overflow-y: auto;
+}
+
+.update-icon {
+    font-size: 42px;
+    margin-bottom: 8px;
+}
+
+.update-title {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+}
+
+.update-version {
+    margin-top: 8px;
+    font-size: 14px;
+    opacity: 0.65;
+}
+
+.update-divider {
+    width: 100%;
+    height: 1px;
+    margin: 20px 0;
+
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.update-whatsnew {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    opacity: 0.6;
+
+    margin-bottom: 12px;
+}
+
+.update-notes {
+    max-height: 220px;
+    overflow-y: auto;
+
+    padding: 16px;
+
+    border-radius: 12px;
+
+    background: rgba(255, 255, 255, 0.04);
+
+    text-align: left;
+    white-space: pre-wrap;
+
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+.update-status {
+    margin-top: 16px;
+
+    font-size: 13px;
+    opacity: 0.7;
+}
+
+.update-progress-container {
+    display: none;
+
+    width: 100%;
+    height: 8px;
+
+    margin-top: 14px;
+
+    border-radius: 999px;
+
+    overflow: hidden;
+
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.update-progress-bar {
+    width: 0%;
+    height: 100%;
+
+    border-radius: inherit;
+
+    transition: width 0.15s ease;
+}
+
+#update-action {
+    width: 100%;
+
+    margin-top: 22px;
+    padding: 14px 20px;
+
+    border: 0;
+    border-radius: 12px;
+
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+
+    cursor: pointer;
+
+    background: #ffffff;
+    color: #111111;
+
+    transition:
+        transform 0.15s ease,
+        opacity 0.15s ease;
+}
+
+#update-action:hover {
+    transform: translateY(-1px);
+}
+
+#update-action:disabled {
+    cursor: default;
+    opacity: 0.5;
+    transform: none;
+}
 
 </style>
 </head>
@@ -3686,6 +3852,174 @@ button {
 
 <div id="toast-container"></div>
 
+<!-- UPDATE MODAL -->
+<div id="update-overlay">
+    <div id="update-modal">
+
+        <div class="update-icon">⬆</div>
+
+        <div class="update-title">
+            UPDATE AVAILABLE
+        </div>
+
+        <div class="update-version" id="update-version">
+            Version 1.0.0 → 1.0.1
+        </div>
+
+        <div class="update-divider"></div>
+
+        <div class="update-whatsnew">
+            WHAT'S NEW
+        </div>
+
+        <div class="update-notes" id="update-notes"></div>
+
+        <div class="update-status" id="update-status">
+            A new version of the game is available.
+        </div>
+
+        <div class="update-progress-container" id="update-progress-container">
+            <div class="update-progress-bar" id="update-progress-bar"></div>
+        </div>
+
+        <button id="update-action">
+            UPDATE NOW
+        </button>
+
+    </div>
+</div>
+
+/* =========================================================
+   IN-GAME AUTO UPDATER
+========================================================= */
+
+const { ipcRenderer } = require("electron");
+
+const updateOverlay =
+    document.getElementById("update-overlay");
+
+const updateVersion =
+    document.getElementById("update-version");
+
+const updateNotes =
+    document.getElementById("update-notes");
+
+const updateStatus =
+    document.getElementById("update-status");
+
+const updateAction =
+    document.getElementById("update-action");
+
+const updateProgressContainer =
+    document.getElementById("update-progress-container");
+
+const updateProgressBar =
+    document.getElementById("update-progress-bar");
+
+let updateAvailable = false;
+
+function openUpdateModal(data) {
+    updateAvailable = true;
+
+    updateVersion.textContent =
+        `Version ${data.currentVersion} → ${data.newVersion}`;
+
+    updateNotes.textContent =
+        data.releaseNotes || "No release notes provided.";
+
+    updateStatus.textContent =
+        "A new version of the game is available.";
+
+    updateAction.textContent =
+        "UPDATE NOW";
+
+    updateAction.disabled = false;
+
+    updateProgressContainer.style.display = "none";
+
+    updateProgressBar.style.width = "0%";
+
+    updateOverlay.classList.add("open");
+}
+
+updateAction.addEventListener("click", () => {
+    if (!updateAvailable) {
+        return;
+    }
+
+    updateAction.disabled = true;
+
+    updateAction.textContent =
+        "DOWNLOADING...";
+
+    updateStatus.textContent =
+        "Downloading the update. Please wait...";
+
+    updateProgressContainer.style.display =
+        "block";
+
+    ipcRenderer.send("download-update");
+});
+
+ipcRenderer.on("update-available", (event, data) => {
+    openUpdateModal(data);
+});
+
+ipcRenderer.on("update-progress", (event, progress) => {
+    const percent =
+        Math.max(
+            0,
+            Math.min(100, progress.percent || 0)
+        );
+
+    updateProgressBar.style.width =
+        `${percent}%`;
+
+    updateStatus.textContent =
+        `Downloading update... ${percent}%`;
+});
+
+ipcRenderer.on("update-downloaded", () => {
+    updateProgressBar.style.width = "100%";
+
+    updateStatus.textContent =
+        "Update downloaded. Restarting the game...";
+
+    updateAction.textContent =
+        "RESTARTING...";
+
+    updateAction.disabled = true;
+});
+
+ipcRenderer.on("update-error", (event, data) => {
+    updateStatus.textContent =
+        "The update failed to download.";
+
+    updateAction.textContent =
+        "RETRY UPDATE";
+
+    updateAction.disabled = false;
+
+    updateProgressContainer.style.display =
+        "none";
+
+    updateAction.onclick = () => {
+        updateAction.disabled = true;
+
+        updateAction.textContent =
+            "CHECKING...";
+
+        updateStatus.textContent =
+            "Trying again...";
+
+        ipcRenderer.send("retry-update");
+
+        // Restore normal click handler after retry starts
+        setTimeout(() => {
+            updateAction.onclick = null;
+        }, 100);
+    };
+});
 
 <script>
 /* =========================================================
