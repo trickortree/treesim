@@ -3930,7 +3930,7 @@ button {
 
                 <div class="skin-locker card">
                     <div class="section-title">Axe Skin Locker</div>
-                    <div class="section-sub">Real 3D skin previews • Wear conditions • Equip or sell manually.</div>
+                    <div class="section-sub">Fast skin previews • Wear conditions • Equip or sell manually.</div>
                     <div class="skin-locker-tools">
                         <input class="skin-locker-search" id="skin-locker-search" type="search" placeholder="Search your axe skins...">
                         <select class="skin-locker-select" id="skin-locker-rarity">
@@ -3965,6 +3965,7 @@ button {
                         <div class="skin-locker-count" id="skin-locker-count">0 items</div>
                     </div>
                     <div class="skin-locker-grid" id="skin-locker"></div>
+                    <button class="buy-btn" id="skin-locker-load-more" type="button" hidden>LOAD MORE SKINS</button>
                 </div>
 
             </section>
@@ -5435,6 +5436,8 @@ let chopComboTimer = null;
 let lockerSearchTerm = "";
 let lockerRarityFilter = "All Rarities";
 let lockerSortMode = "rarity";
+let lockerRenderLimit = 48;
+const LOCKER_RENDER_BATCH = 48;
 
 function formatTimer(seconds) {
     return Math.ceil(Math.max(0, Number(seconds) || 0));
@@ -5993,6 +5996,7 @@ function updateAxeInventoryUI() {
     if (!locker) return;
 
     const countEl = $("skin-locker-count");
+    const loadMoreButton = $("skin-locker-load-more");
     const search = lockerSearchTerm.trim().toLowerCase();
     const rarityOrder = ["Common","Uncommon","Rare","Epic","Legendary","Mythic","Exotic","Ancient","Celestial","Divine","Godly"];
 
@@ -6000,7 +6004,7 @@ function updateAxeInventoryUI() {
 
     items = items.filter(item => {
         const skin = getSkinDefinition(item.skinName);
-        const matchesSearch = !search || item.skinName.toLowerCase().includes(search) || skin.rarity.toLowerCase().includes(search) || item.condition.toLowerCase().includes(search);
+        const matchesSearch = !search || item.skinName.toLowerCase().includes(search) || skin.rarity.toLowerCase().includes(search) || item.condition.toLowerCase().includes(search) || (item.mutationName || "").toLowerCase().includes(search);
         const matchesRarity = lockerRarityFilter === "All Rarities" || skin.rarity === lockerRarityFilter;
         return matchesSearch && matchesRarity;
     });
@@ -6019,18 +6023,20 @@ function updateAxeInventoryUI() {
         return rarityOrder.indexOf(sb.rarity) - rarityOrder.indexOf(sa.rarity);
     });
 
-    locker.innerHTML = "";
+    locker.replaceChildren();
 
     if (countEl) {
-        countEl.textContent = `${items.length} / ${game.axe_inventory.length} items`;
+        countEl.textContent = `${Math.min(lockerRenderLimit, items.length)} of ${items.length} matching • ${game.axe_inventory.length} total`;
     }
 
     if (!items.length) {
         locker.innerHTML = `<div class="skin-locker-empty">No skins match your filters.</div>`;
+        if (loadMoreButton) loadMoreButton.hidden = true;
         return;
     }
 
-    for (const item of items) {
+    const visibleItems = items.slice(0, lockerRenderLimit);
+    for (const item of visibleItems) {
         const skin = getSkinDefinition(item.skinName);
         const card = document.createElement("div");
         card.className = `skin-item ${rarityClass(skin.rarity)}${item.id === game.equipped_axe_item_id ? " equipped" : ""}`;
@@ -6052,8 +6058,21 @@ function updateAxeInventoryUI() {
             </div>`;
 
         const preview = card.querySelector(".skin-item-preview");
-        preview.appendChild(createCaseAxeVisual(item.skinName, item.condition, item.mutationName));
+        const thumbnail = document.createElement("img");
+        thumbnail.className = "case-axe-svg case-axe-ready";
+        thumbnail.alt = `${item.skinName} axe preview`;
+        if (item.mutationName) thumbnail.dataset.mutation = getMutationDefinition(item.mutationName)?.id || "";
+        thumbnail.src = createAxeFallbackSnapshot(item.skinName, item.condition);
+        preview.appendChild(thumbnail);
         locker.appendChild(card);
+    }
+
+    if (loadMoreButton) {
+        const hasMore = visibleItems.length < items.length;
+        loadMoreButton.hidden = !hasMore;
+        loadMoreButton.textContent = hasMore
+            ? `LOAD MORE SKINS (${items.length - visibleItems.length} LEFT)`
+            : "ALL SKINS LOADED";
     }
 }
 function updateEquipment() {
@@ -8438,6 +8457,7 @@ $("skin-locker").addEventListener("click", event => {
 
 $("skin-locker-search").addEventListener("input", event => {
     lockerSearchTerm = event.target.value;
+    lockerRenderLimit = LOCKER_RENDER_BATCH;
     axeLockerDirty = true;
     updateAxeInventoryUI();
     axeLockerDirty = false;
@@ -8445,6 +8465,7 @@ $("skin-locker-search").addEventListener("input", event => {
 
 $("skin-locker-rarity").addEventListener("change", event => {
     lockerRarityFilter = event.target.value;
+    lockerRenderLimit = LOCKER_RENDER_BATCH;
     axeLockerDirty = true;
     updateAxeInventoryUI();
     axeLockerDirty = false;
@@ -8452,6 +8473,14 @@ $("skin-locker-rarity").addEventListener("change", event => {
 
 $("skin-locker-sort").addEventListener("change", event => {
     lockerSortMode = event.target.value;
+    lockerRenderLimit = LOCKER_RENDER_BATCH;
+    axeLockerDirty = true;
+    updateAxeInventoryUI();
+    axeLockerDirty = false;
+});
+
+$("skin-locker-load-more").addEventListener("click", () => {
+    lockerRenderLimit += LOCKER_RENDER_BATCH;
     axeLockerDirty = true;
     updateAxeInventoryUI();
     axeLockerDirty = false;
