@@ -692,6 +692,11 @@ button {
     cursor: not-allowed;
 }
 
+.max-buy-row { display: grid; grid-template-columns: minmax(0, 1fr) 78px; gap: 7px; margin-top: 7px; }
+.max-buy-row .buy-btn { min-width: 0; }
+.max-buy-btn { border: 1px solid #71834b; background: linear-gradient(135deg,#46592e,#27371e); color: #e4efc5; }
+.max-buy-btn:hover:not(:disabled) { background: linear-gradient(135deg,#5d7540,#394c2a); }
+
 .generator-icon {
     font-size: 23px;
 }
@@ -1073,6 +1078,19 @@ button {
 .chicken-celestial { --chicken-body:#fef3c7; --chicken-shadow:#7c3aed; --chicken-accent:#fef08a; }
 .chicken-divine { --chicken-body:#fff7ed; --chicken-shadow:#ca8a04; --chicken-accent:#fde68a; }
 .chicken-godly { --chicken-body:#fbcfe8; --chicken-shadow:#be185d; --chicken-accent:#f9a8d4; }
+.chicken-3d[data-mutation]::after {
+    content: "";
+    position: absolute;
+    inset: 16px 8px 12px;
+    z-index: -1;
+    border: 2px solid var(--mutation-color);
+    border-radius: 50%;
+    box-shadow: 0 0 16px var(--mutation-color), inset 0 0 16px color-mix(in srgb, var(--mutation-color) 42%, transparent);
+    opacity: .78;
+    animation: mutatedChickenAura 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes mutatedChickenAura { to { transform: scale(1.12); opacity: .4; } }
 .chicken-pinecone { --chicken-body:#d9f99d; --chicken-shadow:#3f6212; --chicken-accent:#a16207; }
 .chicken-saffron { --chicken-body:#fef3c7; --chicken-shadow:#b45309; --chicken-accent:#dc2626; }
 .chicken-bluejay { --chicken-body:#bfdbfe; --chicken-shadow:#1d4ed8; --chicken-accent:#f97316; }
@@ -1483,7 +1501,7 @@ button {
 
 .skin-locker-tools {
     display: grid;
-    grid-template-columns: minmax(180px, 1fr) 150px 130px auto;
+    grid-template-columns: minmax(160px, 1.6fr) repeat(3, minmax(105px, 1fr)) 100px repeat(2, minmax(120px, 1fr)) auto;
     gap: 8px;
     align-items: center;
     margin: 14px 0 12px;
@@ -2192,6 +2210,12 @@ button {
     user-select: none;
     -webkit-user-drag: none;
 }
+
+.case-axe-svg[data-mutation="prismatic"] { filter: drop-shadow(0 0 14px #f0abfc) hue-rotate(34deg) saturate(1.5); }
+.case-axe-svg[data-mutation="gilded"] { filter: drop-shadow(0 0 12px #facc15) sepia(.25) saturate(1.35); }
+.case-axe-svg[data-mutation="overgrown"] { filter: drop-shadow(0 0 12px #84cc16) hue-rotate(-22deg) saturate(1.3); }
+.case-axe-svg[data-mutation="stormcharged"] { filter: drop-shadow(0 0 12px #38bdf8) hue-rotate(18deg) saturate(1.35); }
+.case-axe-svg[data-mutation="voidtouched"] { filter: drop-shadow(0 0 14px #a78bfa) hue-rotate(72deg) saturate(1.4); }
 
 .case-chicken-preview {
     width: 82px;
@@ -3467,6 +3491,22 @@ button {
     display: flex;
 }
 
+.update-reset-warning {
+    margin: 14px 0 10px;
+    padding: 12px 14px;
+    border: 1px solid #ef4444;
+    border-left-width: 5px;
+    border-radius: 7px;
+    background: rgba(127, 29, 29, .3);
+    color: #ff6868;
+    font-size: 12px;
+    font-weight: 1000;
+    line-height: 1.5;
+    text-align: left;
+}
+
+.update-reset-warning[hidden] { display: none; }
+
 #update-modal {
     width: min(620px, calc(100vw - 40px));
     max-height: calc(100vh - 40px);
@@ -3823,6 +3863,9 @@ button {
                             <button class="buy-btn" id="axe-btn">
                                 Upgrade Tool
                             </button>
+                            <button class="buy-btn" id="axe-max-btn" type="button">
+                                MAX
+                            </button>
                             <button class="buy-btn axe-view-btn" id="axe-view-btn">
                                 👁 View Axe
                             </button>
@@ -3841,9 +3884,10 @@ button {
                             Lumberjacks: 0 • Passive production
                         </div>
 
-                        <button class="buy-btn" id="auto-btn">
-                            Hire Clicker
-                        </button>
+                        <div class="max-buy-row">
+                            <button class="buy-btn" id="auto-btn">Hire Clicker</button>
+                            <button class="buy-btn max-buy-btn" id="auto-max-btn" type="button">MAX</button>
+                        </div>
                     </div>
 
                     <div class="upgrade-card card">
@@ -3858,9 +3902,10 @@ button {
                             Sawmills: 0 • +8 logs/s each
                         </div>
 
-                        <button class="buy-btn" id="sawmill-btn">
-                            Build Sawmill
-                        </button>
+                        <div class="max-buy-row">
+                            <button class="buy-btn" id="sawmill-btn">Build Sawmill</button>
+                            <button class="buy-btn max-buy-btn" id="sawmill-max-btn" type="button">MAX</button>
+                        </div>
                     </div>
 
                     <div class="upgrade-card card">
@@ -3875,9 +3920,10 @@ button {
                             Steam Engines: 0 • +45 logs/s each
                         </div>
 
-                        <button class="buy-btn" id="steam-btn">
-                            Build Steam Engine
-                        </button>
+                        <div class="max-buy-row">
+                            <button class="buy-btn" id="steam-btn">Build Steam Engine</button>
+                            <button class="buy-btn max-buy-btn" id="steam-max-btn" type="button">MAX</button>
+                        </div>
                     </div>
 
                 </div>
@@ -3900,6 +3946,11 @@ button {
                             <option>Celestial</option>
                             <option>Divine</option>
                             <option>Godly</option>
+                            <option>Astral</option>
+                            <option>Eclipse</option>
+                            <option>Voidborn</option>
+                            <option>Omniscient</option>
+                            <option>Genesis</option>
                         </select>
                         <select class="skin-locker-select" id="skin-locker-sort">
                             <option value="rarity">Rarity</option>
@@ -3907,6 +3958,10 @@ button {
                             <option value="name">Name</option>
                             <option value="value">Sell Value</option>
                         </select>
+                        <button class="buy-btn sell" id="skin-locker-sell-visible" type="button">SELL VISIBLE</button>
+                        <button class="buy-btn sell" id="skin-locker-sell-rarity" type="button">SELL RARITY</button>
+                        <input class="skin-locker-search" id="skin-locker-sell-limit" type="number" min="0" step="1" value="1000" aria-label="Maximum axe sell value">
+                        <button class="buy-btn sell" id="skin-locker-sell-limit-btn" type="button">SELL UNDER VALUE</button>
                         <div class="skin-locker-count" id="skin-locker-count">0 items</div>
                     </div>
                     <div class="skin-locker-grid" id="skin-locker"></div>
@@ -4020,17 +4075,26 @@ button {
                             🐣 Hatch Chicken
                         </button>
 
+                        <button class="buy-btn max-buy-btn" id="hatch-max-btn" type="button">
+                            HATCH MAX
+                        </button>
+
                         <button class="buy-btn" id="chicken-btn">
                             🐔 Buy Chicken
+                        </button>
+
+                        <button class="buy-btn max-buy-btn" id="chicken-max-btn" type="button">
+                            BUY MAX
                         </button>
 
                     </div>
 
                     <br>
 
-                    <button class="buy-btn" id="coop-btn">
-                        🛖 Upgrade Coop
-                    </button>
+                    <div class="max-buy-row">
+                        <button class="buy-btn" id="coop-btn">🛖 Upgrade Coop</button>
+                        <button class="buy-btn max-buy-btn" id="coop-max-btn" type="button">MAX</button>
+                    </div>
 
                 </div>
 
@@ -4059,6 +4123,7 @@ button {
                         </div>
 
                         <button class="buy-btn" id="click-upgrade-btn"></button>
+                        <button class="buy-btn" id="click-max-btn" type="button">MAX</button>
 
                     </div>
 
@@ -4074,6 +4139,7 @@ button {
                         </div>
 
                         <button class="buy-btn" id="hunger-upgrade-btn"></button>
+                        <button class="buy-btn" id="hunger-max-btn" type="button">MAX</button>
 
                     </div>
 
@@ -4089,6 +4155,7 @@ button {
                         </div>
 
                         <button class="buy-btn" id="feather-btn"></button>
+                        <button class="buy-btn" id="feather-max-btn" type="button">MAX</button>
 
                     </div>
 
@@ -4104,6 +4171,7 @@ button {
                         </div>
 
                         <button class="buy-btn" id="pet-btn"></button>
+                        <button class="buy-btn" id="pet-max-btn" type="button">MAX</button>
 
                     </div>
 
@@ -4204,6 +4272,42 @@ button {
                             </div>
                         </div>
 
+                    </div>
+
+                    <div class="market-card card" style="--case-accent:#bf7b3f">
+                        <div class="market-icon">🧬</div>
+                        <div class="market-title">Mutated Axe Case</div>
+                        <div class="market-desc">An axe skin arrives with both its own rarity and a permanent material mutation.</div>
+                        <div class="market-case-metrics"><span>Axes <strong id="mutated-axe-case-count">--</strong></span><span>Skin + mutation</span></div>
+                        <div class="market-result" id="mutated-axe-result">Ready to open.</div>
+                        <div class="market-actions">
+                            <button class="buy-btn red" id="mutated-axe-btn" type="button">SPIN — 12,000 LOGS</button>
+                            <button class="buy-btn case-quick-btn" id="mutated-axe-quick-btn" type="button">QUICK OPEN</button>
+                        </div>
+                    </div>
+
+                    <div class="market-card card" style="--case-accent:#5baaaa">
+                        <div class="market-icon">🐣</div>
+                        <div class="market-title">Mutated Flock Case</div>
+                        <div class="market-desc">Discover a named chicken breed carrying a second mutation trait.</div>
+                        <div class="market-case-metrics"><span>Breeds <strong id="mutated-flock-case-count">--</strong></span><span>Breed + mutation</span></div>
+                        <div class="market-result" id="mutated-flock-result">Ready to open.</div>
+                        <div class="market-actions">
+                            <button class="buy-btn dark" id="mutated-flock-btn" type="button">SPIN — 10,000 LOGS</button>
+                            <button class="buy-btn case-quick-btn" id="mutated-flock-quick-btn" type="button">QUICK OPEN</button>
+                        </div>
+                    </div>
+
+                    <div class="market-card card" style="--case-accent:#ba9a58">
+                        <div class="market-icon">🌳</div>
+                        <div class="market-title">Worldtree Cache</div>
+                        <div class="market-desc">A mixed relic cache that can reveal an axe or a chicken, sometimes altered by mutation.</div>
+                        <div class="market-case-metrics"><span>Mixed relic pool</span><span>Axes + flock</span></div>
+                        <div class="market-result" id="worldtree-result">Ready to open.</div>
+                        <div class="market-actions">
+                            <button class="buy-btn purple" id="worldtree-btn" type="button">SPIN — 50,000 LOGS</button>
+                            <button class="buy-btn case-quick-btn" id="worldtree-quick-btn" type="button">QUICK OPEN</button>
+                        </div>
                     </div>
 
                 </div>
@@ -4315,6 +4419,10 @@ button {
             WHAT'S NEW
         </div>
 
+        <div class="update-reset-warning" id="update-reset-warning" hidden>
+            MAJOR RESET: ALL PLAYER PROGRESS RESETS AFTER UPDATING. UPDATE REQUIRED TO CONTINUE.
+        </div>
+
         <div class="update-notes" id="update-notes"></div>
 
         <div class="update-status" id="update-status">
@@ -4348,6 +4456,9 @@ const updateVersion =
 const updateTitle =
     document.getElementById("update-title");
 
+const updateResetWarning =
+    document.getElementById("update-reset-warning");
+
 const updateNotes =
     document.getElementById("update-notes");
 
@@ -4367,6 +4478,9 @@ let updateAvailable = false;
 
 function openUpdateModal(data) {
     updateAvailable = true;
+
+    updateResetWarning.hidden =
+        !/PROGRESS RESET/i.test(data.releaseNotes || "");
 
     updateTitle.textContent =
         "UPDATE AVAILABLE";
@@ -4446,6 +4560,9 @@ ipcRenderer.on("update-downloaded", () => {
 
 ipcRenderer.on("post-update", (event, data) => {
     updateAvailable = false;
+
+    updateResetWarning.hidden =
+        !/PROGRESS RESET/i.test(data.releaseNotes || "");
 
     updateTitle.textContent =
         "UPDATE COMPLETE";
@@ -4531,9 +4648,13 @@ try {
 
 const IS_ELECTRON = !!(fs && path && electronApp);
 const SAVE_FILE = IS_ELECTRON
-    ? path.join(electronApp.getPath("userData"), "savegame_v6.json")
+    ? path.join(electronApp.getPath("userData"), "savegame_v7.json")
     : null;
-const BROWSER_SAVE_KEY = "hypergamous_tree_save_v6";
+const BROWSER_SAVE_KEY = "hypergamous_tree_save_v7";
+
+const QUICK_OPEN_COOLDOWN_SECONDS = 60;
+const MAX_UPGRADE_LEVEL = 500;
+const MAX_UPGRADE_BATCH = 25;
 
 const DEFAULT_DATA = {
     numOC: 0,
@@ -4541,6 +4662,7 @@ const DEFAULT_DATA = {
     upgrGoal: 10,
     rebirth: 0,
     prestige: 0,
+    quick_open_cooldown_until: 0,
     treeName: "hypergamous trees",
     current_axe_index: 0,
     axe_skins: {},
@@ -4594,7 +4716,7 @@ const DEFAULT_DATA = {
     chicken_variants: {}
 };
 
-const AXE_SKINS = [
+const BASE_AXE_SKINS = [
     { name: "Default Axe", rarity: "Common", color: "#94a3b8", accent: "#e5e7eb", handle: "#8a4d26", edge: "#f8fafc", glow: "rgba(148,163,184,.18)", pattern: "plain" },
     { name: "Rusted Relic", rarity: "Common", color: "#8b5e3c", accent: "#d6b089", handle: "#4a2818", edge: "#c58a4e", glow: "rgba(180,83,9,.18)", pattern: "rust" },
     { name: "Copper Fang", rarity: "Uncommon", color: "#b66a38", accent: "#ffd4a3", handle: "#432315", edge: "#ffe0ba", glow: "rgba(234,88,12,.25)", pattern: "copper" },
@@ -4782,6 +4904,70 @@ const AXE_SKINS = [
     { name: "Worldsong", rarity: "Godly", color: "#9d174d", accent: "#fbcfe8", handle: "#311226", edge: "#dcfce7", glow: "rgba(244,114,182,.98)", pattern: "godly" },
 ];
 
+function generateExtraAxeSkins(count = 500) {
+    const suffixes = [
+        "Bramble", "Ember", "Vale", "Drift", "Summit", "King", "Warden", "Gale",
+        "Bloom", "Echo", "Rift", "Hollow", "Horizon", "Bastion", "Dawn", "Comet",
+        "Aether", "Obsidian", "Starfall", "Thunder", "Titan", "Frost", "Lattice", "Pulse",
+        "Oracle", "Vapor", "Sunfire", "Mist", "Eclipse", "Myth", "Prime", "Nova"
+    ];
+    const rarities = ["Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Exotic", "Ancient", "Celestial", "Divine", "Godly", "Astral", "Eclipse", "Voidborn", "Genesis"];
+    const colors = ["#9ca3af", "#22c55e", "#3b82f6", "#a855f7", "#f59e0b", "#ec4899", "#06b6d4", "#f97316", "#8b5cf6", "#facc15", "#fb7185", "#67e8f9", "#c084fc", "#a78bfa", "#fda4af"];
+    const generated = [];
+
+    for (let i = 0; i < count; i++) {
+        const rarity = rarities[i % rarities.length];
+        const suffix = suffixes[i % suffixes.length];
+        const name = `Elder ${suffix} ${i + 1}`;
+        generated.push({
+            name,
+            rarity,
+            color: colors[i % colors.length],
+            accent: colors[(i * 7 + 3) % colors.length],
+            handle: colors[(i * 11 + 5) % colors.length],
+            edge: "#f8fafc",
+            glow: `color-mix(in srgb, ${colors[i % colors.length]} 55%, transparent)`,
+            pattern: ["cosmic", "ancient", "frost", "flame", "celestial"][i % 5]
+        });
+    }
+
+    return generated;
+}
+
+const AXE_SKINS = [...BASE_AXE_SKINS, ...generateExtraAxeSkins(500)];
+
+function generateExtraChickenVariants(count = 500) {
+    const rarities = [
+        "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Exotic", "Ancient",
+        "Celestial", "Divine", "Godly", "Astral", "Eclipse", "Voidborn", "Omniscient", "Genesis"
+    ];
+    const plumage = [
+        ["#e9d5c3", "#806247", "#f97316"], ["#d9f99d", "#3f6212", "#a16207"],
+        ["#bfdbfe", "#1d4ed8", "#f97316"], ["#cffafe", "#0e7490", "#f0abfc"],
+        ["#fef3c7", "#b45309", "#dc2626"], ["#fbcfe8", "#9d174d", "#86efac"],
+        ["#dbeafe", "#4338ca", "#fef08a"], ["#ffedd5", "#c2410c", "#7f1d1d"],
+        ["#e0f2fe", "#475569", "#c4b5fd"], ["#ecfccb", "#3f6212", "#f0abfc"],
+        ["#f5d0fe", "#701a75", "#67e8f9"], ["#fef9c3", "#854d0e", "#fb7185"]
+    ];
+    const firstNames = ["Moss", "Copper", "Cloud", "Thistle", "Marsh", "Cedar", "Meadow", "Fable", "Cinder", "Bramble"];
+    const secondNames = ["Runner", "Plume", "Peep", "Crest", "Dancer", "Whistle", "Wanderer", "Songbird", "Feather", "Glider"];
+
+    return Array.from({ length: count }, (_, index) => {
+        const colors = plumage[index % plumage.length];
+        return {
+            name: `${firstNames[index % firstNames.length]} ${secondNames[Math.floor(index / firstNames.length) % secondNames.length]} ${index + 1}`,
+            chickenType: `extra-chicken-${index + 1}`,
+            rarity: rarities[index % rarities.length],
+            body: colors[0],
+            shadow: colors[1],
+            accent: colors[2],
+            color: colors[2]
+        };
+    });
+}
+
+const CHICKEN_VARIANT_EXTRAS = generateExtraChickenVariants(500);
+const CHICKEN_VARIANT_STYLE = new Map(CHICKEN_VARIANT_EXTRAS.map(variant => [variant.chickenType, variant]));
 
 const AXE_CONDITIONS = [
     { name: "Factory New", multiplier: 1.00, wear: 0.00, className: "factory-new" },
@@ -4803,13 +4989,40 @@ const RARITY_COLORS = {
     Ancient: "#f97316",
     Celestial: "#8b5cf6",
     Divine: "#facc15",
-    Godly: "#fb7185"
+    Godly: "#fb7185",
+    Astral: "#67e8f9",
+    Eclipse: "#c084fc",
+    Voidborn: "#a78bfa",
+    Omniscient: "#fef08a",
+    Genesis: "#fda4af"
 };
 
 const RARITY_ORDER = [
     "Common", "Uncommon", "Rare", "Epic", "Legendary",
-    "Mythic", "Exotic", "Ancient", "Celestial", "Divine", "Godly"
+    "Mythic", "Exotic", "Ancient", "Celestial", "Divine", "Godly",
+    "Astral", "Eclipse", "Voidborn", "Omniscient", "Genesis"
 ];
+
+const MUTATION_DEFS = [
+    { id: "gilded", name: "Gilded", multiplier: 1.35, color: "#facc15" },
+    { id: "overgrown", name: "Overgrown", multiplier: 1.5, color: "#84cc16" },
+    { id: "stormcharged", name: "Stormcharged", multiplier: 1.8, color: "#38bdf8" },
+    { id: "voidtouched", name: "Voidtouched", multiplier: 2.2, color: "#a78bfa" },
+    { id: "prismatic", name: "Prismatic", multiplier: 3, color: "#f0abfc" }
+];
+
+function getMutationDefinition(mutationName) {
+    return MUTATION_DEFS.find(mutation => mutation.name === mutationName) || null;
+}
+
+function rollMutation() {
+    const roll = Math.random() * 100;
+    if (roll < 36) return MUTATION_DEFS[0];
+    if (roll < 64) return MUTATION_DEFS[1];
+    if (roll < 84) return MUTATION_DEFS[2];
+    if (roll < 96) return MUTATION_DEFS[3];
+    return MUTATION_DEFS[4];
+}
 
 function getRarityColor(rarity) {
     return RARITY_COLORS[rarity] || RARITY_COLORS.Common;
@@ -4913,121 +5126,168 @@ const PRESTIGE_AXE_UPGRADES = [
 ];
 AXE_UPGRADES.push(...PRESTIGE_AXE_UPGRADES);
 
-const REBIRTH_DATA = {
+function generateExtraAxeUpgrades(count = 500) {
+    const generated = [];
+    const families = ["Bramble", "Ember", "Vale", "Rift", "Starfall", "Elder", "Comet", "Worldroot", "Aether", "Genesis"];
+    let cost = AXE_UPGRADES.at(-1).cost;
+    let power = AXE_UPGRADES.at(-1).base_add;
+
+    for (let index = 0; index < count; index++) {
+        cost *= 1.04;
+        power *= 1.045;
+        generated.push({
+            name: `${families[index % families.length]} Ascendant Axe ${index + 1}`,
+            cost: Math.ceil(cost),
+            base_add: Math.ceil(power)
+        });
+    }
+
+    return generated;
+}
+
+AXE_UPGRADES.push(...generateExtraAxeUpgrades(500));
+
+const BASE_REBIRTH_DATA = {
 
     1: {
-        penalty: 0.25,
+        penalty: 0.12,
         name: "hypergamous foid trees",
         cost: 1000000,
-        shards: 5
+        shards: 2
     },
 
     2: {
-        penalty: 0.50,
+        penalty: 0.22,
         name: "hypergamous DNR foid trees",
         cost: 25000000,
-        shards: 15
+        shards: 6
     },
 
     3: {
-        penalty: 0.75,
+        penalty: 0.36,
         name: "hypergamous DNR JBG foid trees",
         cost: 1000000000,
-        shards: 40
+        shards: 15
     },
 
     4: {
-        penalty: 1.20,
+        penalty: 0.58,
         name: "Transcendent Alpha Trees",
         cost: 50000000000,
-        shards: 100
+        shards: 32
     },
 
     5: {
-        penalty: 2.00,
+        penalty: 0.90,
         name: "Cosmic Chad Trees",
         cost: 1000000000000,
-        shards: 250
+        shards: 65
     },
 
     6: {
-        penalty: 3.00,
+        penalty: 1.40,
         name: "Galactic Hyper Trees",
         cost: 25000000000000,
-        shards: 600
+        shards: 140
     },
 
     7: {
-        penalty: 4.50,
+        penalty: 2.10,
         name: "Dimensional Tree Lords",
         cost: 1000000000000000,
-        shards: 1500
+        shards: 290
     },
 
     8: {
-        penalty: 7.00,
+        penalty: 3.20,
         name: "Universal Forest Gods",
         cost: 50000000000000000,
-        shards: 4000
+        shards: 600
     },
 
     9: {
-        penalty: 10.00,
+        penalty: 4.80,
         name: "Omniversal Tree Entities",
         cost: 2500000000000000000,
-        shards: 10000
+        shards: 1200
     },
 
     10: {
-        penalty: 15.00,
+        penalty: 7.20,
         name: "THE ETERNAL FOREST",
         cost: 100000000000000000000,
-        shards: 25000
+        shards: 2500
     },
 
     11: {
-        penalty: 25.00,
+        penalty: 10.75,
         name: "Beyond Reality Trees",
         cost: 10000000000000000000000,
-        shards: 75000
+        shards: 5000
     },
 
     12: {
-        penalty: 40.00,
+        penalty: 16.00,
         name: "Infinite Hyper Trees",
         cost: 1000000000000000000000000,
-        shards: 200000
+        shards: 10000
     },
 
     13: {
-        penalty: 60.00,
+        penalty: 24.00,
         name: "The Rootbound Expanse",
         cost: 10000000000000000000000000000,
-        shards: 500000
+        shards: 20000
     },
 
     14: {
-        penalty: 90.00,
+        penalty: 36.00,
         name: "The Starfall Canopy",
         cost: 10000000000000000000000000000000,
-        shards: 1250000
+        shards: 40000
     },
 
     15: {
-        penalty: 140.00,
+        penalty: 54.00,
         name: "The First Forest",
         cost: 10000000000000000000000000000000000,
-        shards: 3000000
+        shards: 80000
     },
 
     16: {
-        penalty: 220.00,
+        penalty: 82.00,
         name: "The Hypergamous Worldtree",
         cost: 10000000000000000000000000000000000000,
-        shards: 7500000
+        shards: 160000
     }
 
 };
+
+function generateRebirthData() {
+    const result = Object.fromEntries(Object.entries(BASE_REBIRTH_DATA).map(([tier, data]) => [
+        tier,
+        { ...data, cost: data.cost * 10, shards: Math.max(1, Math.round(data.shards * 0.01)) }
+    ]));
+    const lastTier = Math.max(...Object.keys(BASE_REBIRTH_DATA).map(Number));
+    for (let tier = lastTier + 1; tier <= lastTier + 100; tier++) {
+        const previous = result[tier - 1];
+        const nextCost = Number(previous.cost) * 1.9;
+        const nextPenalty = Number((previous.penalty * 1.015).toFixed(2));
+        const nextShards = Math.min(500, 250 + (tier - lastTier) * 2);
+
+        result[tier] = {
+            penalty: nextPenalty,
+            name: `Forest Rift ${tier}`,
+            cost: nextCost,
+            shards: nextShards
+        };
+
+    }
+
+    return result;
+}
+
+const REBIRTH_DATA = generateRebirthData();
 
 const ACHIEVEMENT_DEFS = [
     { id: "first-chop", name: "First Ring", description: "Make your first manual chop.", goal: 1, progress: () => game.total_clicks, reward: { logs: 100 } },
@@ -5065,7 +5325,7 @@ function nextAxeItemId() {
     return id;
 }
 
-function getSkinSellValue(skinName, conditionName) {
+function getSkinSellValue(skinName, conditionName, mutationName = null) {
     const skin = getSkinDefinition(skinName);
     const condition = getConditionDefinition(conditionName);
     const rarityBase = {
@@ -5079,18 +5339,25 @@ function getSkinSellValue(skinName, conditionName) {
         Ancient: 3200,
         Celestial: 8000,
         Divine: 20000,
-        Godly: 60000
+        Godly: 60000,
+        Astral: 90000,
+        Eclipse: 130000,
+        Voidborn: 190000,
+        Omniscient: 280000,
+        Genesis: 420000
     };
-    return Math.max(5, Math.floor((rarityBase[skin.rarity] || 25) * condition.multiplier / 5) * 5);
+    const mutationMultiplier = getMutationDefinition(mutationName)?.multiplier || 1;
+    return Math.max(5, Math.floor((rarityBase[skin.rarity] || 25) * condition.multiplier * mutationMultiplier / 5) * 5);
 }
 
-function createAxeInventoryItem(skinName, conditionName) {
+function createAxeInventoryItem(skinName, conditionName, mutationName = null) {
     const condition = getConditionDefinition(conditionName);
     return {
         id: nextAxeItemId(),
         skinName,
         condition: condition.name,
-        sellValue: getSkinSellValue(skinName, condition.name)
+        mutationName: getMutationDefinition(mutationName)?.name || null,
+        sellValue: getSkinSellValue(skinName, condition.name, mutationName)
     };
 }
 
@@ -5122,7 +5389,8 @@ function migrateAxeInventory() {
 
     for (const item of game.axe_inventory) {
         item.condition = getConditionDefinition(item.condition).name;
-        item.sellValue = getSkinSellValue(item.skinName, item.condition);
+        item.mutationName = getMutationDefinition(item.mutationName)?.name || null;
+        item.sellValue = getSkinSellValue(item.skinName, item.condition, item.mutationName);
     }
 
     let equipped = game.axe_inventory.find(item => item.id === game.equipped_axe_item_id);
@@ -5148,6 +5416,11 @@ let abilityCooldown = 0;
 
 let lastCrateResult = "Ready to open.";
 let lastDarkwebResult = "Ready to open.";
+const lastCaseResults = {
+    mutatedAxe: "Ready to open.",
+    mutatedFlock: "Ready to open.",
+    worldtree: "Ready to open."
+};
 
 let gameTick = 0;
 let caseOpening = false;
@@ -5311,7 +5584,12 @@ function getRebirthPenalty() {
 }
 
 function getPrestigeMultiplier() {
-    return 1 + game.prestige * 0.35;
+    return 1;
+}
+
+function clampUpgradeLevel(level) {
+    const numeric = Number(level) || 0;
+    return Math.max(0, Math.min(MAX_UPGRADE_LEVEL, numeric));
 }
 
 function getPassiveRate() {
@@ -5356,10 +5634,183 @@ function getPassiveRate() {
     );
 }
 
+function getQuickOpenCooldownRemaining() {
+    const remainingMs = (Number(game.quick_open_cooldown_until) || 0) - Date.now();
+    return Math.max(0, Math.ceil(remainingMs / 1000));
+}
+
+function sellMatchingAxeItems(filterFn, label) {
+    const matches = game.axe_inventory.filter(item => item.skinName !== "Default Axe" && filterFn(item));
+    if (!matches.length) {
+        toast(`💰 No ${label} skins to sell.`);
+        return 0;
+    }
+
+    const totalValue = matches.reduce((sum, item) => sum + getSkinSellValue(item.skinName, item.condition, item.mutationName), 0);
+    const ids = new Set(matches.map(item => item.id));
+
+    game.axe_inventory = game.axe_inventory.filter(item => !ids.has(item.id));
+    if (!game.axe_inventory.some(item => item.skinName === "Default Axe")) {
+        const defaultItem = createAxeInventoryItem("Default Axe", "Factory New");
+        game.axe_inventory.unshift(defaultItem);
+    }
+
+    const nextEquipped = game.axe_inventory.find(item => item.id === game.equipped_axe_item_id)
+        || game.axe_inventory.find(item => item.skinName === "Default Axe");
+    if (nextEquipped) {
+        game.equipped_axe_item_id = nextEquipped.id;
+        game.equipped_axe_skin = nextEquipped.skinName;
+    }
+
+    game.numOC += totalValue;
+    syncAxeSkinCounts();
+    axeLockerDirty = true;
+    saveGame();
+    updateUI();
+    toast(`💰 Sold ${matches.length} ${label} skins for ${formatNumber(totalValue)} Logs.`);
+    return totalValue;
+}
+
+function sellAllVisibleAxes() {
+    const search = lockerSearchTerm.trim().toLowerCase();
+    const rarityFilter = lockerRarityFilter;
+    return sellMatchingAxeItems(item => {
+        const skin = getSkinDefinition(item.skinName);
+        const matchesSearch = !search || item.skinName.toLowerCase().includes(search) || skin.rarity.toLowerCase().includes(search) || item.condition.toLowerCase().includes(search);
+        const matchesRarity = rarityFilter === "All Rarities" || skin.rarity === rarityFilter;
+        return matchesSearch && matchesRarity && item.skinName !== "Default Axe";
+    }, "visible");
+}
+
+function sellAllRarityAxes(rarity) {
+    if (!rarity || rarity === "All Rarities") return 0;
+    return sellMatchingAxeItems(item => getSkinDefinition(item.skinName).rarity === rarity, `${rarity.toLowerCase()} `);
+}
+
+function sellAxesUnderValue(maxValue) {
+    const threshold = Math.max(0, Number(maxValue) || 0);
+    return sellMatchingAxeItems(
+        item => getSkinSellValue(item.skinName, item.condition, item.mutationName) <= threshold,
+        `axes worth ${formatNumber(threshold)} Logs or less`
+    );
+}
+
+function buyMaxAxeUpgrades() {
+    let purchased = 0;
+    while (game.current_axe_index < getAvailableAxeCount()) {
+        const nextAxe = AXE_UPGRADES[game.current_axe_index];
+        if (!nextAxe || game.numOC < nextAxe.cost) break;
+        game.numOC -= nextAxe.cost;
+        game.current_axe_index += 1;
+        purchased += 1;
+    }
+
+    if (purchased > 0) {
+        const lastAxe = AXE_UPGRADES[Math.max(0, game.current_axe_index - 1)] || AXE_UPGRADES[0];
+        game.addNum = (lastAxe.base_add || game.addNum) * getRebirthPenalty();
+        if (game.current_axe_index < getAvailableAxeCount()) {
+            game.upgrGoal = AXE_UPGRADES[game.current_axe_index].cost;
+        } else {
+            game.upgrGoal = 0;
+        }
+        saveGame();
+        toast(`🪓 Bought ${purchased} tool upgrades.`);
+        updateUI();
+    }
+}
+
+function buyMaxEggUpgrade(type) {
+    const currentLevel = () => Number(game.egg_upgrades[type]) || 0;
+    let purchased = 0;
+    while (currentLevel() < MAX_UPGRADE_LEVEL && purchased < MAX_UPGRADE_LEVEL) {
+        let cost = 0;
+        if (type === "click_boost") {
+            cost = 15 * (game.egg_upgrades.click_boost + 1);
+        } else if (type === "hunger_slow") {
+            cost = 25 * (game.egg_upgrades.hunger_slow + 1);
+        } else if (type === "feather_boost") {
+            cost = 40 * ((game.egg_upgrades.feather_boost || 0) + 1);
+        } else {
+            break;
+        }
+
+        if (game.eggs < cost) break;
+        game.eggs -= cost;
+        if (type === "click_boost") {
+            game.egg_upgrades.click_boost += 1;
+        } else if (type === "hunger_slow") {
+            game.egg_upgrades.hunger_slow += 1;
+        } else {
+            game.egg_upgrades.feather_boost = (game.egg_upgrades.feather_boost || 0) + 1;
+        }
+        purchased += 1;
+    }
+
+    if (purchased > 0) {
+        toast(`🧬 Bought ${purchased} ${type.replace(/_/g, " ")} upgrades.`);
+        saveGame();
+        updateUI();
+    }
+}
+
+function buyMaxLogUpgrade(type) {
+    let purchased = 0;
+
+    while (purchased < MAX_UPGRADE_LEVEL) {
+        if (type === "auto") {
+            if (game.auto_clickers >= MAX_UPGRADE_LEVEL || game.numOC < game.auto_clicker_cost) break;
+            game.numOC -= game.auto_clicker_cost;
+            game.auto_clickers++;
+            game.auto_clicker_cost *= 1.5;
+        } else if (type === "sawmill") {
+            if (game.sawmills >= MAX_UPGRADE_LEVEL || game.numOC < game.sawmill_cost) break;
+            game.numOC -= game.sawmill_cost;
+            game.sawmills++;
+            game.sawmill_cost *= 1.6;
+        } else if (type === "steam") {
+            if (game.steam_engines >= MAX_UPGRADE_LEVEL || game.numOC < game.steam_cost) break;
+            game.numOC -= game.steam_cost;
+            game.steam_engines++;
+            game.steam_cost *= 1.7;
+        } else if (type === "pet") {
+            const cost = 500 * (game.pet_level + 1);
+            if (game.pet_level >= MAX_UPGRADE_LEVEL || game.numOC < cost) break;
+            game.numOC -= cost;
+            game.pet_level++;
+        } else if (type === "chicken") {
+            const cost = 100 * (game.chickens + 1);
+            if (game.chickens >= MAX_UPGRADE_LEVEL || game.numOC < cost) break;
+            game.numOC -= cost;
+            game.chickens++;
+            coopVisualDirty = true;
+        } else if (type === "hatch") {
+            if (game.chickens >= MAX_UPGRADE_LEVEL || game.eggs < 5) break;
+            game.eggs -= 5;
+            game.chickens++;
+            coopVisualDirty = true;
+        } else if (type === "coop") {
+            const cost = 250 * (game.coop_level + 1);
+            if (game.coop_level >= MAX_UPGRADE_LEVEL || game.numOC < cost) break;
+            game.numOC -= cost;
+            game.coop_level++;
+        } else {
+            return;
+        }
+        purchased++;
+    }
+
+    if (purchased > 0) {
+        saveGame();
+        toast(`Bought ${purchased} ${type} upgrades.`);
+        updateUI();
+    }
+}
+
 function getAvailableAxeCount() {
+    const rebirthAxes = Math.max(0, game.rebirth - 16) * 5;
     return Math.min(
         AXE_UPGRADES.length,
-        BASE_AXE_UPGRADE_COUNT + game.prestige * 5
+        BASE_AXE_UPGRADE_COUNT + game.prestige * 5 + Math.min(500, rebirthAxes)
     );
 }
 
@@ -5367,7 +5818,8 @@ function canPrestige() {
     const maxRebirth = Math.max(...Object.keys(REBIRTH_DATA).map(Number));
     return game.prestige < PRESTIGE_LIMIT &&
         game.rebirth >= maxRebirth &&
-        game.current_axe_index >= getAvailableAxeCount();
+        game.current_axe_index >= getAvailableAxeCount() &&
+        game.numOC >= REBIRTH_DATA[maxRebirth].cost * (game.prestige + 2);
 }
 
 function getNextCost() {
@@ -5562,7 +6014,7 @@ function updateAxeInventoryUI() {
 
         if (lockerSortMode === "newest") return Number(b.id.split("-")[1] || 0) - Number(a.id.split("-")[1] || 0);
         if (lockerSortMode === "name") return a.skinName.localeCompare(b.skinName);
-        if (lockerSortMode === "value") return getSkinSellValue(b.skinName, b.condition) - getSkinSellValue(a.skinName, a.condition);
+        if (lockerSortMode === "value") return getSkinSellValue(b.skinName, b.condition, b.mutationName) - getSkinSellValue(a.skinName, a.condition, a.mutationName);
 
         return rarityOrder.indexOf(sb.rarity) - rarityOrder.indexOf(sa.rarity);
     });
@@ -5590,8 +6042,8 @@ function updateAxeInventoryUI() {
             <div class="skin-item-info">
                 <div class="skin-item-name">${item.skinName}</div>
                 <div class="skin-item-rarity"><span class="rarity-dot"></span>${skin.rarity}</div>
-                <div class="skin-item-condition">${item.condition}</div>
-                <div class="skin-item-value">Sell: ${formatNumber(getSkinSellValue(item.skinName, item.condition))} Logs${item.id === game.equipped_axe_item_id ? " • EQUIPPED" : ""}</div>
+                <div class="skin-item-condition">${item.mutationName ? `${item.mutationName} • ` : ""}${item.condition}</div>
+                <div class="skin-item-value">Sell: ${formatNumber(getSkinSellValue(item.skinName, item.condition, item.mutationName))} Logs${item.id === game.equipped_axe_item_id ? " • EQUIPPED" : ""}</div>
                 <div class="skin-item-actions">
                     <button class="buy-btn" data-axe-action="view" data-axe-id="${item.id}" type="button">VIEW</button>
                     <button class="buy-btn" data-axe-action="equip" data-axe-id="${item.id}" type="button" ${item.id === game.equipped_axe_item_id ? "disabled" : ""}>EQUIP</button>
@@ -5600,7 +6052,7 @@ function updateAxeInventoryUI() {
             </div>`;
 
         const preview = card.querySelector(".skin-item-preview");
-        preview.appendChild(createCaseAxeVisual(item.skinName, item.condition));
+        preview.appendChild(createCaseAxeVisual(item.skinName, item.condition, item.mutationName));
         locker.appendChild(card);
     }
 }
@@ -5631,6 +6083,9 @@ function updateEquipment() {
         $("axe-btn").disabled =
             game.numOC < axe.cost;
 
+        $("axe-max-btn").disabled =
+            game.current_axe_index >= availableAxes || game.numOC < AXE_UPGRADES[game.current_axe_index].cost;
+
     } else {
 
         $("axe-name").textContent =
@@ -5646,6 +6101,7 @@ function updateEquipment() {
             "MAXED";
 
         $("axe-btn").disabled = true;
+        $("axe-max-btn").disabled = true;
     }
 
     renderChopAxe();
@@ -5659,7 +6115,9 @@ function updateEquipment() {
         `Hire Clicker — ${formatNumber(game.auto_clicker_cost)} Logs`;
 
     $("auto-btn").disabled =
-        game.numOC < game.auto_clicker_cost;
+        game.auto_clickers >= MAX_UPGRADE_LEVEL || game.numOC < game.auto_clicker_cost;
+    $("auto-max-btn").disabled =
+        game.auto_clickers >= MAX_UPGRADE_LEVEL || game.numOC < game.auto_clicker_cost;
 
     $("sawmill-info").textContent =
         `Sawmills: ${game.sawmills} • +8 logs/s each`;
@@ -5668,7 +6126,9 @@ function updateEquipment() {
         `Build Sawmill — ${formatNumber(game.sawmill_cost)} Logs`;
 
     $("sawmill-btn").disabled =
-        game.numOC < game.sawmill_cost;
+        game.sawmills >= MAX_UPGRADE_LEVEL || game.numOC < game.sawmill_cost;
+    $("sawmill-max-btn").disabled =
+        game.sawmills >= MAX_UPGRADE_LEVEL || game.numOC < game.sawmill_cost;
 
     $("steam-info").textContent =
         `Steam Engines: ${game.steam_engines} • +45 logs/s each`;
@@ -5677,7 +6137,9 @@ function updateEquipment() {
         `Build Steam Engine — ${formatNumber(game.steam_cost)} Logs`;
 
     $("steam-btn").disabled =
-        game.numOC < game.steam_cost;
+        game.steam_engines >= MAX_UPGRADE_LEVEL || game.numOC < game.steam_cost;
+    $("steam-max-btn").disabled =
+        game.steam_engines >= MAX_UPGRADE_LEVEL || game.numOC < game.steam_cost;
 
     if (axeLockerDirty) {
         updateAxeInventoryUI();
@@ -5730,10 +6192,10 @@ function updateRebirth() {
     $("prestige-name").textContent =
         `Prestige ${game.prestige} / ${PRESTIGE_LIMIT}`;
     $("prestige-bonus").textContent =
-        `Permanent forest power: x${getPrestigeMultiplier().toFixed(2)} • Next prestige unlocks 5 axes`;
+        `Next prestige unlocks 5 axes • No power multiplier`;
 
     if (game.prestige >= PRESTIGE_LIMIT) {
-        $("prestige-info").textContent = "All five prestige forests conquered. Your collection and permanent power remain yours.";
+        $("prestige-info").textContent = "All five prestige forests conquered. Prestige resets the current run and collection.";
         $("prestige-btn").textContent = "ALL PRESTIGES COMPLETE";
         $("prestige-btn").disabled = true;
     } else if (prestigeReady) {
@@ -5840,8 +6302,20 @@ function claimAchievement(id) {
 }
 
 function createChickenModel(kind = "normal", compact = false) {
+    const [baseKind, mutationId] = String(kind).split("__", 2);
     const chicken = document.createElement("div");
-    chicken.className = `chicken-3d chicken-${kind}${compact ? " compact" : ""}`;
+    chicken.className = `chicken-3d chicken-${baseKind}${compact ? " compact" : ""}`;
+    const generatedVariant = CHICKEN_VARIANT_STYLE.get(baseKind);
+    if (generatedVariant) {
+        chicken.style.setProperty("--chicken-body", generatedVariant.body);
+        chicken.style.setProperty("--chicken-shadow", generatedVariant.shadow);
+        chicken.style.setProperty("--chicken-accent", generatedVariant.accent);
+    }
+    const mutation = MUTATION_DEFS.find(entry => entry.id === mutationId);
+    if (mutation) {
+        chicken.dataset.mutation = mutation.id;
+        chicken.style.setProperty("--mutation-color", mutation.color);
+    }
     chicken.innerHTML = `
         <div class="chicken-body"></div>
         <div class="chicken-wing"></div>
@@ -5903,14 +6377,17 @@ function updateCoop() {
 
     const chickenCost = 100 * (game.chickens + 1);
     $("chicken-btn").textContent = `🐔 Buy Chicken — ${formatNumber(chickenCost)} Logs`;
-    $("chicken-btn").disabled = game.numOC < chickenCost;
+    $("chicken-btn").disabled = game.chickens >= MAX_UPGRADE_LEVEL || game.numOC < chickenCost;
+    $("chicken-max-btn").disabled = game.chickens >= MAX_UPGRADE_LEVEL || game.numOC < chickenCost;
 
     $("hatch-btn").textContent = "🐣 Hatch Chicken — 5 Eggs";
-    $("hatch-btn").disabled = game.eggs < 5;
+    $("hatch-btn").disabled = game.chickens >= MAX_UPGRADE_LEVEL || game.eggs < 5;
+    $("hatch-max-btn").disabled = game.chickens >= MAX_UPGRADE_LEVEL || game.eggs < 5;
 
     const coopCost = 250 * (game.coop_level + 1);
     $("coop-btn").textContent = `🛖 Upgrade Coop Lv.${game.coop_level} — ${formatNumber(coopCost)} Logs`;
-    $("coop-btn").disabled = game.numOC < coopCost;
+    $("coop-btn").disabled = game.coop_level >= MAX_UPGRADE_LEVEL || game.numOC < coopCost;
+    $("coop-max-btn").disabled = game.coop_level >= MAX_UPGRADE_LEVEL || game.numOC < coopCost;
 }
 
 function updateLab() {
@@ -5924,6 +6401,9 @@ function updateLab() {
     $("click-upgrade-btn").disabled =
         game.eggs < clickCost;
 
+    $("click-max-btn").disabled =
+        game.egg_upgrades.click_boost >= MAX_UPGRADE_LEVEL || game.eggs < 15 * (game.egg_upgrades.click_boost + 1);
+
     const hungerCost =
         25 * (game.egg_upgrades.hunger_slow + 1);
 
@@ -5932,6 +6412,9 @@ function updateLab() {
 
     $("hunger-upgrade-btn").disabled =
         game.eggs < hungerCost;
+
+    $("hunger-max-btn").disabled =
+        game.egg_upgrades.hunger_slow >= MAX_UPGRADE_LEVEL || game.eggs < 25 * (game.egg_upgrades.hunger_slow + 1);
 
     const featherLevel =
         game.egg_upgrades.feather_boost || 0;
@@ -5945,6 +6428,9 @@ function updateLab() {
     $("feather-btn").disabled =
         game.eggs < featherCost;
 
+    $("feather-max-btn").disabled =
+        (game.egg_upgrades.feather_boost || 0) >= MAX_UPGRADE_LEVEL || game.eggs < 40 * ((game.egg_upgrades.feather_boost || 0) + 1);
+
     const petCost =
         500 * (game.pet_level + 1);
 
@@ -5953,27 +6439,36 @@ function updateLab() {
 
     $("pet-btn").disabled =
         game.numOC < petCost;
+
+    $("pet-max-btn").disabled =
+        game.pet_level >= MAX_UPGRADE_LEVEL || game.numOC < 500 * (game.pet_level + 1);
 }
 
 function updateMarket() {
+    const remaining = getQuickOpenCooldownRemaining();
+    const controls = [
+        { type: "normal", spin: "crate-btn", quick: "crate-quick-btn", result: "crate-result" },
+        { type: "mutant", spin: "darkweb-btn", quick: "darkweb-quick-btn", result: "darkweb-result" },
+        { type: "mutatedAxe", spin: "mutated-axe-btn", quick: "mutated-axe-quick-btn", result: "mutated-axe-result" },
+        { type: "mutatedFlock", spin: "mutated-flock-btn", quick: "mutated-flock-quick-btn", result: "mutated-flock-result" },
+        { type: "worldtree", spin: "worldtree-btn", quick: "worldtree-quick-btn", result: "worldtree-result" }
+    ];
 
-    $("crate-result").textContent =
-        lastCrateResult;
+    for (const control of controls) {
+        const definition = CASE_DEFINITIONS[control.type];
+        const affordable = game.numOC >= definition.cost;
+        const quickButton = $(control.quick);
+        const spinButton = $(control.spin);
+        spinButton.disabled = !affordable || caseOpening;
+        quickButton.disabled = !affordable || caseOpening || remaining > 0;
+        quickButton.textContent = remaining > 0 ? `COOLDOWN ${remaining}s` : "QUICK OPEN";
+        $(control.result).textContent = lastCaseResults[control.type] || "Ready to open.";
+    }
 
-    $("darkweb-result").textContent =
-        lastDarkwebResult;
-
-    $("crate-btn").disabled =
-        game.numOC < 250;
-
-    $("crate-quick-btn").disabled =
-        game.numOC < 250;
-
-    $("darkweb-btn").disabled =
-        game.numOC < 1500;
-
-    $("darkweb-quick-btn").disabled =
-        game.numOC < 1500;
+    $("normal-case-count").textContent = NORMAL_CASE_ITEMS.length;
+    $("mutant-case-count").textContent = MUTANT_CASE_ITEMS.length;
+    $("mutated-axe-case-count").textContent = NORMAL_CASE_ITEMS.length;
+    $("mutated-flock-case-count").textContent = MUTANT_CASE_ITEMS.length;
 }
 
 
@@ -6100,7 +6595,7 @@ function renderChopAxe(force = false) {
     }
     if (!force && renderedChopAxeItemId === item.id) return;
     wrap.innerHTML = "";
-    wrap.appendChild(createAxeModel(item.skinName, item.condition, true));
+    wrap.appendChild(createAxeModel(item.skinName, item.condition, true, item.mutationName));
     renderedChopAxeItemId = item.id;
 }
 
@@ -6170,7 +6665,7 @@ function buyUpgrade() {
 
 function buyAuto() {
 
-    if (game.numOC < game.auto_clicker_cost) {
+    if (game.auto_clickers >= MAX_UPGRADE_LEVEL || game.numOC < game.auto_clicker_cost) {
         return;
     }
 
@@ -6186,7 +6681,7 @@ function buyAuto() {
 
 function buySawmill() {
 
-    if (game.numOC < game.sawmill_cost) {
+    if (game.sawmills >= MAX_UPGRADE_LEVEL || game.numOC < game.sawmill_cost) {
         return;
     }
 
@@ -6202,7 +6697,7 @@ function buySawmill() {
 
 function buySteam() {
 
-    if (game.numOC < game.steam_cost) {
+    if (game.steam_engines >= MAX_UPGRADE_LEVEL || game.numOC < game.steam_cost) {
         return;
     }
 
@@ -6263,6 +6758,7 @@ function doRebirth() {
     game.upgrGoal =
         AXE_UPGRADES[0].cost;
 
+    saveGame();
     toast(
         `💎 REBIRTH ${game.rebirth}! +${data.shards} Shards`
     );
@@ -6277,7 +6773,19 @@ function doPrestige() {
     game.rebirth = 0;
     game.rebirth_shards = 0;
     game.rebirth_upgrades = { mult: 0, speed: 0, start_logs: 0 };
-    game.numOC = 1000 * game.prestige;
+    game.egg_upgrades = { click_boost: 0, hunger_slow: 0, egg_mult: 0, feather_boost: 0 };
+    game.numOC = 0;
+    game.eggs = 0;
+    game.chickens = 0;
+    game.mutated_chickens = { neon: 0, void: 0, golden: 0 };
+    game.chicken_variants = {};
+    game.chicken_hunger = 100;
+    game.chicken_food = 10;
+    game.pet_level = 0;
+    game.coop_level = 0;
+    game.achievements = [];
+    game.total_chopped = 0;
+    game.total_clicks = 0;
     game.current_axe_index = 0;
     game.auto_clickers = 0;
     game.auto_clicker_cost = 25;
@@ -6285,12 +6793,23 @@ function doPrestige() {
     game.sawmill_cost = 250;
     game.steam_engines = 0;
     game.steam_cost = 2500;
+    game.axe_inventory = [createAxeInventoryItem("Default Axe", "Factory New")];
+    game.equipped_axe_item_id = game.axe_inventory[0].id;
+    game.equipped_axe_skin = "Default Axe";
+    game.axe_skins = {};
+    game.quick_open_cooldown_until = 0;
+    lastCrateResult = "Ready to open.";
+    lastDarkwebResult = "Ready to open.";
+    for (const type of Object.keys(lastCaseResults)) lastCaseResults[type] = "Ready to open.";
+    axeLockerDirty = true;
+    coopVisualDirty = true;
+    renderedChopAxeItemId = null;
     game.treeName = "hypergamous trees";
     game.addNum = getRebirthPenalty();
     game.upgrGoal = AXE_UPGRADES[0].cost;
 
     saveGame();
-    toast(`🌳 PRESTIGE ${game.prestige}! Five new axes unlocked.`);
+    toast(`🌳 PRESTIGE ${game.prestige}! The entire forest was reset.`);
     updateUI();
 }
 
@@ -6325,6 +6844,8 @@ function buyRebirthUpgrade(type) {
 
 function buyChicken() {
 
+    if (game.chickens >= MAX_UPGRADE_LEVEL) return;
+
     const cost =
         100 * (game.chickens + 1);
 
@@ -6343,7 +6864,7 @@ function buyChicken() {
 
 function hatchChicken() {
 
-    if (game.eggs < 5) {
+    if (game.chickens >= MAX_UPGRADE_LEVEL || game.eggs < 5) {
         return;
     }
 
@@ -6357,6 +6878,8 @@ function hatchChicken() {
 }
 
 function upgradeCoop() {
+
+    if (game.coop_level >= MAX_UPGRADE_LEVEL) return;
 
     const cost =
         250 * (game.coop_level + 1);
@@ -6379,6 +6902,10 @@ function upgradeCoop() {
 ========================================================= */
 
 function buyEggUpgrade(type) {
+
+    if (type === "click_boost" && game.egg_upgrades.click_boost >= MAX_UPGRADE_LEVEL) return;
+    if (type === "hunger_slow" && game.egg_upgrades.hunger_slow >= MAX_UPGRADE_LEVEL) return;
+    if (type === "feather_boost" && (game.egg_upgrades.feather_boost || 0) >= MAX_UPGRADE_LEVEL) return;
 
     let cost;
 
@@ -6428,6 +6955,8 @@ function buyEggUpgrade(type) {
 }
 
 function upgradePet() {
+
+    if (game.pet_level >= MAX_UPGRADE_LEVEL) return;
 
     const cost =
         500 * (game.pet_level + 1);
@@ -6652,6 +7181,14 @@ const MUTANT_CASE_ITEMS = [
     { name: "Worldsong Chick", kind: "chicken", chickenType: "worldsong", rarity: "Godly", color: "#f472b6" },
 ];
 
+MUTANT_CASE_ITEMS.push(...CHICKEN_VARIANT_EXTRAS.map(variant => ({
+    name: variant.name,
+    kind: "chicken",
+    chickenType: variant.chickenType,
+    rarity: variant.rarity,
+    color: variant.color
+})));
+
 function pickCaseItem(items, rarities) {
     const pool = items.filter(item => rarities.includes(item.rarity));
     if (!pool.length) return items[0];
@@ -6660,8 +7197,8 @@ function pickCaseItem(items, rarities) {
 
 const CASE_RARITY_CHANCES = {
     normal: [
-        { rarity: "Common", chance: 35 },
-        { rarity: "Uncommon", chance: 23.5 },
+        { rarity: "Common", chance: 34.9 },
+        { rarity: "Uncommon", chance: 23 },
         { rarity: "Rare", chance: 18 },
         { rarity: "Epic", chance: 10.5 },
         { rarity: "Legendary", chance: 6.5 },
@@ -6670,10 +7207,15 @@ const CASE_RARITY_CHANCES = {
         { rarity: "Ancient", chance: 0.9 },
         { rarity: "Celestial", chance: 0.35 },
         { rarity: "Divine", chance: 0.1 },
-        { rarity: "Godly", chance: 0.05 }
+        { rarity: "Godly", chance: 0.05 },
+        { rarity: "Astral", chance: 0.25 },
+        { rarity: "Eclipse", chance: 0.2 },
+        { rarity: "Voidborn", chance: 0.1 },
+        { rarity: "Omniscient", chance: 0.04 },
+        { rarity: "Genesis", chance: 0.01 }
     ],
     mutant: [
-        { rarity: "Common", chance: 35 },
+        { rarity: "Common", chance: 34 },
         { rarity: "Uncommon", chance: 22 },
         { rarity: "Rare", chance: 16 },
         { rarity: "Epic", chance: 10.5 },
@@ -6683,7 +7225,12 @@ const CASE_RARITY_CHANCES = {
         { rarity: "Ancient", chance: 1.1 },
         { rarity: "Celestial", chance: 0.5 },
         { rarity: "Divine", chance: 0.15 },
-        { rarity: "Godly", chance: 0.05 }
+        { rarity: "Godly", chance: 0.05 },
+        { rarity: "Astral", chance: 0.5 },
+        { rarity: "Eclipse", chance: 0.3 },
+        { rarity: "Voidborn", chance: 0.1 },
+        { rarity: "Omniscient", chance: 0.05 },
+        { rarity: "Genesis", chance: 0.05 }
     ]
 };
 
@@ -6705,6 +7252,41 @@ function weightedNormalItem() {
 
 function weightedMutantItem() {
     return weightedCaseItem(MUTANT_CASE_ITEMS, CASE_RARITY_CHANCES.mutant);
+}
+
+const CASE_DEFINITIONS = {
+    normal: { title: "Axe Skin Case", cost: 250, kind: "axe" },
+    mutant: { title: "Mutant Chicken Case", cost: 1500, kind: "chicken" },
+    mutatedAxe: { title: "Mutated Axe Case", cost: 12000, kind: "mutated-axe" },
+    mutatedFlock: { title: "Mutated Flock Case", cost: 10000, kind: "mutated-chicken" },
+    worldtree: { title: "Worldtree Cache", cost: 50000, kind: "mixed" }
+};
+
+function getCasePool(type) {
+    if (type === "mutant" || type === "mutatedFlock") return MUTANT_CASE_ITEMS;
+    if (type === "worldtree") return [...NORMAL_CASE_ITEMS, ...MUTANT_CASE_ITEMS];
+    return NORMAL_CASE_ITEMS;
+}
+
+function rollCaseReward(type) {
+    const definition = CASE_DEFINITIONS[type];
+    if (!definition) return null;
+
+    let item;
+    if (definition.kind === "chicken" || definition.kind === "mutated-chicken") {
+        item = weightedMutantItem();
+    } else if (definition.kind === "mixed") {
+        item = Math.random() < .5 ? weightedNormalItem() : weightedMutantItem();
+    } else {
+        item = weightedNormalItem();
+    }
+
+    if (definition.kind === "mutated-axe" || definition.kind === "mutated-chicken" || (definition.kind === "mixed" && Math.random() < .2)) {
+        const mutation = rollMutation();
+        item = { ...item, mutationName: mutation.name, mutationId: mutation.id, mutationColor: mutation.color };
+    }
+
+    return item;
 }
 
 function renderCaseDropTable(type) {
@@ -6779,8 +7361,8 @@ function rollAxeCondition() {
     return AXE_CONDITIONS[4].name;
 }
 
-function grantAxeSkin(name, conditionName = rollAxeCondition()) {
-    const item = createAxeInventoryItem(name, conditionName);
+function grantAxeSkin(name, conditionName = rollAxeCondition(), mutationName = null) {
+    const item = createAxeInventoryItem(name, conditionName, mutationName);
     game.axe_inventory.push(item);
     syncAxeSkinCounts();
     axeLockerDirty = true;
@@ -6820,7 +7402,7 @@ function sellAxeItem(id) {
     const item = getAxeItemById(id);
     if (!item || item.skinName === "Default Axe") return false;
 
-    const value = getSkinSellValue(item.skinName, item.condition);
+    const value = getSkinSellValue(item.skinName, item.condition, item.mutationName);
     game.numOC += value;
     const index = game.axe_inventory.findIndex(entry => entry.id === id);
     if (index !== -1) game.axe_inventory.splice(index, 1);
@@ -6837,19 +7419,21 @@ function sellAxeItem(id) {
     return true;
 }
 
-function createAxeModel(skinName, conditionName, compact = false) {
+function createAxeModel(skinName, conditionName, compact = false, mutationName = null) {
     return createWebGLAxeCanvas(skinName, conditionName, {
         compact,
         autoRotate: false,
         viewer: false,
-        held: true
+        held: true,
+        mutationName
     });
 }
 
-function createChickenCaseVisual(kind) {
+function createChickenCaseVisual(kind, mutationName = null) {
     const wrap = document.createElement("div");
     wrap.className = "case-chicken-preview";
-    wrap.appendChild(createChickenModel(kind, true));
+    const mutation = getMutationDefinition(mutationName);
+    wrap.appendChild(createChickenModel(mutation ? `${kind}__${mutation.id}` : kind, true));
     return wrap;
 }
 
@@ -7082,11 +7666,13 @@ function createAxeFallbackSnapshot(skinName, conditionName = "Factory New") {
     return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 
-function createCaseAxeVisual(skinName, conditionName = "Factory New") {
+function createCaseAxeVisual(skinName, conditionName = "Factory New", mutationName = null) {
     const img = document.createElement("img");
     img.className = "case-axe-svg";
     img.alt = `${skinName} axe preview`;
     img.setAttribute("aria-label", `${skinName} axe preview`);
+    const mutation = getMutationDefinition(mutationName);
+    if (mutation) img.dataset.mutation = mutation.id;
 
     // Transparent until the shared renderer fills it. This prevents a broken
     // image icon while keeping the reel animation completely responsive.
@@ -7104,9 +7690,9 @@ function createCaseItem(item) {
     const visual = document.createElement("div");
     visual.className = "case-visual";
     if (item.kind === "skin") {
-        visual.appendChild(createCaseAxeVisual(item.skinName));
+        visual.appendChild(createCaseAxeVisual(item.skinName, "Factory New", item.mutationName));
     } else {
-        visual.appendChild(createChickenCaseVisual(item.chickenType || "normal"));
+        visual.appendChild(createChickenCaseVisual(item.chickenType || "normal", item.mutationName));
     }
     el.appendChild(visual);
 
@@ -7117,25 +7703,26 @@ function createCaseItem(item) {
 
     const rarity = document.createElement("div");
     rarity.className = "item-rarity";
-    rarity.textContent = item.rarity;
+    rarity.textContent = item.mutationName ? `${item.rarity} • ${item.mutationName}` : item.rarity;
     el.appendChild(rarity);
 
     return el;
 }
 
-function grantChickenCaseReward(chickenType) {
-    if (chickenType === "normal") {
+function grantChickenCaseReward(chickenType, mutationName = null) {
+    if (chickenType === "normal" && !mutationName) {
         game.chickens++;
         return;
     }
 
-    if (Object.prototype.hasOwnProperty.call(game.mutated_chickens, chickenType)) {
+    if (!mutationName && Object.prototype.hasOwnProperty.call(game.mutated_chickens, chickenType)) {
         game.mutated_chickens[chickenType]++;
         return;
     }
 
-    game.chicken_variants[chickenType] =
-        (game.chicken_variants[chickenType] || 0) + 1;
+    const mutation = getMutationDefinition(mutationName);
+    const variantKey = mutation ? `${chickenType}__${mutation.id}` : chickenType;
+    game.chicken_variants[variantKey] = (game.chicken_variants[variantKey] || 0) + 1;
 }
 
 
@@ -7191,13 +7778,13 @@ function triggerCaseRevealEffect(item) {
         Godly: "GODLY TIER UNLEASHED"
     })[item.rarity] || "RARE DISCOVERY";
     $("case-reveal-name").textContent = item.name;
-    $("case-reveal-rarity").textContent = item.rarity;
+    $("case-reveal-rarity").textContent = item.mutationName ? `${item.rarity} • ${item.mutationName}` : item.rarity;
     $("case-reveal-caption").textContent = item.kind === "skin"
-        ? "Axe skin added to your locker"
-        : "New flock member added to your coop";
+        ? `Axe skin added to your locker${item.mutationName ? ` with ${item.mutationName}` : ""}`
+        : `New flock member added to your coop${item.mutationName ? ` with ${item.mutationName}` : ""}`;
     visual.replaceChildren(item.kind === "skin"
-        ? createCaseAxeVisual(item.skinName, "Factory New")
-        : createChickenCaseVisual(item.chickenType || "normal"));
+        ? createCaseAxeVisual(item.skinName, "Factory New", item.mutationName)
+        : createChickenCaseVisual(item.chickenType || "normal", item.mutationName));
 
     const revealDuration = item.rarity === "Godly" ? 5200 : item.rarity === "Ancient" ? 2800 : 3800;
     caseRevealTimer = setTimeout(() => {
@@ -7208,14 +7795,15 @@ function triggerCaseRevealEffect(item) {
     }, revealDuration);
 }
 
-function handleCaseReward(winningItem, isMutant) {
+function handleCaseReward(winningItem, caseType) {
     let inventoryItem = null;
+    const mutationLabel = winningItem.mutationName ? ` • ${winningItem.mutationName}` : "";
     if (winningItem.kind === "skin") {
         const condition = rollAxeCondition();
-        inventoryItem = grantAxeSkin(winningItem.skinName, condition);
+        inventoryItem = grantAxeSkin(winningItem.skinName, condition, winningItem.mutationName);
         $("case-result").innerHTML = `
             <div class="case-win-title" style="color:${RARITY_COLORS[winningItem.rarity] || "#aeb8c7"}">${winningItem.name}</div>
-            <div class="case-win-subtitle">${condition} • Added to your locker</div>
+            <div class="case-win-subtitle">${winningItem.rarity}${mutationLabel} • ${condition} • Added to your locker</div>
             <div class="case-win-actions">
                 <button class="buy-btn" id="case-equip-won" type="button">EQUIP</button>
                 <button class="buy-btn sell-btn" id="case-sell-won" type="button">SELL FOR ${formatNumber(inventoryItem.sellValue)} LOGS</button>
@@ -7233,37 +7821,41 @@ function handleCaseReward(winningItem, isMutant) {
 
     } else {
         if (winningItem.kind === "chicken") {
-            grantChickenCaseReward(winningItem.chickenType || "normal");
+            grantChickenCaseReward(winningItem.chickenType || "normal", winningItem.mutationName);
             coopVisualDirty = true;
         }
 
         $("case-result").innerHTML = `
             <div class="case-win-title" style="color:${RARITY_COLORS[winningItem.rarity] || "#aeb8c7"}">${winningItem.name.toUpperCase()} ADDED</div>
-            <div class="case-win-subtitle">Added to your coop.</div>`;
+            <div class="case-win-subtitle">${winningItem.rarity}${mutationLabel} • Added to your coop.</div>`;
     }
 
-    if (isMutant) lastDarkwebResult = `🕵️ ${winningItem.name}`;
-    else lastCrateResult = `📦 ${winningItem.name}`;
+    const resultLabel = `${winningItem.name} • ${winningItem.rarity}${mutationLabel}`;
+    lastCaseResults[caseType] = `🎁 ${resultLabel}`;
+    if (caseType === "mutant" || caseType === "mutatedFlock") lastDarkwebResult = `🕵️ ${resultLabel}`;
+    if (caseType === "normal" || caseType === "mutatedAxe") lastCrateResult = `📦 ${resultLabel}`;
 
     saveGame();
-    toast(`${winningItem.name} received!`);
+    toast(`${winningItem.name} • ${winningItem.rarity}${mutationLabel}`);
     updateUI();
 }
 
 function quickOpenCase(type) {
-    const isMutant = type === "mutant";
-    const cost = isMutant ? 1500 : 250;
-    if (game.numOC < cost || caseOpening) return;
+    const definition = CASE_DEFINITIONS[type];
+    if (!definition) return;
+    const cooldownRemaining = getQuickOpenCooldownRemaining();
+    if (game.numOC < definition.cost || caseOpening || cooldownRemaining > 0) return;
 
-    game.numOC -= cost;
-    const winningItem = isMutant ? weightedMutantItem() : weightedNormalItem();
-    handleCaseReward(winningItem, isMutant);
+    game.numOC -= definition.cost;
+    game.quick_open_cooldown_until = Date.now() + QUICK_OPEN_COOLDOWN_SECONDS * 1000;
+    const winningItem = rollCaseReward(type);
+    handleCaseReward(winningItem, type);
+    updateUI();
 }
 
 function openCase(type) {
-    const isMutant = type === "mutant";
-    const cost = isMutant ? 1500 : 250;
-    if (game.numOC < cost || caseOpening) return;
+    const definition = CASE_DEFINITIONS[type];
+    if (!definition || game.numOC < definition.cost || caseOpening) return;
 
     if (caseAnimationFrame) {
         cancelAnimationFrame(caseAnimationFrame);
@@ -7276,7 +7868,7 @@ function openCase(type) {
     clearTimeout(caseRevealTimer);
     $("case-reveal-panel").classList.remove("open");
     $("case-reveal-panel").setAttribute("aria-hidden", "true");
-    game.numOC -= cost;
+    game.numOC -= definition.cost;
 
     const overlay = $("case-overlay");
     const items = $("case-items");
@@ -7286,16 +7878,16 @@ function openCase(type) {
     items.innerHTML = "";
     items.classList.remove("case-moving");
     result.textContent = "";
-    $("case-title").textContent = isMutant ? "Mutant Chicken Case" : "Axe Skin Case";
+    $("case-title").textContent = definition.title;
     $("case-cost").textContent = "ROLLING...";
     overlay.classList.remove("case-big-win");
     overlay.classList.add("open");
 
-    const pool = isMutant ? MUTANT_CASE_ITEMS : NORMAL_CASE_ITEMS;
+    const pool = getCasePool(type);
     // Enough cards for a long CS-style travel, without creating a huge DOM.
     const totalItems = 96;
     const winningIndex = 78;
-    const winningItem = isMutant ? weightedMutantItem() : weightedNormalItem();
+    const winningItem = rollCaseReward(type);
 
     const fragment = document.createDocumentFragment();
     for (let i = 0; i < totalItems; i++) {
@@ -7374,7 +7966,7 @@ function openCase(type) {
             $("case-close").disabled = false;
             $("case-close").textContent = "CLOSE";
 
-            handleCaseReward(winningItem, isMutant);
+            handleCaseReward(winningItem, type);
             triggerCaseRevealEffect(winningItem);
             $("case-cost").textContent = "CASE OPENED";
         }
@@ -7465,14 +8057,16 @@ function openAxeViewer(itemId = null) {
     axeViewerItemId = item.id;
     const skin = getSkinDefinition(item.skinName);
     const stage = $("axe-3d-stage");
-    stage.style.setProperty("--preview-rarity", RARITY_COLORS[skin.rarity] || "#92bd4d");
+    const mutation = getMutationDefinition(item.mutationName);
+    stage.style.setProperty("--preview-rarity", mutation?.color || RARITY_COLORS[skin.rarity] || "#92bd4d");
     const oldCanvas = stage.querySelector("canvas.axe-webgl-canvas");
     if (oldCanvas) oldCanvas.remove();
 
     axeViewerCanvas = createWebGLAxeCanvas(item.skinName, item.condition, {
         compact: false,
         autoRotate: false,
-        viewer: true
+        viewer: true,
+        mutationName: item.mutationName
     });
     axeViewerCanvas.style.position = "absolute";
     axeViewerCanvas.style.inset = "0";
@@ -7484,10 +8078,10 @@ function openAxeViewer(itemId = null) {
     $("axe-view-subtitle").textContent = `${skin.rarity} • ${item.condition}`;
     $("axe-view-meta").textContent = item.id === game.equipped_axe_item_id
         ? "Equipped • This is the axe you are using"
-        : `Owned • Sell value ${formatNumber(getSkinSellValue(item.skinName, item.condition))} Logs`;
+        : `Owned${item.mutationName ? ` • ${item.mutationName}` : ""} • Sell value ${formatNumber(getSkinSellValue(item.skinName, item.condition, item.mutationName))} Logs`;
     $("axe-view-equip").textContent = item.id === game.equipped_axe_item_id ? "EQUIPPED" : "EQUIP";
     $("axe-view-equip").disabled = item.id === game.equipped_axe_item_id;
-    $("axe-view-sell").textContent = item.skinName === "Default Axe" ? "CANNOT SELL" : `SELL FOR ${formatNumber(getSkinSellValue(item.skinName, item.condition))}`;
+    $("axe-view-sell").textContent = item.skinName === "Default Axe" ? "CANNOT SELL" : `SELL FOR ${formatNumber(getSkinSellValue(item.skinName, item.condition, item.mutationName))}`;
     $("axe-view-sell").disabled = item.skinName === "Default Axe";
     $("axe-view-overlay").classList.add("open");
 }
@@ -7649,7 +8243,9 @@ function buildAxeGeometry(skinName){
 
 function createWebGLAxeCanvas(skinName,conditionName,opts={}){
     const canvas=document.createElement('canvas');canvas.className='axe-webgl-canvas';canvas.dataset.skin=skinName;canvas.dataset.condition=conditionName;
-    const state={canvas,skinName,conditionName,autoRotate:!!opts.autoRotate,viewer:!!opts.viewer,held:!!opts.held,rotation:{x:-.12,y:.32},vel:{x:0,y:0},drag:false,lastX:0,lastY:0,compact:!!opts.compact,attack:0};
+    const mutation=getMutationDefinition(opts.mutationName);
+    if(mutation){canvas.dataset.mutation=mutation.id;canvas.style.setProperty('--mutation-color',mutation.color);}
+    const state={canvas,skinName,conditionName,mutationName:mutation?.name||null,autoRotate:!!opts.autoRotate,viewer:!!opts.viewer,held:!!opts.held,rotation:{x:-.12,y:.32},vel:{x:0,y:0},drag:false,lastX:0,lastY:0,compact:!!opts.compact,attack:0};
     let gl=null;
     try {
         gl=canvas.getContext('webgl',{antialias:true,alpha:true,depth:true,stencil:false,premultipliedAlpha:false,preserveDrawingBuffer:false});
@@ -7668,7 +8264,7 @@ function createWebGLAxeCanvas(skinName,conditionName,opts={}){
     gl.bindBuffer(gl.ARRAY_BUFFER,mb);gl.bufferData(gl.ARRAY_BUFFER,geom.parts,gl.STATIC_DRAW);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ib);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,geom.indices,gl.STATIC_DRAW);
     const ri=Math.max(0,RARITY_ORDER.indexOf(getSkinDefinition(skinName).rarity));
-    const skin=getSkinDefinition(skinName),rarityColor=getRarityColor(skin.rarity);let bH=skin.color||'#888',aH=skin.accent||'#ccc',hH=skin.handle||'#333',eH=skin.edge||'#fff';if(String(skinName).toLowerCase().includes('chromaflux')){bH='#7c3aed';aH='#22d3ee';hH='#111827';eH='#f8fafc';}
+    const skin=getSkinDefinition(skinName),rarityColor=mutation?.color||getRarityColor(skin.rarity);let bH=skin.color||'#888',aH=skin.accent||'#ccc',hH=skin.handle||'#333',eH=skin.edge||'#fff';if(String(skinName).toLowerCase().includes('chromaflux')){bH='#7c3aed';aH='#22d3ee';hH='#111827';eH='#f8fafc';}
     const base=webglColor(bH),accent=webglColor(aH),handle=webglColor(hH),edge=webglColor(eH),rar=webglColor(rarityColor),wear=getConditionDefinition(conditionName).wear,chrom=String(skinName).toLowerCase().includes('chromaflux')?1:0;
     let lastW=0,lastH=0;
     function resize(){
@@ -7698,7 +8294,7 @@ function createWebGLAxeCanvas(skinName,conditionName,opts={}){
 }
 
 $('axe-view-equip').onclick=()=>{if(axeViewerItemId){equipAxeItem(axeViewerItemId);openAxeViewer(axeViewerItemId);}};
-$('axe-view-sell').onclick=()=>{if(!axeViewerItemId)return;const item=getAxeItemById(axeViewerItemId);if(!item||item.skinName==='Default Axe')return;const value=getSkinSellValue(item.skinName,item.condition);if(sellAxeItem(item.id)){axeViewerItemId=getEquippedAxeItem()?.id||null;openAxeViewer(axeViewerItemId);toast(`💰 Sold for ${formatNumber(value)} Logs.`);}};
+$('axe-view-sell').onclick=()=>{if(!axeViewerItemId)return;const item=getAxeItemById(axeViewerItemId);if(!item||item.skinName==='Default Axe')return;const value=getSkinSellValue(item.skinName,item.condition,item.mutationName);if(sellAxeItem(item.id)){axeViewerItemId=getEquippedAxeItem()?.id||null;openAxeViewer(axeViewerItemId);toast(`💰 Sold for ${formatNumber(value)} Logs.`);}};
 $('axe-view-close').onclick=closeAxeViewer;
 
 /* =========================================================
@@ -7864,14 +8460,42 @@ $("skin-locker-sort").addEventListener("change", event => {
 $("axe-view-close")
     .addEventListener("click", closeAxeViewer);
 
+$("axe-max-btn")
+    .addEventListener("click", buyMaxAxeUpgrades);
+
+$("skin-locker-sell-visible")
+    .addEventListener("click", sellAllVisibleAxes);
+
+$("skin-locker-sell-rarity")
+    .addEventListener("click", () => sellAllRarityAxes(lockerRarityFilter));
+
+$("skin-locker-sell-limit-btn")
+    .addEventListener("click", () => {
+        const limit = Number($("skin-locker-sell-limit").value);
+        if (Number.isFinite(limit) && limit >= 0 && window.confirm(`Sell all non-default axes worth ${formatNumber(limit)} Logs or less?`)) {
+            sellAxesUnderValue(limit);
+        }
+    });
+
 $("auto-btn")
     .addEventListener("click", buyAuto);
+
+$("auto-max-btn").addEventListener("click", () => buyMaxLogUpgrade("auto"));
 
 $("sawmill-btn")
     .addEventListener("click", buySawmill);
 
+$("sawmill-max-btn").addEventListener("click", () => buyMaxLogUpgrade("sawmill"));
+
 $("steam-btn")
     .addEventListener("click", buySteam);
+
+$("steam-max-btn").addEventListener("click", () => buyMaxLogUpgrade("steam"));
+
+$("chicken-max-btn").addEventListener("click", () => buyMaxLogUpgrade("chicken"));
+$("hatch-max-btn").addEventListener("click", () => buyMaxLogUpgrade("hatch"));
+$("coop-max-btn").addEventListener("click", () => buyMaxLogUpgrade("coop"));
+$("pet-max-btn").addEventListener("click", () => buyMaxLogUpgrade("pet"));
 
 $("rebirth-btn")
     .addEventListener("click", doRebirth);
@@ -7918,6 +8542,21 @@ $("feather-btn")
         buyEggUpgrade("feather_boost");
     });
 
+$("click-max-btn")
+    .addEventListener("click", () => {
+        buyMaxEggUpgrade("click_boost");
+    });
+
+$("hunger-max-btn")
+    .addEventListener("click", () => {
+        buyMaxEggUpgrade("hunger_slow");
+    });
+
+$("feather-max-btn")
+    .addEventListener("click", () => {
+        buyMaxEggUpgrade("feather_boost");
+    });
+
 $("pet-btn")
     .addEventListener("click", upgradePet);
 
@@ -7940,6 +8579,13 @@ $("darkweb-quick-btn")
     .addEventListener("click", () => {
         quickOpenCase("mutant");
     });
+
+$("mutated-axe-btn").addEventListener("click", () => openCase("mutatedAxe"));
+$("mutated-axe-quick-btn").addEventListener("click", () => quickOpenCase("mutatedAxe"));
+$("mutated-flock-btn").addEventListener("click", () => openCase("mutatedFlock"));
+$("mutated-flock-quick-btn").addEventListener("click", () => quickOpenCase("mutatedFlock"));
+$("worldtree-btn").addEventListener("click", () => openCase("worldtree"));
+$("worldtree-quick-btn").addEventListener("click", () => quickOpenCase("worldtree"));
 
 $("normal-drop-toggle")
     .addEventListener("click", () => toggleCaseDropTable("normal"));

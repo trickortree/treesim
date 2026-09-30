@@ -1,6 +1,6 @@
 {
   "name": "hypergamous-tree-chopping-simulator-3",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Hypergamous Tree Chopping Simulator 3",
   "main": "main.js",
   "scripts": {
@@ -43,7 +43,7 @@
       "releaseType": "release"
     },
     "releaseInfo": {
-      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.0.6\n\n- Added ten new axe skins across the rarity collection.\n- Added ten new chicken breeds to the Mutant Chicken Case and coop.\n- New breed visuals are included in case reveals and your flock.\n- Published as a standard GitHub release with updater metadata for automatic updates."
+      "releaseNotes": "!!! MAJOR PROGRESS RESET !!! ALL PLAYER PROGRESS RESETS AFTER UPDATING. THIS UPDATE IS REQUIRED TO CONTINUE PLAYING.\n\nHypergamous Tree Chopping Simulator 3 - Update 1.0.7\n\n- Rebalanced progression with 100 additional rebirth tiers and 500 additional axe upgrades.\n- Added 500 collectible axe skins and 500 chicken breeds across expanded rarities.\n- Added five total case types, including mutated axe and chicken cases.\n- Added Upgrade Max to tools, research using eggs, pets, and machines with a 500-level cap.\n- Added bulk axe selling by locker filter, rarity, and value threshold.\n- Quick Open now shares a one-minute cooldown and reports reward rarity and mutation.\n- Prestige is now an ultimate reset of axe skins, chickens, eggs, research, and run progression.\n- Existing saves remain in the old save file as a backup; new progress starts in a fresh save."
     }
   }
 }
