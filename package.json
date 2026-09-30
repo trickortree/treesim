@@ -1,6 +1,6 @@
 {
   "name": "hypergamous-tree-chopping-simulator-3",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Hypergamous Tree Chopping Simulator 3",
   "main": "main.js",
   "scripts": {
@@ -43,7 +43,7 @@
       "releaseType": "release"
     },
     "releaseInfo": {
-      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.0.8\n\n- Axe Skin Locker now loads in small batches with lightweight previews, preventing large collections from freezing the page.\n- Search, rarity, and sort filters remain fully supported, with a Load More control for the rest of the collection."
+      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.0.9\n\n- Fixed the Axe Skin Locker item count overflowing beyond the panel edge."
     }
   }
 }
