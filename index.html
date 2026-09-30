@@ -1182,6 +1182,14 @@ button {
     width: 210px;
 }
 
+.prestige-milestones, .recent-discoveries { margin-top: 14px; }
+.prestige-milestones { grid-column: 1 / -1; color: #d4e5b5; font-size: 10px; line-height: 1.8; }
+.recent-discovery-list { display: grid; gap: 6px; }
+.recent-discovery-row { display: grid; grid-template-columns: 72px minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 8px 10px; border: 1px solid #26323c; border-radius: 6px; background: #101720; font-size: 10px; }
+.recent-discovery-rarity { font-weight: 950; }
+.recent-discovery-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #dce3e9; }
+.recent-discovery-time { color: #8491a0; white-space: nowrap; }
+
 /* MARKET */
 
 .atlas-summary,
@@ -1360,6 +1368,7 @@ button {
 }
 
 .market-actions .buy-btn { height: 40px; }
+.market-actions .case-open-three { grid-column: 1 / -1; height: 34px; }
 
 .market-actions .case-quick-btn {
     border: 1px solid #536442;
@@ -2109,6 +2118,16 @@ button {
     border: 1px solid #252e3a;
     box-shadow: inset 0 0 0 1px rgba(255,255,255,.02), inset 0 0 60px rgba(0,0,0,.42);
 }
+
+.case-track-list { display: grid; gap: 8px; }
+.case-overlay.case-multi-open .case-track { height: 142px; }
+.case-overlay.case-multi-open .case-items { top: 3px; height: 130px; }
+.case-overlay.case-multi-open .case-item { width: 118px; height: 128px; padding: 4px 5px 8px; }
+.case-overlay.case-multi-open .case-visual { height: 67px; margin-bottom: 1px; }
+.case-overlay.case-multi-open .case-axe-svg { height: 67px; }
+.case-overlay.case-multi-open .item-name { margin-top: 3px; font-size: 8px; }
+.case-overlay.case-multi-open .item-rarity { margin-top: 2px; font-size: 7px; }
+.case-overlay.case-multi-open .case-controls { margin-top: 10px; }
 
 .case-track::before,
 .case-track::after {
@@ -3648,6 +3667,24 @@ button {
     transform: none;
 }
 
+.account-overlay { display: none; position: fixed; z-index: 1200; inset: 0; align-items: center; justify-content: center; padding: 20px; background: rgba(2,4,7,.88); backdrop-filter: blur(12px); }
+.account-overlay.open { display: flex; }
+.account-modal { width: min(420px, 100%); padding: 24px; border: 1px solid #344436; border-radius: 12px; background: #101811; box-shadow: 0 30px 90px rgba(0,0,0,.65); }
+.account-label { display: block; margin: 18px 0 6px; color: #d6dfd0; font-size: 11px; font-weight: 850; }
+.account-input { width: 100%; height: 42px; padding: 0 12px; border: 1px solid #354237; border-radius: 7px; background: #080d09; color: #fff; }
+.account-status, .leaderboard-status { min-height: 20px; padding-top: 8px; color: #a7b49f; font-size: 11px; }
+.leaderboard-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 16px 0 8px; }
+.leaderboard-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.leaderboard-tab { padding: 9px 12px; border: 1px solid #293544; border-radius: 6px; background: #101720; color: #aeb8c7; cursor: pointer; font-size: 10px; font-weight: 850; }
+.leaderboard-tab.active { border-color: #83a84d; background: #1d2a19; color: #e9f2dd; }
+.leaderboard-list { display: grid; gap: 6px; }
+.leaderboard-row { display: grid; grid-template-columns: 44px minmax(140px,1fr) minmax(180px,1.2fr) minmax(100px,.7fr); gap: 12px; align-items: center; min-height: 48px; padding: 8px 12px; border: 1px solid #252f3a; border-radius: 6px; background: #101720; color: #dce3e9; font-size: 11px; }
+.leaderboard-rank { color: #9eba67; font-weight: 950; }
+.leaderboard-name { overflow: hidden; text-overflow: ellipsis; font-weight: 900; }
+.leaderboard-axe { overflow: hidden; text-overflow: ellipsis; color: #aab5c2; white-space: nowrap; }
+.leaderboard-value { justify-self: end; color: #f2d27b; font-weight: 900; }
+@media (max-width: 700px) { .leaderboard-toolbar { align-items: stretch; flex-direction: column; } .leaderboard-row { grid-template-columns: 30px minmax(90px,1fr) minmax(80px,.7fr); } .leaderboard-axe { display: none; } }
+
 </style>
 </head>
 
@@ -3706,6 +3743,11 @@ button {
         <button class="nav-btn" data-page="achievements">
             <span class="nav-icon">🏆</span>
             <span class="nav-text">Achievements</span>
+        </button>
+
+        <button class="nav-btn" data-page="leaderboard">
+            <span class="nav-icon">📊</span>
+            <span class="nav-text">Leaderboard</span>
         </button>
 
         <div class="sidebar-bottom">
@@ -3952,6 +3994,7 @@ button {
                             <option>Voidborn</option>
                             <option>Omniscient</option>
                             <option>Genesis</option>
+                            <option>Hypergamous</option>
                         </select>
                         <select class="skin-locker-select" id="skin-locker-sort">
                             <option value="rarity">Rarity</option>
@@ -4033,6 +4076,11 @@ button {
                             +50 Starting Logs — 5 Shards
                         </button>
 
+                        <div class="upgrade-info" id="shard-shop-status">Shard Relics</div>
+                        <button class="buy-btn" id="shard-luck-btn" type="button">Case Compass</button>
+                        <button class="buy-btn" id="shard-pity-btn" type="button">Pity Sigil</button>
+                        <button class="buy-btn" id="shard-egg-btn" type="button">Brood Charm</button>
+
                     </div>
 
                 </div>
@@ -4044,6 +4092,7 @@ button {
                         <div class="prestige-bonus" id="prestige-bonus">Permanent forest power: x1.00</div>
                     </div>
                     <button class="buy-btn prestige-btn" id="prestige-btn" type="button" disabled>PRESTIGE LOCKED</button>
+                    <div class="prestige-milestones" id="prestige-milestones"></div>
                 </div>
 
             </section>
@@ -4054,7 +4103,7 @@ button {
 
                 <div class="section-title">Chicken Coop</div>
                 <div class="section-sub">
-                    Keep your flock alive, collect eggs, and evolve your operation.
+                    Grow your flock and collect eggs. No feeding required.
                 </div>
 
                 <div class="coop-card card">
@@ -4130,19 +4179,13 @@ button {
                     </div>
 
                     <div class="lab-card card">
-
-                        <div class="lab-icon">🌾</div>
-
+                        <div class="lab-icon">🥚</div>
                         <div class="lab-body">
-                            <div class="lab-name">Premium Feed</div>
-                            <div class="lab-desc">
-                                Slows chicken hunger drain.
-                            </div>
+                            <div class="lab-name">Brood Catalyst</div>
+                            <div class="lab-desc" id="brood-desc">+10% egg yield per level • Unlocks at Rebirth 10.</div>
                         </div>
-
-                        <button class="buy-btn" id="hunger-upgrade-btn"></button>
-                        <button class="buy-btn" id="hunger-max-btn" type="button">MAX</button>
-
+                        <button class="buy-btn" id="brood-btn" type="button"></button>
+                        <button class="buy-btn" id="brood-max-btn" type="button">MAX</button>
                     </div>
 
                     <div class="lab-card card">
@@ -4159,6 +4202,26 @@ button {
                         <button class="buy-btn" id="feather-btn"></button>
                         <button class="buy-btn" id="feather-max-btn" type="button">MAX</button>
 
+                    </div>
+
+                    <div class="lab-card card">
+                        <div class="lab-icon">🌳</div>
+                        <div class="lab-body">
+                            <div class="lab-name">Sap Resonance</div>
+                            <div class="lab-desc" id="sap-desc">+8% passive logs per level • Unlocks at Rebirth 20.</div>
+                        </div>
+                        <button class="buy-btn" id="sap-btn" type="button"></button>
+                        <button class="buy-btn" id="sap-max-btn" type="button">MAX</button>
+                    </div>
+
+                    <div class="lab-card card">
+                        <div class="lab-icon">✨</div>
+                        <div class="lab-body">
+                            <div class="lab-name">Prestige Prism</div>
+                            <div class="lab-desc" id="prestige-study-desc">+10% log output per level • Unlocks at Prestige 1.</div>
+                        </div>
+                        <button class="buy-btn" id="prestige-study-btn" type="button"></button>
+                        <button class="buy-btn" id="prestige-study-max-btn" type="button">MAX</button>
                     </div>
 
                     <div class="lab-card card">
@@ -4195,6 +4258,23 @@ button {
                 <div class="achievement-grid" id="achievement-grid"></div>
             </section>
 
+            <section class="page" id="page-leaderboard">
+                <div class="section-title">Global Leaderboard</div>
+                <div class="section-sub" id="leaderboard-player">Sign in with your unique player name to compete.</div>
+                <div class="leaderboard-toolbar">
+                    <div class="leaderboard-tabs" role="tablist" aria-label="Leaderboard category">
+                        <button class="leaderboard-tab active" data-leaderboard-tab="score" type="button">Score</button>
+                        <button class="leaderboard-tab" data-leaderboard-tab="rarest_axe_rank" type="button">Rarest Axe</button>
+                        <button class="leaderboard-tab" data-leaderboard-tab="total_chopped" type="button">Logs Chopped</button>
+                        <button class="leaderboard-tab" data-leaderboard-tab="rebirth" type="button">Rebirths</button>
+                        <button class="leaderboard-tab" data-leaderboard-tab="chickens" type="button">Chickens</button>
+                    </div>
+                    <button class="buy-btn" id="leaderboard-refresh" type="button">REFRESH</button>
+                </div>
+                <div class="leaderboard-status" id="leaderboard-status" role="status"></div>
+                <div class="leaderboard-list" id="leaderboard-list"></div>
+            </section>
+
             <!-- MARKET -->
 
             <section class="page" id="page-market">
@@ -4215,7 +4295,7 @@ button {
                         </div>
 
                         <div class="market-desc">
-                            Every pull is a real axe skin. Browse the complete collection before opening.
+                            Every pull is a real axe skin. THE Axe Skin is Hypergamous rarity with a 0.000001% chance.
                         </div>
 
                         <div class="market-case-metrics">
@@ -4229,6 +4309,7 @@ button {
                         <div class="market-actions">
                             <button class="buy-btn red" id="crate-btn" type="button">SPIN CASE — 250 LOGS</button>
                             <button class="buy-btn case-quick-btn" id="crate-quick-btn" type="button">QUICK OPEN</button>
+                            <button class="buy-btn case-open-three" id="crate-open-three-btn" type="button">OPEN 3 — 750 LOGS</button>
                         </div>
 
                         <button class="case-table-toggle" id="normal-drop-toggle" type="button" aria-expanded="false" aria-controls="normal-drop-table">+ VIEW FULL COLLECTION</button>
@@ -4264,6 +4345,7 @@ button {
                         <div class="market-actions">
                             <button class="buy-btn dark" id="darkweb-btn" type="button">SPIN MUTANT CASE — 1,500 LOGS</button>
                             <button class="buy-btn case-quick-btn" id="darkweb-quick-btn" type="button">QUICK OPEN</button>
+                            <button class="buy-btn case-open-three" id="darkweb-open-three-btn" type="button">OPEN 3 — 4,500 LOGS</button>
                         </div>
 
                         <button class="case-table-toggle" id="mutant-drop-toggle" type="button" aria-expanded="false" aria-controls="mutant-drop-table">+ VIEW FULL COLLECTION</button>
@@ -4285,6 +4367,7 @@ button {
                         <div class="market-actions">
                             <button class="buy-btn red" id="mutated-axe-btn" type="button">SPIN — 12,000 LOGS</button>
                             <button class="buy-btn case-quick-btn" id="mutated-axe-quick-btn" type="button">QUICK OPEN</button>
+                            <button class="buy-btn case-open-three" id="mutated-axe-open-three-btn" type="button">OPEN 3 — 36,000 LOGS</button>
                         </div>
                     </div>
 
@@ -4297,6 +4380,7 @@ button {
                         <div class="market-actions">
                             <button class="buy-btn dark" id="mutated-flock-btn" type="button">SPIN — 10,000 LOGS</button>
                             <button class="buy-btn case-quick-btn" id="mutated-flock-quick-btn" type="button">QUICK OPEN</button>
+                            <button class="buy-btn case-open-three" id="mutated-flock-open-three-btn" type="button">OPEN 3 — 30,000 LOGS</button>
                         </div>
                     </div>
 
@@ -4309,9 +4393,28 @@ button {
                         <div class="market-actions">
                             <button class="buy-btn purple" id="worldtree-btn" type="button">SPIN — 50,000 LOGS</button>
                             <button class="buy-btn case-quick-btn" id="worldtree-quick-btn" type="button">QUICK OPEN</button>
+                            <button class="buy-btn case-open-three" id="worldtree-open-three-btn" type="button">OPEN 3 — 150,000 LOGS</button>
                         </div>
                     </div>
 
+                    <div class="market-card card" style="--case-accent:#d8c06a">
+                        <div class="market-icon">👑</div>
+                        <div class="market-title">Prestige Vault</div>
+                        <div class="market-desc">Prestige-only rewards. Every pull is Ancient or better, but tokens are earned one per prestige.</div>
+                        <div class="market-case-metrics"><span>High-tier relics</span><span id="prestige-token-count">0 Tokens</span></div>
+                        <div class="market-result" id="prestige-vault-result">Earn a Prestige Token to open.</div>
+                        <div class="market-actions">
+                            <button class="buy-btn purple" id="prestige-vault-btn" type="button">OPEN — 1 TOKEN</button>
+                            <button class="buy-btn case-open-three" id="prestige-vault-open-three-btn" type="button">OPEN 3 — 3 TOKENS</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="recent-discoveries card">
+                    <div class="section-title">Recent Discoveries</div>
+                    <div class="section-sub">The latest rare and mutated finds across your collection.</div>
+                    <div class="recent-discovery-list" id="recent-discovery-list"></div>
                 </div>
 
             </section>
@@ -4368,12 +4471,11 @@ button {
 
         </div>
 
-        <div class="case-track">
-
-            <div class="case-marker"></div>
-
-            <div class="case-items" id="case-items"></div>
-
+        <div class="case-track-list" id="case-track-list">
+            <div class="case-track">
+                <div class="case-marker"></div>
+                <div class="case-items" id="case-items"></div>
+            </div>
         </div>
 
         <div class="case-result" id="case-result"></div>
@@ -4400,6 +4502,17 @@ button {
 
 
 <div id="toast-container"></div>
+
+<div class="account-overlay" id="account-overlay" aria-modal="true" role="dialog" aria-labelledby="account-title">
+    <form class="account-modal" id="account-form">
+        <div class="section-title" id="account-title">Choose Your Player Name</div>
+        <div class="section-sub">Your name is global and can only be claimed once.</div>
+        <label class="account-label" for="username-input">Username</label>
+        <input class="account-input" id="username-input" name="username" minlength="3" maxlength="20" autocomplete="username" pattern="[A-Za-z0-9_]{3,20}" required>
+        <div class="account-status" id="account-status" role="status"></div>
+        <button class="buy-btn" id="account-submit" type="submit">CLAIM USERNAME</button>
+    </form>
+</div>
 
 <!-- UPDATE MODAL -->
 <div id="update-overlay">
@@ -4649,6 +4762,27 @@ try {
 }
 
 const IS_ELECTRON = !!(fs && path && electronApp);
+const SUPABASE_URL = "https://dcyrvcdilspkohritbek.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_s8uzmlFKzWnZ3_82APeEgw_THGDH0QC";
+let supabaseClient = null;
+try {
+    const { createClient } = require("@supabase/supabase-js");
+    const supabaseFetch = (input, init = {}) => {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 12000);
+        if (init.signal) {
+            if (init.signal.aborted) controller.abort(init.signal.reason);
+            else init.signal.addEventListener("abort", () => controller.abort(init.signal.reason), { once: true });
+        }
+        return fetch(input, { ...init, signal: controller.signal }).finally(() => clearTimeout(timeout));
+    };
+    supabaseClient = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false },
+        global: { fetch: supabaseFetch }
+    });
+} catch (error) {
+    console.error("Supabase client unavailable:", error);
+}
 const SAVE_FILE = IS_ELECTRON
     ? path.join(electronApp.getPath("userData"), "savegame_v7.json")
     : null;
@@ -4657,6 +4791,13 @@ const BROWSER_SAVE_KEY = "hypergamous_tree_save_v7";
 const QUICK_OPEN_COOLDOWN_SECONDS = 60;
 const MAX_UPGRADE_LEVEL = 500;
 const MAX_UPGRADE_BATCH = 25;
+const EGG_RESEARCH_DEFS = {
+    click_boost: { baseCost: 15, description: "+2 logs to every manual chop per level." },
+    egg_mult: { baseCost: 100, unlockRebirth: 10, description: "+10% eggs from every flock drop per level." },
+    feather_boost: { baseCost: 40, description: "Increases passive logs by 15% per level." },
+    sap_resonance: { baseCost: 250, unlockRebirth: 20, description: "Increases passive logs by 8% per level." },
+    prestige_study: { baseCost: 500, unlockPrestige: 1, description: "Increases all log output by 10% per level." }
+};
 
 const DEFAULT_DATA = {
     numOC: 0,
@@ -4664,6 +4805,9 @@ const DEFAULT_DATA = {
     upgrGoal: 10,
     rebirth: 0,
     prestige: 0,
+    prestige_tokens: 0,
+    player_username: null,
+    supabase_user_id: null,
     quick_open_cooldown_until: 0,
     treeName: "hypergamous trees",
     current_axe_index: 0,
@@ -4693,6 +4837,10 @@ const DEFAULT_DATA = {
     pet_level: 0,
     rebirth_shards: 0,
     coop_level: 0,
+    shard_upgrades: { case_luck: 0, pity: 0, egg_yield: 0 },
+    case_pity: { normal: 0, mutant: 0, mutatedAxe: 0, mutatedFlock: 0, worldtree: 0 },
+    recent_discoveries: [],
+    prestige_milestones: [],
 
     achievements: [],
 
@@ -4706,7 +4854,9 @@ const DEFAULT_DATA = {
         click_boost: 0,
         hunger_slow: 0,
         egg_mult: 0,
-        feather_boost: 0
+        feather_boost: 0,
+        sap_resonance: 0,
+        prestige_study: 0
     },
 
     mutated_chickens: {
@@ -4904,6 +5054,7 @@ const BASE_AXE_SKINS = [
     { name: "Elderbloom", rarity: "Ancient", color: "#3f6212", accent: "#d9f99d", handle: "#1b2615", edge: "#f5f5dc", glow: "rgba(163,230,53,.88)", pattern: "ancient" },
     { name: "Cometplume", rarity: "Celestial", color: "#4338ca", accent: "#dbeafe", handle: "#19153c", edge: "#fef08a", glow: "rgba(129,140,248,.9)", pattern: "celestial" },
     { name: "Worldsong", rarity: "Godly", color: "#9d174d", accent: "#fbcfe8", handle: "#311226", edge: "#dcfce7", glow: "rgba(244,114,182,.98)", pattern: "godly" },
+    { name: "THE Axe Skin", rarity: "Hypergamous", color: "#f8fafc", accent: "#7dd3fc", handle: "#0f172a", edge: "#ffffff", glow: "rgba(125,211,252,.98)", pattern: "cosmic" },
 ];
 
 function generateExtraAxeSkins(count = 500) {
@@ -4996,13 +5147,14 @@ const RARITY_COLORS = {
     Eclipse: "#c084fc",
     Voidborn: "#a78bfa",
     Omniscient: "#fef08a",
-    Genesis: "#fda4af"
+    Genesis: "#fda4af",
+    Hypergamous: "#7dd3fc"
 };
 
 const RARITY_ORDER = [
     "Common", "Uncommon", "Rare", "Epic", "Legendary",
     "Mythic", "Exotic", "Ancient", "Celestial", "Divine", "Godly",
-    "Astral", "Eclipse", "Voidborn", "Omniscient", "Genesis"
+    "Astral", "Eclipse", "Voidborn", "Omniscient", "Genesis", "Hypergamous"
 ];
 
 const MUTATION_DEFS = [
@@ -5019,10 +5171,10 @@ function getMutationDefinition(mutationName) {
 
 function rollMutation() {
     const roll = Math.random() * 100;
-    if (roll < 36) return MUTATION_DEFS[0];
-    if (roll < 64) return MUTATION_DEFS[1];
-    if (roll < 84) return MUTATION_DEFS[2];
-    if (roll < 96) return MUTATION_DEFS[3];
+    if (roll < 60) return MUTATION_DEFS[0];
+    if (roll < 85) return MUTATION_DEFS[1];
+    if (roll < 95) return MUTATION_DEFS[2];
+    if (roll < 99) return MUTATION_DEFS[3];
     return MUTATION_DEFS[4];
 }
 
@@ -5131,6 +5283,7 @@ AXE_UPGRADES.push(...PRESTIGE_AXE_UPGRADES);
 function generateExtraAxeUpgrades(count = 500) {
     const generated = [];
     const families = ["Bramble", "Ember", "Vale", "Rift", "Starfall", "Elder", "Comet", "Worldroot", "Aether", "Genesis"];
+    const forms = ["Cleaver", "Hatchet", "Splitter", "Timberfall", "Riftcutter"];
     let cost = AXE_UPGRADES.at(-1).cost;
     let power = AXE_UPGRADES.at(-1).base_add;
 
@@ -5138,7 +5291,7 @@ function generateExtraAxeUpgrades(count = 500) {
         cost *= 1.04;
         power *= 1.045;
         generated.push({
-            name: `${families[index % families.length]} Ascendant Axe ${index + 1}`,
+            name: `${families[index % families.length]} ${forms[Math.floor(index / families.length) % forms.length]} ${String(index + 1).padStart(3, "0")}`,
             cost: Math.ceil(cost),
             base_add: Math.ceil(power)
         });
@@ -5268,14 +5421,14 @@ const BASE_REBIRTH_DATA = {
 function generateRebirthData() {
     const result = Object.fromEntries(Object.entries(BASE_REBIRTH_DATA).map(([tier, data]) => [
         tier,
-        { ...data, cost: data.cost * 10, shards: Math.max(1, Math.round(data.shards * 0.01)) }
+        { ...data, cost: data.cost * 10, shards: Math.max(1, Math.round(data.shards * 0.02)) }
     ]));
     const lastTier = Math.max(...Object.keys(BASE_REBIRTH_DATA).map(Number));
-    for (let tier = lastTier + 1; tier <= lastTier + 100; tier++) {
+    for (let tier = lastTier + 1; tier <= lastTier + 34; tier++) {
         const previous = result[tier - 1];
         const nextCost = Number(previous.cost) * 1.9;
         const nextPenalty = Number((previous.penalty * 1.015).toFixed(2));
-        const nextShards = Math.min(500, 250 + (tier - lastTier) * 2);
+        const nextShards = Math.min(1000, 350 + (tier - lastTier) * 4);
 
         result[tier] = {
             penalty: nextPenalty,
@@ -5301,10 +5454,11 @@ const ACHIEVEMENT_DEFS = [
     { id: "axe-vault", name: "Axe Vault", description: "Keep fifty axes in your locker at once.", goal: 50, progress: () => game.axe_inventory.length, reward: { logs: 500000 } },
     { id: "world-walker", name: "World Walker", description: "Reach rebirth tier eight.", goal: 8, progress: () => game.rebirth, reward: { shards: 250 } },
     { id: "beyond-the-boughs", name: "Beyond the Boughs", description: "Reach rebirth tier twelve.", goal: 12, progress: () => game.rebirth, reward: { shards: 1000 } },
-    { id: "worldtree-keeper", name: "Worldtree Keeper", description: "Reach the final atlas frontier.", goal: 16, progress: () => game.rebirth, reward: { shards: 5000 } }
+    { id: "worldtree-keeper", name: "Worldtree Keeper", description: "Reach the final atlas frontier.", goal: 50, progress: () => game.rebirth, reward: { shards: 5000 } }
 ];
 
 let game = loadGame();
+game.rebirth = Math.max(0, Math.min(50, Math.floor(Number(game.rebirth) || 0)));
 game.prestige = Math.max(0, Math.min(PRESTIGE_LIMIT, Math.floor(Number(game.prestige) || 0)));
 game.axe_skins = game.axe_skins || {};
 game.axe_inventory = Array.isArray(game.axe_inventory) ? game.axe_inventory : [];
@@ -5346,7 +5500,8 @@ function getSkinSellValue(skinName, conditionName, mutationName = null) {
         Eclipse: 130000,
         Voidborn: 190000,
         Omniscient: 280000,
-        Genesis: 420000
+        Genesis: 420000,
+        Hypergamous: 1000000000
     };
     const mutationMultiplier = getMutationDefinition(mutationName)?.multiplier || 1;
     return Math.max(5, Math.floor((rarityBase[skin.rarity] || 25) * condition.multiplier * mutationMultiplier / 5) * 5);
@@ -5421,8 +5576,12 @@ let lastDarkwebResult = "Ready to open.";
 const lastCaseResults = {
     mutatedAxe: "Ready to open.",
     mutatedFlock: "Ready to open.",
-    worldtree: "Ready to open."
+    worldtree: "Ready to open.",
+    prestigeVault: "Earn a Prestige Token to open."
 };
+let leaderboardMetric = "score";
+let leaderboardPushInFlight = false;
+let leaderboardLastPushAt = 0;
 
 let gameTick = 0;
 let caseOpening = false;
@@ -5518,6 +5677,229 @@ function saveGame() {
     }
 }
 
+function setAccountStatus(message, isError = false) {
+    const status = $("account-status");
+    status.textContent = message;
+    status.style.color = isError ? "#ff8f8f" : "#a7b49f";
+}
+
+function getLeaderboardSnapshot(userId = game.supabase_user_id) {
+    let rarestItem = getEquippedAxeItem() || game.axe_inventory[0];
+    let rarestRank = -1;
+    for (const item of game.axe_inventory) {
+        const rarityRank = RARITY_ORDER.indexOf(getSkinDefinition(item.skinName).rarity);
+        const mutationRank = MUTATION_DEFS.findIndex(mutation => mutation.name === item.mutationName);
+        const rank = rarityRank * (MUTATION_DEFS.length + 1) + mutationRank + 1;
+        if (rank > rarestRank) {
+            rarestRank = rank;
+            rarestItem = item;
+        }
+    }
+
+    const rarestSkin = getSkinDefinition(rarestItem?.skinName || "Default Axe");
+    const chopped = Math.max(0, Number(game.total_chopped) || 0);
+    const logs = Math.max(0, Number(game.numOC) || 0);
+    return {
+        user_id: userId,
+        username: game.player_username,
+        score: Math.floor(Math.min(Number.MAX_SAFE_INTEGER, chopped + logs)),
+        rarest_axe_name: `${rarestItem?.mutationName ? `${rarestItem.mutationName} ` : ""}${rarestItem?.skinName || "Default Axe"}`,
+        rarest_axe_rarity: rarestSkin.rarity,
+        rarest_axe_rank: Math.max(0, rarestRank),
+        total_chopped: Math.floor(Math.min(Number.MAX_SAFE_INTEGER, chopped)),
+        rebirth: Math.max(0, Number(game.rebirth) || 0),
+        chickens: Math.max(0, totalChickens()),
+        updated_at: new Date().toISOString()
+    };
+}
+
+async function publishLeaderboard(force = false) {
+    if (!supabaseClient || !game.supabase_user_id || !game.player_username || leaderboardPushInFlight) return;
+    if (!force && Date.now() - leaderboardLastPushAt < 30000) return;
+
+    leaderboardPushInFlight = true;
+    try {
+        const { error } = await supabaseClient
+            .from("player_leaderboard")
+            .upsert(getLeaderboardSnapshot(), { onConflict: "user_id" });
+        if (error) throw error;
+        leaderboardLastPushAt = Date.now();
+    } catch (error) {
+        console.error("Leaderboard update failed:", error);
+        if ($("leaderboard-status")) $("leaderboard-status").textContent = "Leaderboard sync failed. Check your connection and try refresh.";
+    } finally {
+        leaderboardPushInFlight = false;
+    }
+}
+
+async function initializePlayerAccount() {
+    const overlay = $("account-overlay");
+    overlay.classList.add("open");
+    if (game.player_username && game.supabase_user_id) {
+        overlay.classList.remove("open");
+        $("leaderboard-player").textContent = `Playing as ${game.player_username}`;
+        void publishLeaderboard(true);
+        return;
+    }
+
+    if (!supabaseClient) {
+        setAccountStatus("Leaderboard service is unavailable. The game is locked until the connection is restored.", true);
+        return;
+    }
+
+    try {
+        const { data, error } = await supabaseClient.auth.getSession();
+        if (error) throw error;
+        const session = data.session;
+        if (session && game.supabase_user_id === session.user.id && game.player_username) {
+            overlay.classList.remove("open");
+            $("leaderboard-player").textContent = `Playing as ${game.player_username}`;
+            void publishLeaderboard(true);
+            return;
+        }
+        if (session && (!game.supabase_user_id || game.supabase_user_id === session.user.id)) {
+            const { data: profile, error: profileError } = await supabaseClient
+                .from("player_leaderboard")
+                .select("username")
+                .eq("user_id", session.user.id)
+                .maybeSingle();
+            if (profileError) throw profileError;
+            if (profile?.username) {
+                game.supabase_user_id = session.user.id;
+                game.player_username = profile.username;
+                saveGame();
+                overlay.classList.remove("open");
+                $("leaderboard-player").textContent = `Playing as ${profile.username}`;
+                await publishLeaderboard(true);
+                return;
+            }
+        }
+
+        setAccountStatus(game.player_username
+            ? `Your saved name is ${game.player_username}; reconnecting its account is required to continue.`
+            : "Choose a unique name to create your global player account.");
+    } catch (error) {
+        if (game.player_username && game.supabase_user_id) {
+            overlay.classList.remove("open");
+            $("leaderboard-player").textContent = `Playing as ${game.player_username} • Offline; leaderboard sync will retry.`;
+            return;
+        }
+        const message = error.code === "PGRST205"
+            ? "Leaderboard database is not set up. Run supabase/leaderboard.sql and enable Anonymous Sign-Ins in Supabase."
+            : error.message || "Could not connect to the leaderboard service.";
+        setAccountStatus(message, true);
+    }
+}
+
+async function claimPlayerUsername(rawUsername) {
+    const username = String(rawUsername || "").trim();
+    if (!/^[A-Za-z0-9_]{3,20}$/.test(username)) {
+        setAccountStatus("Use 3-20 letters, numbers, or underscores.", true);
+        return;
+    }
+    if (!supabaseClient) {
+        setAccountStatus("Leaderboard service is unavailable. Try again when connected.", true);
+        return;
+    }
+
+    const submit = $("account-submit");
+    submit.disabled = true;
+    setAccountStatus("Checking and claiming your name...");
+    try {
+        let { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+        if (sessionError) throw sessionError;
+        if (!sessionData.session) {
+            const signedIn = await supabaseClient.auth.signInAnonymously();
+            if (signedIn.error) throw signedIn.error;
+            sessionData = { session: signedIn.data.session };
+        }
+
+        const userId = sessionData.session.user.id;
+        const { data: existing, error: existingError } = await supabaseClient
+            .from("player_leaderboard")
+            .select("username")
+            .eq("user_id", userId)
+            .maybeSingle();
+        if (existingError) throw existingError;
+        if (existing?.username && existing.username.toLowerCase() !== username.toLowerCase()) {
+            throw new Error(`This account already owns the name ${existing.username}.`);
+        }
+
+        if (!existing) {
+            const { error } = await supabaseClient
+                .from("player_leaderboard")
+                .insert({ ...getLeaderboardSnapshot(userId), username });
+            if (error?.code === "23505") throw new Error("That username is already taken. Choose another.");
+            if (error) throw error;
+        }
+
+        game.supabase_user_id = userId;
+        game.player_username = existing?.username || username;
+        saveGame();
+        $("account-overlay").classList.remove("open");
+        $("leaderboard-player").textContent = `Playing as ${game.player_username}`;
+        await publishLeaderboard(true);
+        updateUI();
+    } catch (error) {
+        const message = error.code === "PGRST205"
+            ? "Leaderboard database is not set up. Run supabase/leaderboard.sql and enable Anonymous Sign-Ins in Supabase."
+            : error.message || "Could not claim that username.";
+        setAccountStatus(message.includes("Anonymous")
+            ? "Anonymous sign-in is disabled. Enable it in Supabase Authentication providers, then try again."
+            : message, true);
+    } finally {
+        submit.disabled = false;
+    }
+}
+
+async function loadLeaderboard() {
+    const list = $("leaderboard-list");
+    const status = $("leaderboard-status");
+    if (!supabaseClient) {
+        status.textContent = "Leaderboard service is unavailable.";
+        return;
+    }
+
+    const orderColumn = leaderboardMetric;
+    status.textContent = "Loading global standings...";
+    list.replaceChildren();
+    try {
+        const { data, error } = await supabaseClient
+            .from("player_leaderboard")
+            .select("username,score,rarest_axe_name,rarest_axe_rarity,rarest_axe_rank,total_chopped,rebirth,chickens")
+            .order(orderColumn, { ascending: false })
+            .limit(50);
+        if (error) throw error;
+
+        const fragment = document.createDocumentFragment();
+        for (let index = 0; index < data.length; index++) {
+            const player = data[index];
+            const row = document.createElement("div");
+            row.className = "leaderboard-row";
+            const rank = document.createElement("span");
+            rank.className = "leaderboard-rank";
+            rank.textContent = `#${index + 1}`;
+            const name = document.createElement("span");
+            name.className = "leaderboard-name";
+            name.textContent = player.username;
+            const axe = document.createElement("span");
+            axe.className = "leaderboard-axe";
+            axe.textContent = `${player.rarest_axe_rarity} • ${player.rarest_axe_name}`;
+            const value = document.createElement("span");
+            value.className = "leaderboard-value";
+            value.textContent = leaderboardMetric === "rarest_axe_rank"
+                ? `${player.rarest_axe_rarity} • ${player.rarest_axe_name}`
+                : formatNumber(Number(player[leaderboardMetric]) || 0);
+            row.append(rank, name, axe, value);
+            fragment.appendChild(row);
+        }
+        list.replaceChildren(fragment);
+        status.textContent = data.length ? `Top ${data.length} players` : "No players have registered yet.";
+    } catch (error) {
+        status.textContent = error.message || "Could not load the leaderboard.";
+    }
+}
+
 
 /* =========================================================
    HELPERS
@@ -5588,7 +5970,7 @@ function getRebirthPenalty() {
 }
 
 function getPrestigeMultiplier() {
-    return 1;
+    return 1 + Math.max(0, Number(game.prestige) || 0) * 0.1;
 }
 
 function clampUpgradeLevel(level) {
@@ -5622,6 +6004,12 @@ function getPassiveRate() {
     const featherMult =
         1 + (game.egg_upgrades.feather_boost || 0) * 0.15;
 
+    const sapResonanceMult =
+        1 + (game.egg_upgrades.sap_resonance || 0) * 0.08;
+
+    const prestigeStudyMult =
+        1 + (game.egg_upgrades.prestige_study || 0) * 0.1;
+
     const mutationMult =
         1 +
         game.mutated_chickens.golden * 0.5 +
@@ -5634,6 +6022,8 @@ function getPassiveRate() {
         petMult *
         speedBonus *
         featherMult *
+        sapResonanceMult *
+        prestigeStudyMult *
         mutationMult
     );
 }
@@ -5724,29 +6114,15 @@ function buyMaxAxeUpgrades() {
 }
 
 function buyMaxEggUpgrade(type) {
-    const currentLevel = () => Number(game.egg_upgrades[type]) || 0;
-    let purchased = 0;
-    while (currentLevel() < MAX_UPGRADE_LEVEL && purchased < MAX_UPGRADE_LEVEL) {
-        let cost = 0;
-        if (type === "click_boost") {
-            cost = 15 * (game.egg_upgrades.click_boost + 1);
-        } else if (type === "hunger_slow") {
-            cost = 25 * (game.egg_upgrades.hunger_slow + 1);
-        } else if (type === "feather_boost") {
-            cost = 40 * ((game.egg_upgrades.feather_boost || 0) + 1);
-        } else {
-            break;
-        }
+    const definition = EGG_RESEARCH_DEFS[type];
+    if (!definition || getEggResearchLock(type)) return;
 
+    let purchased = 0;
+    while ((Number(game.egg_upgrades[type]) || 0) < MAX_UPGRADE_LEVEL && purchased < MAX_UPGRADE_LEVEL) {
+        const cost = definition.baseCost * ((Number(game.egg_upgrades[type]) || 0) + 1);
         if (game.eggs < cost) break;
         game.eggs -= cost;
-        if (type === "click_boost") {
-            game.egg_upgrades.click_boost += 1;
-        } else if (type === "hunger_slow") {
-            game.egg_upgrades.hunger_slow += 1;
-        } else {
-            game.egg_upgrades.feather_boost = (game.egg_upgrades.feather_boost || 0) + 1;
-        }
+        game.egg_upgrades[type] = (Number(game.egg_upgrades[type]) || 0) + 1;
         purchased += 1;
     }
 
@@ -5955,6 +6331,7 @@ function updateUI() {
     updateCoop();
     updateLab();
     updateMarket();
+    renderRecentDiscoveries();
 }
 
 function updateProgress() {
@@ -5999,7 +6376,7 @@ function updateAxeInventoryUI() {
     const countEl = $("skin-locker-count");
     const loadMoreButton = $("skin-locker-load-more");
     const search = lockerSearchTerm.trim().toLowerCase();
-    const rarityOrder = ["Common","Uncommon","Rare","Epic","Legendary","Mythic","Exotic","Ancient","Celestial","Divine","Godly"];
+    const rarityOrder = RARITY_ORDER;
 
     let items = [...game.axe_inventory];
 
@@ -6212,7 +6589,7 @@ function updateRebirth() {
     $("prestige-name").textContent =
         `Prestige ${game.prestige} / ${PRESTIGE_LIMIT}`;
     $("prestige-bonus").textContent =
-        `Next prestige unlocks 5 axes • No power multiplier`;
+        `Forest output x${getPrestigeMultiplier().toFixed(2)} • Case luck +${game.prestige * 10}% • Vault tokens ${game.prestige_tokens || 0} • Next prestige unlocks 5 axes`;
 
     if (game.prestige >= PRESTIGE_LIMIT) {
         $("prestige-info").textContent = "All five prestige forests conquered. Prestige resets the current run and collection.";
@@ -6231,6 +6608,9 @@ function updateRebirth() {
         $("prestige-btn").textContent = "PRESTIGE LOCKED";
         $("prestige-btn").disabled = true;
     }
+
+    updateShardRelics();
+    updatePrestigeMilestones();
 }
 
 function renderForestAtlas() {
@@ -6411,45 +6791,41 @@ function updateCoop() {
 }
 
 function updateLab() {
+    const researchControls = [
+        { type: "click_boost", buy: "click-upgrade-btn", max: "click-max-btn" },
+        { type: "egg_mult", buy: "brood-btn", max: "brood-max-btn", description: "brood-desc" },
+        { type: "feather_boost", buy: "feather-btn", max: "feather-max-btn" },
+        { type: "sap_resonance", buy: "sap-btn", max: "sap-max-btn", description: "sap-desc" },
+        { type: "prestige_study", buy: "prestige-study-btn", max: "prestige-study-max-btn", description: "prestige-study-desc" }
+    ];
 
-    const clickCost =
-        15 * (game.egg_upgrades.click_boost + 1);
+    for (const control of researchControls) {
+        const definition = EGG_RESEARCH_DEFS[control.type];
+        const level = Number(game.egg_upgrades[control.type]) || 0;
+        const lock = getEggResearchLock(control.type);
+        const cost = definition.baseCost * (level + 1);
+        const buyButton = $(control.buy);
+        const maxButton = $(control.max);
 
-    $("click-upgrade-btn").textContent =
-        `Lv. ${game.egg_upgrades.click_boost} — ${clickCost} Eggs`;
+        if (lock) {
+            buyButton.textContent = `LOCKED — ${lock}`;
+            maxButton.textContent = "LOCKED";
+            buyButton.disabled = true;
+            maxButton.disabled = true;
+        } else {
+            buyButton.textContent = level >= MAX_UPGRADE_LEVEL ? "MAXED" : `Lv. ${level} — ${formatNumber(cost)} Eggs`;
+            maxButton.textContent = "MAX";
+            buyButton.disabled = level >= MAX_UPGRADE_LEVEL || game.eggs < cost;
+            maxButton.disabled = level >= MAX_UPGRADE_LEVEL || game.eggs < cost;
+        }
 
-    $("click-upgrade-btn").disabled =
-        game.eggs < clickCost;
-
-    $("click-max-btn").disabled =
-        game.egg_upgrades.click_boost >= MAX_UPGRADE_LEVEL || game.eggs < 15 * (game.egg_upgrades.click_boost + 1);
-
-    const hungerCost =
-        25 * (game.egg_upgrades.hunger_slow + 1);
-
-    $("hunger-upgrade-btn").textContent =
-        `Lv. ${game.egg_upgrades.hunger_slow} — ${hungerCost} Eggs`;
-
-    $("hunger-upgrade-btn").disabled =
-        game.eggs < hungerCost;
-
-    $("hunger-max-btn").disabled =
-        game.egg_upgrades.hunger_slow >= MAX_UPGRADE_LEVEL || game.eggs < 25 * (game.egg_upgrades.hunger_slow + 1);
-
-    const featherLevel =
-        game.egg_upgrades.feather_boost || 0;
-
-    const featherCost =
-        40 * (featherLevel + 1);
-
-    $("feather-btn").textContent =
-        `Lv. ${featherLevel} — ${featherCost} Eggs`;
-
-    $("feather-btn").disabled =
-        game.eggs < featherCost;
-
-    $("feather-max-btn").disabled =
-        (game.egg_upgrades.feather_boost || 0) >= MAX_UPGRADE_LEVEL || game.eggs < 40 * ((game.egg_upgrades.feather_boost || 0) + 1);
+        if (control.description) {
+            const requirement = definition.unlockPrestige
+                ? `Prestige ${definition.unlockPrestige}`
+                : definition.unlockRebirth ? `Rebirth ${definition.unlockRebirth}` : null;
+            $(control.description).textContent = `${definition.description}${requirement ? ` • Unlocks at ${requirement}.` : ""}${lock ? ` • Locked until ${lock}.` : ""}`;
+        }
+    }
 
     const petCost =
         500 * (game.pet_level + 1);
@@ -6467,11 +6843,11 @@ function updateLab() {
 function updateMarket() {
     const remaining = getQuickOpenCooldownRemaining();
     const controls = [
-        { type: "normal", spin: "crate-btn", quick: "crate-quick-btn", result: "crate-result" },
-        { type: "mutant", spin: "darkweb-btn", quick: "darkweb-quick-btn", result: "darkweb-result" },
-        { type: "mutatedAxe", spin: "mutated-axe-btn", quick: "mutated-axe-quick-btn", result: "mutated-axe-result" },
-        { type: "mutatedFlock", spin: "mutated-flock-btn", quick: "mutated-flock-quick-btn", result: "mutated-flock-result" },
-        { type: "worldtree", spin: "worldtree-btn", quick: "worldtree-quick-btn", result: "worldtree-result" }
+        { type: "normal", spin: "crate-btn", quick: "crate-quick-btn", three: "crate-open-three-btn", result: "crate-result" },
+        { type: "mutant", spin: "darkweb-btn", quick: "darkweb-quick-btn", three: "darkweb-open-three-btn", result: "darkweb-result" },
+        { type: "mutatedAxe", spin: "mutated-axe-btn", quick: "mutated-axe-quick-btn", three: "mutated-axe-open-three-btn", result: "mutated-axe-result" },
+        { type: "mutatedFlock", spin: "mutated-flock-btn", quick: "mutated-flock-quick-btn", three: "mutated-flock-open-three-btn", result: "mutated-flock-result" },
+        { type: "worldtree", spin: "worldtree-btn", quick: "worldtree-quick-btn", three: "worldtree-open-three-btn", result: "worldtree-result" }
     ];
 
     for (const control of controls) {
@@ -6482,8 +6858,16 @@ function updateMarket() {
         spinButton.disabled = !affordable || caseOpening;
         quickButton.disabled = !affordable || caseOpening || remaining > 0;
         quickButton.textContent = remaining > 0 ? `COOLDOWN ${remaining}s` : "QUICK OPEN";
+        const threeButton = $(control.three);
+        threeButton.disabled = game.numOC < definition.cost * 3 || caseOpening;
+        threeButton.textContent = `OPEN 3 — ${formatNumber(definition.cost * 3)} LOGS`;
         $(control.result).textContent = lastCaseResults[control.type] || "Ready to open.";
     }
+
+    $("prestige-token-count").textContent = `${game.prestige_tokens || 0} Tokens`;
+    $("prestige-vault-btn").disabled = (game.prestige_tokens || 0) < 1 || caseOpening;
+    $("prestige-vault-open-three-btn").disabled = (game.prestige_tokens || 0) < 3 || caseOpening;
+    $("prestige-vault-result").textContent = lastCaseResults.prestigeVault;
 
     $("normal-case-count").textContent = NORMAL_CASE_ITEMS.length;
     $("mutant-case-count").textContent = MUTANT_CASE_ITEMS.length;
@@ -6521,7 +6905,7 @@ function chop() {
         game.egg_upgrades.click_boost * 2;
 
     const amount =
-        (game.addNum + eggBonus) * multiplier;
+        (game.addNum + eggBonus) * multiplier * (1 + (game.egg_upgrades.prestige_study || 0) * 0.1);
 
     game.numOC += amount;
     game.total_chopped += amount;
@@ -6790,10 +7174,11 @@ function doPrestige() {
     if (!canPrestige()) return;
 
     game.prestige++;
+    game.prestige_tokens = (Number(game.prestige_tokens) || 0) + 1;
     game.rebirth = 0;
     game.rebirth_shards = 0;
     game.rebirth_upgrades = { mult: 0, speed: 0, start_logs: 0 };
-    game.egg_upgrades = { click_boost: 0, hunger_slow: 0, egg_mult: 0, feather_boost: 0 };
+    game.egg_upgrades = { click_boost: 0, hunger_slow: 0, egg_mult: 0, feather_boost: 0, sap_resonance: 0, prestige_study: 0 };
     game.numOC = 0;
     game.eggs = 0;
     game.chickens = 0;
@@ -6828,9 +7213,71 @@ function doPrestige() {
     game.addNum = getRebirthPenalty();
     game.upgrGoal = AXE_UPGRADES[0].cost;
 
+    const prestigeMilestoneRewards = { 1: 250, 3: 1000, 5: 5000 };
+    if (!Array.isArray(game.prestige_milestones)) game.prestige_milestones = [];
+    if (!game.prestige_milestones.includes(game.prestige)) {
+        game.prestige_milestones.push(game.prestige);
+        game.rebirth_shards += prestigeMilestoneRewards[game.prestige] || 0;
+    }
+
     saveGame();
     toast(`🌳 PRESTIGE ${game.prestige}! The entire forest was reset.`);
     updateUI();
+}
+
+const SHARD_RELIC_DEFS = {
+    case_luck: { label: "Case Compass", baseCost: 100, max: 10, effect: "+2.5% high-tier case luck" },
+    pity: { label: "Pity Sigil", baseCost: 150, max: 5, effect: "Shorter hard-pity counter" },
+    egg_yield: { label: "Brood Charm", baseCost: 125, max: 10, effect: "+5% egg yield" }
+};
+
+function buyShardRelic(type) {
+    const definition = SHARD_RELIC_DEFS[type];
+    if (!definition) return;
+    const level = Number(game.shard_upgrades[type]) || 0;
+    const cost = definition.baseCost * (level + 1);
+    if (level >= definition.max || game.rebirth_shards < cost) return;
+    game.rebirth_shards -= cost;
+    game.shard_upgrades[type] = level + 1;
+    saveGame();
+    toast(`💎 ${definition.label} upgraded to Lv. ${level + 1}.`);
+    updateUI();
+}
+
+function updateShardRelics() {
+    for (const [type, definition] of Object.entries(SHARD_RELIC_DEFS)) {
+        const button = $(type === "case_luck" ? "shard-luck-btn" : type === "pity" ? "shard-pity-btn" : "shard-egg-btn");
+        const level = Number(game.shard_upgrades[type]) || 0;
+        const cost = definition.baseCost * (level + 1);
+        button.textContent = level >= definition.max
+            ? `${definition.label} MAXED`
+            : `${definition.label} Lv.${level} — ${cost} Shards`;
+        button.disabled = level >= definition.max || game.rebirth_shards < cost;
+    }
+    $("shard-shop-status").textContent = `Shard Relics • Compass ${game.shard_upgrades.case_luck || 0}/10 • Sigil ${game.shard_upgrades.pity || 0}/5 • Charm ${game.shard_upgrades.egg_yield || 0}/10`;
+}
+
+function updatePrestigeMilestones() {
+    const rewards = { 1: "250 Shards", 3: "1,000 Shards", 5: "5,000 Shards" };
+    const claimed = new Set(game.prestige_milestones || []);
+    $("prestige-milestones").innerHTML = Object.entries(rewards)
+        .map(([milestone, reward]) => `<div>${claimed.has(Number(milestone)) ? "✓" : "○"} Prestige ${milestone}: ${reward}</div>`)
+        .join("");
+}
+
+function renderRecentDiscoveries() {
+    const list = $("recent-discovery-list");
+    const discoveries = Array.isArray(game.recent_discoveries) ? game.recent_discoveries : [];
+    if (!discoveries.length) {
+        list.innerHTML = `<div class="skin-locker-empty">No rare discoveries yet.</div>`;
+        return;
+    }
+    list.innerHTML = discoveries.slice(0, 12).map(discovery => `
+        <div class="recent-discovery-row">
+            <span class="recent-discovery-rarity" style="color:${getRarityColor(discovery.rarity)}">${discovery.rarity}</span>
+            <span class="recent-discovery-name">${discovery.name}${discovery.mutationName ? ` • ${discovery.mutationName}` : ""}</span>
+            <span class="recent-discovery-time">${discovery.caseType}</span>
+        </div>`).join("");
 }
 
 function buyRebirthUpgrade(type) {
@@ -6921,56 +7368,27 @@ function upgradeCoop() {
    LAB
 ========================================================= */
 
+function getEggResearchLock(type) {
+    const definition = EGG_RESEARCH_DEFS[type];
+    if (!definition) return "UNAVAILABLE";
+    if (definition.unlockRebirth && game.rebirth < definition.unlockRebirth) return `REBIRTH ${definition.unlockRebirth}`;
+    if (definition.unlockPrestige && game.prestige < definition.unlockPrestige) return `PRESTIGE ${definition.unlockPrestige}`;
+    return null;
+}
+
 function buyEggUpgrade(type) {
+    const definition = EGG_RESEARCH_DEFS[type];
+    const lock = getEggResearchLock(type);
+    if (!definition || lock) return;
 
-    if (type === "click_boost" && game.egg_upgrades.click_boost >= MAX_UPGRADE_LEVEL) return;
-    if (type === "hunger_slow" && game.egg_upgrades.hunger_slow >= MAX_UPGRADE_LEVEL) return;
-    if (type === "feather_boost" && (game.egg_upgrades.feather_boost || 0) >= MAX_UPGRADE_LEVEL) return;
+    const level = Number(game.egg_upgrades[type]) || 0;
+    if (level >= MAX_UPGRADE_LEVEL) return;
+    const cost = definition.baseCost * (level + 1);
+    if (game.eggs < cost) return;
 
-    let cost;
-
-    if (type === "click_boost") {
-
-        cost =
-            15 * (game.egg_upgrades.click_boost + 1);
-
-        if (game.eggs < cost) {
-            return;
-        }
-
-        game.eggs -= cost;
-        game.egg_upgrades.click_boost++;
-
-    } else if (type === "hunger_slow") {
-
-        cost =
-            25 * (game.egg_upgrades.hunger_slow + 1);
-
-        if (game.eggs < cost) {
-            return;
-        }
-
-        game.eggs -= cost;
-        game.egg_upgrades.hunger_slow++;
-
-    } else if (type === "feather_boost") {
-
-        const level =
-            game.egg_upgrades.feather_boost || 0;
-
-        cost =
-            40 * (level + 1);
-
-        if (game.eggs < cost) {
-            return;
-        }
-
-        game.eggs -= cost;
-        game.egg_upgrades.feather_boost = level + 1;
-    }
-
-    toast("🧬 Research upgrade completed!");
-
+    game.eggs -= cost;
+    game.egg_upgrades[type] = level + 1;
+    toast(`${type.replace(/_/g, " ")} research upgraded to Lv. ${level + 1}.`);
     updateUI();
 }
 
@@ -7217,53 +7635,122 @@ function pickCaseItem(items, rarities) {
 
 const CASE_RARITY_CHANCES = {
     normal: [
-        { rarity: "Common", chance: 34.9 },
-        { rarity: "Uncommon", chance: 23 },
-        { rarity: "Rare", chance: 18 },
-        { rarity: "Epic", chance: 10.5 },
-        { rarity: "Legendary", chance: 6.5 },
-        { rarity: "Mythic", chance: 3.2 },
-        { rarity: "Exotic", chance: 1.9 },
-        { rarity: "Ancient", chance: 0.9 },
-        { rarity: "Celestial", chance: 0.35 },
-        { rarity: "Divine", chance: 0.1 },
-        { rarity: "Godly", chance: 0.05 },
-        { rarity: "Astral", chance: 0.25 },
-        { rarity: "Eclipse", chance: 0.2 },
-        { rarity: "Voidborn", chance: 0.1 },
-        { rarity: "Omniscient", chance: 0.04 },
-        { rarity: "Genesis", chance: 0.01 }
+        { rarity: "Common", chance: 58.005 },
+        { rarity: "Uncommon", chance: 25 },
+        { rarity: "Rare", chance: 10 },
+        { rarity: "Epic", chance: 4 },
+        { rarity: "Legendary", chance: 1.8 },
+        { rarity: "Mythic", chance: 0.7 },
+        { rarity: "Exotic", chance: 0.3 },
+        { rarity: "Ancient", chance: 0.1 },
+        { rarity: "Celestial", chance: 0.05 },
+        { rarity: "Divine", chance: 0.02 },
+        { rarity: "Godly", chance: 0.01 },
+        { rarity: "Astral", chance: 0.005 },
+        { rarity: "Eclipse", chance: 0.004 },
+        { rarity: "Voidborn", chance: 0.003 },
+        { rarity: "Omniscient", chance: 0.002 },
+        { rarity: "Genesis", chance: 0.000999 },
+        { rarity: "Hypergamous", chance: 0.000001 }
     ],
     mutant: [
-        { rarity: "Common", chance: 34 },
-        { rarity: "Uncommon", chance: 22 },
-        { rarity: "Rare", chance: 16 },
-        { rarity: "Epic", chance: 10.5 },
-        { rarity: "Legendary", chance: 7.5 },
-        { rarity: "Mythic", chance: 4.5 },
-        { rarity: "Exotic", chance: 2.7 },
-        { rarity: "Ancient", chance: 1.1 },
-        { rarity: "Celestial", chance: 0.5 },
-        { rarity: "Divine", chance: 0.15 },
-        { rarity: "Godly", chance: 0.05 },
-        { rarity: "Astral", chance: 0.5 },
-        { rarity: "Eclipse", chance: 0.3 },
-        { rarity: "Voidborn", chance: 0.1 },
-        { rarity: "Omniscient", chance: 0.05 },
-        { rarity: "Genesis", chance: 0.05 }
+        { rarity: "Common", chance: 58.07 },
+        { rarity: "Uncommon", chance: 24 },
+        { rarity: "Rare", chance: 10 },
+        { rarity: "Epic", chance: 4 },
+        { rarity: "Legendary", chance: 2 },
+        { rarity: "Mythic", chance: 1 },
+        { rarity: "Exotic", chance: 0.5 },
+        { rarity: "Ancient", chance: 0.2 },
+        { rarity: "Celestial", chance: 0.1 },
+        { rarity: "Divine", chance: 0.05 },
+        { rarity: "Godly", chance: 0.03 },
+        { rarity: "Astral", chance: 0.02 },
+        { rarity: "Eclipse", chance: 0.01 },
+        { rarity: "Voidborn", chance: 0.01 },
+        { rarity: "Omniscient", chance: 0.005 },
+        { rarity: "Genesis", chance: 0.005 }
+    ],
+    prestige: [
+        { rarity: "Ancient", chance: 60 },
+        { rarity: "Celestial", chance: 20 },
+        { rarity: "Divine", chance: 10 },
+        { rarity: "Godly", chance: 7 },
+        { rarity: "Astral", chance: 2 },
+        { rarity: "Eclipse", chance: 0.7 },
+        { rarity: "Voidborn", chance: 0.2 },
+        { rarity: "Omniscient", chance: 0.08 },
+        { rarity: "Genesis", chance: 0.019 },
+        { rarity: "Hypergamous", chance: 0.001 }
     ]
 };
 
+const CASE_PITY_LIMITS = {
+    normal: 100,
+    mutant: 90,
+    mutatedAxe: 100,
+    mutatedFlock: 90,
+    worldtree: 75,
+    prestigeVault: 12
+};
+
+function getCasePityLimit(type) {
+    const base = CASE_PITY_LIMITS[type] || 100;
+    const reduction = 1 - Math.min(0.4, (Number(game.shard_upgrades?.pity) || 0) * 0.08);
+    return Math.max(20, Math.ceil(base * reduction));
+}
+
+function applyCasePity(type, item) {
+    const current = Number(game.case_pity?.[type]) || 0;
+    const rarityRank = RARITY_ORDER.indexOf(item.rarity);
+    if (rarityRank >= RARITY_ORDER.indexOf("Ancient")) {
+        game.case_pity[type] = 0;
+        return item;
+    }
+
+    const next = current + 1;
+    if (next < getCasePityLimit(type)) {
+        game.case_pity[type] = next;
+        return item;
+    }
+
+    game.case_pity[type] = 0;
+    const pool = getCasePool(type).filter(entry => RARITY_ORDER.indexOf(entry.rarity) >= RARITY_ORDER.indexOf("Ancient"));
+    return pool.length ? pool[Math.floor(Math.random() * pool.length)] : item;
+}
+
 function weightedCaseItem(items, chances) {
+    const adjustedChances = getAdjustedCaseChances(chances);
     const roll = Math.random() * 100;
     let threshold = 0;
 
-    for (const entry of chances) {
+    for (const entry of adjustedChances) {
         threshold += entry.chance;
         if (roll < threshold) return pickCaseItem(items, [entry.rarity]);
     }
 
-    return pickCaseItem(items, [chances[chances.length - 1].rarity]);
+    return pickCaseItem(items, [adjustedChances[adjustedChances.length - 1].rarity]);
+}
+
+function getAdjustedCaseChances(chances) {
+    const prestigeLuck = (1 + Math.max(0, Number(game.prestige) || 0) * 0.1)
+        * (1 + Math.max(0, Number(game.shard_upgrades?.case_luck) || 0) * 0.025);
+    if (prestigeLuck === 1) return chances;
+
+    const fixedChance = chances
+        .filter(entry => entry.rarity === "Hypergamous")
+        .reduce((sum, entry) => sum + entry.chance, 0);
+    const boosted = chances.map(entry =>
+        RARITY_ORDER.indexOf(entry.rarity) >= RARITY_ORDER.indexOf("Ancient") && entry.rarity !== "Hypergamous"
+            ? { ...entry, chance: entry.chance * prestigeLuck }
+            : { ...entry }
+    );
+    const totalBeforeNormalization = boosted.reduce((sum, entry) => sum + entry.chance, 0);
+    const targetWithoutFixed = 100 - fixedChance;
+    const variableTotal = totalBeforeNormalization - fixedChance;
+    return boosted.map(entry => entry.rarity === "Hypergamous"
+        ? entry
+        : { ...entry, chance: entry.chance * targetWithoutFixed / variableTotal });
 }
 
 function weightedNormalItem() {
@@ -7274,16 +7761,36 @@ function weightedMutantItem() {
     return weightedCaseItem(MUTANT_CASE_ITEMS, CASE_RARITY_CHANCES.mutant);
 }
 
+const MUTATED_AXE_CASE_ITEMS = NORMAL_CASE_ITEMS;
+const MUTATED_CHICK_CASE_ITEMS = MUTANT_CASE_ITEMS;
+const PRESTIGE_CASE_ITEMS = [...NORMAL_CASE_ITEMS, ...MUTANT_CASE_ITEMS]
+    .filter(item => RARITY_ORDER.indexOf(item.rarity) >= RARITY_ORDER.indexOf("Ancient"));
+
+function weightedMutatedAxeItem() {
+    return weightedCaseItem(MUTATED_AXE_CASE_ITEMS, CASE_RARITY_CHANCES.normal);
+}
+
+function weightedMutatedChickenItem() {
+    return weightedCaseItem(MUTATED_CHICK_CASE_ITEMS, CASE_RARITY_CHANCES.mutant);
+}
+
+function weightedPrestigeItem() {
+    return weightedCaseItem(PRESTIGE_CASE_ITEMS, CASE_RARITY_CHANCES.prestige);
+}
+
 const CASE_DEFINITIONS = {
     normal: { title: "Axe Skin Case", cost: 250, kind: "axe" },
     mutant: { title: "Mutant Chicken Case", cost: 1500, kind: "chicken" },
     mutatedAxe: { title: "Mutated Axe Case", cost: 12000, kind: "mutated-axe" },
     mutatedFlock: { title: "Mutated Flock Case", cost: 10000, kind: "mutated-chicken" },
-    worldtree: { title: "Worldtree Cache", cost: 50000, kind: "mixed" }
+    worldtree: { title: "Worldtree Cache", cost: 50000, kind: "mixed" },
+    prestigeVault: { title: "Prestige Vault", cost: 1, currency: "prestige_tokens", kind: "prestige" }
 };
 
 function getCasePool(type) {
-    if (type === "mutant" || type === "mutatedFlock") return MUTANT_CASE_ITEMS;
+    if (type === "mutatedAxe") return MUTATED_AXE_CASE_ITEMS;
+    if (type === "mutant" || type === "mutatedFlock") return MUTATED_CHICK_CASE_ITEMS;
+    if (type === "prestigeVault") return PRESTIGE_CASE_ITEMS;
     if (type === "worldtree") return [...NORMAL_CASE_ITEMS, ...MUTANT_CASE_ITEMS];
     return NORMAL_CASE_ITEMS;
 }
@@ -7293,15 +7800,21 @@ function rollCaseReward(type) {
     if (!definition) return null;
 
     let item;
-    if (definition.kind === "chicken" || definition.kind === "mutated-chicken") {
-        item = weightedMutantItem();
+    if (definition.kind === "prestige") {
+        item = weightedPrestigeItem();
+    } else if (definition.kind === "mutated-axe") {
+        item = weightedMutatedAxeItem();
+    } else if (definition.kind === "chicken" || definition.kind === "mutated-chicken") {
+        item = definition.kind === "mutated-chicken" ? weightedMutatedChickenItem() : weightedMutantItem();
     } else if (definition.kind === "mixed") {
         item = Math.random() < .5 ? weightedNormalItem() : weightedMutantItem();
     } else {
         item = weightedNormalItem();
     }
 
-    if (definition.kind === "mutated-axe" || definition.kind === "mutated-chicken" || (definition.kind === "mixed" && Math.random() < .2)) {
+    item = applyCasePity(type, item);
+
+    if (definition.kind === "mutated-axe" || definition.kind === "mutated-chicken" || (definition.kind === "mixed" && Math.random() < .2) || (definition.kind === "prestige" && Math.random() < .25)) {
         const mutation = rollMutation();
         item = { ...item, mutationName: mutation.name, mutationId: mutation.id, mutationColor: mutation.color };
     }
@@ -7332,7 +7845,9 @@ function renderCaseDropTable(type) {
         row.className = "case-drop-entry";
         row.dataset.searchText = item.name.toLowerCase();
         row.style.setProperty("--rarity-color", RARITY_COLORS[item.rarity] || "#aeb8c7");
-        row.title = `${item.name} · ${item.rarity}`;
+        row.title = item.rarity === "Hypergamous"
+            ? `${item.name} · ${item.rarity} · 0.000001% chance`
+            : `${item.name} · ${item.rarity}`;
 
         const dot = document.createElement("span");
         dot.className = "rarity-dot";
@@ -7710,7 +8225,12 @@ function createCaseItem(item) {
     const visual = document.createElement("div");
     visual.className = "case-visual";
     if (item.kind === "skin") {
-        visual.appendChild(createCaseAxeVisual(item.skinName, "Factory New", item.mutationName));
+        const thumbnail = document.createElement("img");
+        thumbnail.className = "case-axe-svg case-axe-ready";
+        thumbnail.alt = `${item.skinName} axe preview`;
+        if (item.mutationName) thumbnail.dataset.mutation = getMutationDefinition(item.mutationName)?.id || "";
+        thumbnail.src = createAxeFallbackSnapshot(item.skinName, "Factory New");
+        visual.appendChild(thumbnail);
     } else {
         visual.appendChild(createChickenCaseVisual(item.chickenType || "normal", item.mutationName));
     }
@@ -7815,29 +8335,35 @@ function triggerCaseRevealEffect(item) {
     }, revealDuration);
 }
 
-function handleCaseReward(winningItem, caseType) {
+function handleCaseReward(winningItem, caseType, options = {}) {
     let inventoryItem = null;
     const mutationLabel = winningItem.mutationName ? ` • ${winningItem.mutationName}` : "";
     if (winningItem.kind === "skin") {
         const condition = rollAxeCondition();
         inventoryItem = grantAxeSkin(winningItem.skinName, condition, winningItem.mutationName);
-        $("case-result").innerHTML = `
-            <div class="case-win-title" style="color:${RARITY_COLORS[winningItem.rarity] || "#aeb8c7"}">${winningItem.name}</div>
-            <div class="case-win-subtitle">${winningItem.rarity}${mutationLabel} • ${condition} • Added to your locker</div>
-            <div class="case-win-actions">
-                <button class="buy-btn" id="case-equip-won" type="button">EQUIP</button>
-                <button class="buy-btn sell-btn" id="case-sell-won" type="button">SELL FOR ${formatNumber(inventoryItem.sellValue)} LOGS</button>
-            </div>`;
+        if (options.showAxeActions !== false) {
+            $("case-result").innerHTML = `
+                <div class="case-win-title" style="color:${RARITY_COLORS[winningItem.rarity] || "#aeb8c7"}">${winningItem.name}</div>
+                <div class="case-win-subtitle">${winningItem.rarity}${mutationLabel} • ${condition} • Added to your locker</div>
+                <div class="case-win-actions">
+                    <button class="buy-btn" id="case-equip-won" type="button">EQUIP</button>
+                    <button class="buy-btn sell-btn" id="case-sell-won" type="button">SELL FOR ${formatNumber(inventoryItem.sellValue)} LOGS</button>
+                </div>`;
 
-        $("case-equip-won").addEventListener("click", () => {
-            equipAxeItem(inventoryItem.id);
-            $("case-result").innerHTML = `<div class="case-win-title" style="color:${RARITY_COLORS[winningItem.rarity] || "#aeb8c7"}">${winningItem.name} EQUIPPED</div>`;
-        }, { once: true });
+            $("case-equip-won").addEventListener("click", () => {
+                equipAxeItem(inventoryItem.id);
+                $("case-result").innerHTML = `<div class="case-win-title" style="color:${RARITY_COLORS[winningItem.rarity] || "#aeb8c7"}">${winningItem.name} EQUIPPED</div>`;
+            }, { once: true });
 
-        $("case-sell-won").addEventListener("click", () => {
-            const sold = sellAxeItem(inventoryItem.id);
-            if (sold) $("case-result").innerHTML = `<div class="case-win-title">SOLD FOR ${formatNumber(inventoryItem.sellValue)} LOGS</div>`;
-        }, { once: true });
+            $("case-sell-won").addEventListener("click", () => {
+                const sold = sellAxeItem(inventoryItem.id);
+                if (sold) $("case-result").innerHTML = `<div class="case-win-title">SOLD FOR ${formatNumber(inventoryItem.sellValue)} LOGS</div>`;
+            }, { once: true });
+        } else {
+            $("case-result").innerHTML = `
+                <div class="case-win-title" style="color:${RARITY_COLORS[winningItem.rarity] || "#aeb8c7"}">${winningItem.name}</div>
+                <div class="case-win-subtitle">${winningItem.rarity}${mutationLabel} • ${condition} • Added to your locker</div>`;
+        }
 
     } else {
         if (winningItem.kind === "chicken") {
@@ -7855,9 +8381,22 @@ function handleCaseReward(winningItem, caseType) {
     if (caseType === "mutant" || caseType === "mutatedFlock") lastDarkwebResult = `🕵️ ${resultLabel}`;
     if (caseType === "normal" || caseType === "mutatedAxe") lastCrateResult = `📦 ${resultLabel}`;
 
+    if (isHighTierRarity(winningItem.rarity) || winningItem.mutationName) {
+        game.recent_discoveries = Array.isArray(game.recent_discoveries) ? game.recent_discoveries : [];
+        game.recent_discoveries.unshift({
+            name: winningItem.name,
+            rarity: winningItem.rarity,
+            mutationName: winningItem.mutationName || null,
+            caseType,
+            createdAt: Date.now()
+        });
+        game.recent_discoveries = game.recent_discoveries.slice(0, 20);
+    }
+
     saveGame();
-    toast(`${winningItem.name} • ${winningItem.rarity}${mutationLabel}`);
-    updateUI();
+    if (!options.silent) toast(`${winningItem.name} • ${winningItem.rarity}${mutationLabel}`);
+    if (options.refresh !== false) updateUI();
+    return inventoryItem;
 }
 
 function quickOpenCase(type) {
@@ -7873,9 +8412,77 @@ function quickOpenCase(type) {
     updateUI();
 }
 
-function openCase(type) {
+function animateCaseTrack(track, winningItem, pool) {
+    const items = track.querySelector(".case-items");
+    const marker = track.querySelector(".case-marker");
+    const totalItems = 72;
+    const winningIndex = 56;
+    const fragment = document.createDocumentFragment();
+
+    items.replaceChildren();
+    for (let index = 0; index < totalItems; index++) {
+        fragment.appendChild(createCaseItem(index === winningIndex ? winningItem : randomVisualItem(pool)));
+    }
+    items.appendChild(fragment);
+
+    return new Promise(resolve => requestAnimationFrame(() => {
+        const winning = items.children[winningIndex];
+        if (!winning) {
+            resolve(null);
+            return;
+        }
+
+        const itemCenter = winning.offsetLeft + winning.offsetWidth / 2;
+        const trackCenter = track.clientWidth / 2;
+        const naturalCenter = trackCenter - itemCenter;
+        const laneJitter = (Math.random() - 0.5) * Math.min(36, winning.offsetWidth * 0.24);
+        const endX = naturalCenter + laneJitter;
+        const duration = 5600;
+        const startTime = performance.now();
+        let lastCard = -1;
+
+        items.style.transition = "none";
+        items.style.transform = "translate3d(0px,0,0)";
+        void items.offsetWidth;
+        items.classList.add("case-moving");
+
+        function tick(now) {
+            if (!caseOpening) {
+                resolve(null);
+                return;
+            }
+            const progress = Math.min(1, (now - startTime) / duration);
+            const eased = 1 - Math.pow(1 - progress, 3.15);
+            const x = endX * eased;
+            items.style.transform = `translate3d(${x}px,0,0)`;
+
+            const approxCard = Math.max(0, Math.floor((-x + trackCenter) / (winning.offsetWidth + 8)));
+            if (approxCard !== lastCard) {
+                lastCard = approxCard;
+                marker.classList.remove("case-tick");
+                void marker.offsetWidth;
+                marker.classList.add("case-tick");
+            }
+
+            if (progress < 1) {
+                caseAnimationFrame = requestAnimationFrame(tick);
+                return;
+            }
+
+            items.style.transform = `translate3d(${endX}px,0,0)`;
+            items.classList.remove("case-moving");
+            winning.classList.add("case-winner-tile");
+            resolve(winningItem);
+        }
+
+        caseAnimationFrame = requestAnimationFrame(tick);
+    }));
+}
+
+async function openCase(type, batchCount = 1) {
     const definition = CASE_DEFINITIONS[type];
-    if (!definition || game.numOC < definition.cost || caseOpening) return;
+    const balance = definition?.currency ? Number(game[definition.currency]) || 0 : game.numOC;
+    if (![1, 3].includes(batchCount) || !definition || balance < definition.cost * batchCount || caseOpening) return;
 
     if (caseAnimationFrame) {
         cancelAnimationFrame(caseAnimationFrame);
@@ -7888,111 +8495,61 @@ function openCase(type) {
     clearTimeout(caseRevealTimer);
     $("case-reveal-panel").classList.remove("open");
     $("case-reveal-panel").setAttribute("aria-hidden", "true");
-    game.numOC -= definition.cost;
+    if (definition.currency) game[definition.currency] -= definition.cost * batchCount;
+    else game.numOC -= definition.cost * batchCount;
 
     const overlay = $("case-overlay");
-    const items = $("case-items");
-    const result = $("case-result");
-    const marker = overlay.querySelector(".case-marker");
+    const trackList = $("case-track-list");
+    const template = trackList.querySelector(".case-track");
+    const tracks = Array.from({ length: batchCount }, () => template.cloneNode(true));
+    tracks.forEach((track, index) => {
+        const items = track.querySelector(".case-items");
+        if (index > 0) items.removeAttribute("id");
+        items.replaceChildren();
+    });
+    trackList.replaceChildren(...tracks);
 
-    items.innerHTML = "";
-    items.classList.remove("case-moving");
-    result.textContent = "";
-    $("case-title").textContent = definition.title;
-    $("case-cost").textContent = "ROLLING...";
+    overlay.classList.toggle("case-multi-open", batchCount === 3);
     overlay.classList.remove("case-big-win");
     overlay.classList.add("open");
+    $("case-result").textContent = "";
+    $("case-title").textContent = batchCount === 3 ? `${definition.title} • OPENING 3` : definition.title;
+    $("case-cost").textContent = batchCount === 3 ? "THREE CASES ROLLING TOGETHER..." : "ROLLING...";
 
     const pool = getCasePool(type);
-    // Enough cards for a long CS-style travel, without creating a huge DOM.
-    const totalItems = 96;
-    const winningIndex = 78;
-    const winningItem = rollCaseReward(type);
+    const winners = tracks.map(() => rollCaseReward(type));
+    const results = await Promise.all(tracks.map((track, index) => animateCaseTrack(track, winners[index], pool)));
 
-    const fragment = document.createDocumentFragment();
-    for (let i = 0; i < totalItems; i++) {
-        const item = i === winningIndex ? winningItem : randomVisualItem(pool);
-        fragment.appendChild(createCaseItem(item));
+    caseAnimationFrame = null;
+    caseOpening = false;
+    $("case-close").disabled = false;
+    $("case-close").textContent = "CLOSE";
+
+    if (results.some(item => !item)) {
+        $("case-cost").textContent = "OPENING FAILED";
+        updateUI();
+        return;
     }
-    items.appendChild(fragment);
 
-    // Let layout settle before measuring exact pixel positions.
-    requestAnimationFrame(() => {
-        const winning = items.children[winningIndex];
-        const track = overlay.querySelector(".case-track");
-        if (!winning || !track) {
-            caseOpening = false;
-            $("case-close").disabled = false;
-            $("case-close").textContent = "CLOSE";
-            $("case-cost").textContent = "OPENING FAILED";
-            return;
-        }
+    for (const item of results) {
+        handleCaseReward(item, type, {
+            showAxeActions: batchCount === 1,
+            silent: batchCount === 3,
+            refresh: batchCount === 1
+        });
+    }
 
-        // Start the strip well outside the selector, then stop with the
-        // winning card naturally inside the center selector.
-        const itemCenter = winning.offsetLeft + winning.offsetWidth / 2;
-        const trackCenter = track.clientWidth / 2;
-        const naturalCenter = trackCenter - itemCenter;
-        const laneJitter = (Math.random() - 0.5) * Math.min(46, winning.offsetWidth * 0.30);
-        const endX = naturalCenter + laneJitter;
-        const duration = 6800;
-        const startX = 0;
-        const startTime = performance.now();
-        let lastCard = -1;
+    if (batchCount === 3) {
+        $("case-result").innerHTML = results.map(item =>
+            `<div class="case-win-subtitle"><strong style="color:${getRarityColor(item.rarity)}">${item.rarity}</strong> • ${item.name}${item.mutationName ? ` • ${item.mutationName}` : ""} added to your collection</div>`
+        ).join("");
+        toast("Three case rewards added to your collection.");
+        updateUI();
+    } else {
+        triggerCaseRevealEffect(results[0]);
+    }
 
-        items.style.transition = "none";
-        items.style.transform = `translate3d(${startX}px,0,0)`;
-        void items.offsetWidth;
-        items.classList.add("case-moving");
-
-        // CS-style reel: hard launch, then progressively stronger braking.
-        // The old easing spent the first 18% covering only 4% of the distance,
-        // which made the case look like it was barely moving at the start.
-        function easeOut(progress) {
-            const t = Math.max(0, Math.min(1, progress));
-            return 1 - Math.pow(1 - t, 3.15);
-        }
-
-        function tick(now) {
-            if (!caseOpening) {
-                caseAnimationFrame = null;
-                return;
-            }
-            const progress = Math.min(1, (now - startTime) / duration);
-            const x = startX + (endX - startX) * easeOut(progress);
-            items.style.transform = `translate3d(${x}px,0,0)`;
-
-            const cardStep = winning.offsetWidth + 8;
-            const approxCard = Math.max(0, Math.floor((-x + trackCenter) / cardStep));
-            if (approxCard !== lastCard) {
-                lastCard = approxCard;
-                if (marker) {
-                    marker.classList.remove("case-tick");
-                    void marker.offsetWidth;
-                    marker.classList.add("case-tick");
-                }
-            }
-
-            if (progress < 1) {
-                caseAnimationFrame = requestAnimationFrame(tick);
-                return;
-            }
-
-            items.style.transform = `translate3d(${endX}px,0,0)`;
-            items.classList.remove("case-moving");
-            winning.classList.add("case-winner-tile");
-            caseAnimationFrame = null;
-            caseOpening = false;
-            $("case-close").disabled = false;
-            $("case-close").textContent = "CLOSE";
-
-            handleCaseReward(winningItem, type);
-            triggerCaseRevealEffect(winningItem);
-            $("case-cost").textContent = "CASE OPENED";
-        }
-
-        caseAnimationFrame = requestAnimationFrame(tick);
-    });
+    $("case-cost").textContent = batchCount === 3 ? "3 CASES OPENED" : "CASE OPENED";
 }
 
 function closeCase() {
@@ -8007,7 +8564,10 @@ function closeCase() {
     $("case-reveal-panel").classList.remove("open");
     $("case-reveal-panel").setAttribute("aria-hidden", "true");
     $("case-reveal-visual").replaceChildren();
-    $("case-items").style.transform = "translate3d(0px,0,0)";
+    $("case-track-list").querySelectorAll(".case-items").forEach(items => {
+        items.style.transform = "translate3d(0px,0,0)";
+    });
+    $("case-overlay").classList.remove("case-multi-open");
 }
 
 
@@ -8363,6 +8923,11 @@ const pageInfo = {
         "Claim rewards for the milestones in your forestry career."
     ],
 
+    leaderboard: [
+        "Global Leaderboard",
+        "Compare your score, rarest axe, and forest milestones with every player."
+    ],
+
     arena: [
         "Axe Arena",
         "First-person 3D target arena using your equipped axe skin."
@@ -8403,8 +8968,24 @@ document.querySelectorAll(".nav-btn").forEach(btn => {
 
         if (page === "worlds") renderForestAtlas();
         if (page === "achievements") renderAchievements();
+        if (page === "leaderboard") loadLeaderboard();
     });
 });
+
+$("account-form").addEventListener("submit", event => {
+    event.preventDefault();
+    claimPlayerUsername($("username-input").value);
+});
+
+document.querySelectorAll("[data-leaderboard-tab]").forEach(button => {
+    button.addEventListener("click", () => {
+        leaderboardMetric = button.dataset.leaderboardTab;
+        document.querySelectorAll("[data-leaderboard-tab]").forEach(tab => tab.classList.toggle("active", tab === button));
+        loadLeaderboard();
+    });
+});
+
+$("leaderboard-refresh").addEventListener("click", () => loadLeaderboard());
 
 $("achievement-grid").addEventListener("click", event => {
     const button = event.target.closest("[data-claim-achievement]");
@@ -8548,6 +9129,10 @@ $("start-btn")
         buyRebirthUpgrade("start_logs");
     });
 
+$("shard-luck-btn").addEventListener("click", () => buyShardRelic("case_luck"));
+$("shard-pity-btn").addEventListener("click", () => buyShardRelic("pity"));
+$("shard-egg-btn").addEventListener("click", () => buyShardRelic("egg_yield"));
+
 $("chicken-btn")
     .addEventListener("click", buyChicken);
 
@@ -8562,10 +9147,9 @@ $("click-upgrade-btn")
         buyEggUpgrade("click_boost");
     });
 
-$("hunger-upgrade-btn")
-    .addEventListener("click", () => {
-        buyEggUpgrade("hunger_slow");
-    });
+$("brood-btn").addEventListener("click", () => buyEggUpgrade("egg_mult"));
+$("sap-btn").addEventListener("click", () => buyEggUpgrade("sap_resonance"));
+$("prestige-study-btn").addEventListener("click", () => buyEggUpgrade("prestige_study"));
 
 $("feather-btn")
     .addEventListener("click", () => {
@@ -8577,10 +9161,9 @@ $("click-max-btn")
         buyMaxEggUpgrade("click_boost");
     });
 
-$("hunger-max-btn")
-    .addEventListener("click", () => {
-        buyMaxEggUpgrade("hunger_slow");
-    });
+$("brood-max-btn").addEventListener("click", () => buyMaxEggUpgrade("egg_mult"));
+$("sap-max-btn").addEventListener("click", () => buyMaxEggUpgrade("sap_resonance"));
+$("prestige-study-max-btn").addEventListener("click", () => buyMaxEggUpgrade("prestige_study"));
 
 $("feather-max-btn")
     .addEventListener("click", () => {
@@ -8617,6 +9200,14 @@ $("mutated-flock-quick-btn").addEventListener("click", () => quickOpenCase("muta
 $("worldtree-btn").addEventListener("click", () => openCase("worldtree"));
 $("worldtree-quick-btn").addEventListener("click", () => quickOpenCase("worldtree"));
 
+$("crate-open-three-btn").addEventListener("click", () => openCase("normal", 3));
+$("darkweb-open-three-btn").addEventListener("click", () => openCase("mutant", 3));
+$("mutated-axe-open-three-btn").addEventListener("click", () => openCase("mutatedAxe", 3));
+$("mutated-flock-open-three-btn").addEventListener("click", () => openCase("mutatedFlock", 3));
+$("worldtree-open-three-btn").addEventListener("click", () => openCase("worldtree", 3));
+$("prestige-vault-btn").addEventListener("click", () => openCase("prestigeVault"));
+$("prestige-vault-open-three-btn").addEventListener("click", () => openCase("prestigeVault", 3));
+
 $("normal-drop-toggle")
     .addEventListener("click", () => toggleCaseDropTable("normal"));
 
@@ -8641,7 +9232,8 @@ document.addEventListener("keydown", event => {
 
     if (
         event.code === "Space" &&
-        !$("case-overlay").classList.contains("open")
+        !$("case-overlay").classList.contains("open") &&
+        !$("account-overlay").classList.contains("open")
     ) {
 
         event.preventDefault();
@@ -8671,8 +9263,8 @@ let lastTime =
 
 function gameLoop(now) {
 
-    const delta =
-        Math.min(1, (now - lastTime) / 1000);
+    const accountGated = $("account-overlay").classList.contains("open");
+    const delta = accountGated ? 0 : Math.min(1, (now - lastTime) / 1000);
 
     lastTime = now;
 
@@ -8686,7 +9278,7 @@ function gameLoop(now) {
         const probability = delta / dropChance;
 
         if (Math.random() < probability) {
-            const eggMultiplier = 1 + (game.egg_upgrades.egg_mult || 0) * .1;
+            const eggMultiplier = 1 + (game.egg_upgrades.egg_mult || 0) * .1 + (game.shard_upgrades?.egg_yield || 0) * .05;
             game.eggs += Math.max(1, Math.floor(flock * eggMultiplier));
         }
     }
@@ -8719,6 +9311,10 @@ function gameLoop(now) {
         saveGame();
     }
 
+    if (gameTick % 120 === 0) {
+        publishLeaderboard();
+    }
+
     /*
         Keep gameplay/animation at 60 FPS, but only repaint
         text + inventory/coop UI about 7 times per second.
@@ -8740,6 +9336,7 @@ function gameLoop(now) {
 renderCaseDropTables();
 updateUI();
 renderChopAxe();
+initializePlayerAccount();
 
 
 /* If this page is opened outside Electron, the game still works
