@@ -3669,6 +3669,7 @@ button {
 
 .account-overlay { display: none; position: fixed; z-index: 1200; inset: 0; align-items: center; justify-content: center; padding: 20px; background: rgba(2,4,7,.88); backdrop-filter: blur(12px); }
 .account-overlay.open { display: flex; }
+.account-close { position: absolute; top: 12px; right: 14px; width: 28px; height: 28px; border: 0; background: transparent; color: #92a08f; cursor: pointer; font-size: 20px; }
 .account-modal { width: min(420px, 100%); padding: 24px; border: 1px solid #344436; border-radius: 12px; background: #101811; box-shadow: 0 30px 90px rgba(0,0,0,.65); }
 .account-label { display: block; margin: 18px 0 6px; color: #d6dfd0; font-size: 11px; font-weight: 850; }
 .account-input { width: 100%; height: 42px; padding: 0 12px; border: 1px solid #354237; border-radius: 7px; background: #080d09; color: #fff; }
@@ -4505,6 +4506,7 @@ button {
 
 <div class="account-overlay" id="account-overlay" aria-modal="true" role="dialog" aria-labelledby="account-title">
     <form class="account-modal" id="account-form">
+    <button class="account-close" id="account-bypass" type="button" aria-label="Continue offline">×</button>
         <div class="section-title" id="account-title">Choose Your Player Name</div>
         <div class="section-sub">Your name is global and can only be claimed once.</div>
         <label class="account-label" for="username-input">Username</label>
@@ -4810,6 +4812,7 @@ const DEFAULT_DATA = {
     prestige_tokens: 0,
     player_username: null,
     supabase_user_id: null,
+    leaderboard_bypass: false,
     quick_open_cooldown_until: 0,
     treeName: "hypergamous trees",
     current_axe_index: 0,
@@ -5878,6 +5881,11 @@ async function publishLeaderboard(force = false) {
 async function initializePlayerAccount() {
     const overlay = $("account-overlay");
     overlay.classList.add("open");
+    if (game.leaderboard_bypass) {
+        overlay.classList.remove("open");
+        $("leaderboard-player").textContent = "Local mode • Not connected to the global leaderboard";
+        return;
+    }
     if (game.player_username && game.supabase_user_id) {
         overlay.classList.remove("open");
         $("leaderboard-player").textContent = `Playing as ${game.player_username}`;
@@ -6017,12 +6025,18 @@ async function loadLeaderboard() {
     status.textContent = "Loading global standings...";
     list.replaceChildren();
     try {
-        const { data, error } = await supabaseClient
-            .from("player_leaderboard")
-            .select("username,score,rarest_axe_name,rarest_axe_rarity,rarest_axe_rank,total_chopped,rebirth,chickens")
-            .order(orderColumn, { ascending: false })
-            .limit(50);
-        if (error) throw error;
+        let data;
+        try {
+            const result = await withSupabaseRetry(() => supabaseClient
+                .from("player_leaderboard")
+                .select("username,score,rarest_axe_name,rarest_axe_rarity,rarest_axe_rank,total_chopped,rebirth,chickens")
+                .order(orderColumn, { ascending: false })
+                .limit(50), "Leaderboard");
+            data = result.data;
+        } catch (error) {
+            if (!isTransientSupabaseError(error)) throw error;
+            data = await directSupabaseRequest(`/rest/v1/player_leaderboard?select=username,score,rarest_axe_name,rarest_axe_rarity,rarest_axe_rank,total_chopped,rebirth,chickens&order=${orderColumn}.desc&limit=50`);
+        }
 
         const fragment = document.createDocumentFragment();
         for (let index = 0; index < data.length; index++) {
@@ -9128,6 +9142,14 @@ document.querySelectorAll(".nav-btn").forEach(btn => {
 $("account-form").addEventListener("submit", event => {
     event.preventDefault();
     claimPlayerUsername($("username-input").value);
+});
+
+$("account-bypass").addEventListener("click", () => {
+    game.leaderboard_bypass = true;
+    saveGame();
+    $("account-overlay").classList.remove("open");
+    $("leaderboard-player").textContent = "Local mode • Not connected to the global leaderboard";
+    toast("Playing locally. Username registration skipped.");
 });
 
 document.querySelectorAll("[data-leaderboard-tab]").forEach(button => {
