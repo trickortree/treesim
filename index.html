@@ -5713,6 +5713,32 @@ function getLeaderboardSnapshot(userId = game.supabase_user_id) {
     };
 }
 
+function isTransientSupabaseError(error) {
+    const text = String(error?.message || error || "").toLowerCase();
+    return error?.name === "AbortError"
+        || text.includes("failed to fetch")
+        || text.includes("network")
+        || text.includes("timeout")
+        || Number(error?.status) >= 500;
+}
+
+async function withSupabaseRetry(operation, label) {
+    let lastError = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+            const result = await operation();
+            if (result?.error) throw result.error;
+            return result;
+        } catch (error) {
+            lastError = error;
+            if (!isTransientSupabaseError(error) || attempt === 2) throw error;
+            setAccountStatus(`${label} temporarily unavailable. Retrying (${attempt + 2}/3)...`);
+            await new Promise(resolve => setTimeout(resolve, 700 * (attempt + 1)));
+        }
+    }
+    throw lastError || new Error("Supabase request failed.");
+}
+
 async function publishLeaderboard(force = false) {
     if (!supabaseClient || !game.supabase_user_id || !game.player_username || leaderboardPushInFlight) return;
     if (!force && Date.now() - leaderboardLastPushAt < 30000) return;
@@ -5748,8 +5774,7 @@ async function initializePlayerAccount() {
     }
 
     try {
-        const { data, error } = await supabaseClient.auth.getSession();
-        if (error) throw error;
+        const { data } = await withSupabaseRetry(() => supabaseClient.auth.getSession(), "Supabase");
         const session = data.session;
         if (session && game.supabase_user_id === session.user.id && game.player_username) {
             overlay.classList.remove("open");
@@ -5758,12 +5783,11 @@ async function initializePlayerAccount() {
             return;
         }
         if (session && (!game.supabase_user_id || game.supabase_user_id === session.user.id)) {
-            const { data: profile, error: profileError } = await supabaseClient
+            const { data: profile } = await withSupabaseRetry(() => supabaseClient
                 .from("player_leaderboard")
                 .select("username")
                 .eq("user_id", session.user.id)
-                .maybeSingle();
-            if (profileError) throw profileError;
+                .maybeSingle(), "Leaderboard");
             if (profile?.username) {
                 game.supabase_user_id = session.user.id;
                 game.player_username = profile.username;
@@ -5806,31 +5830,26 @@ async function claimPlayerUsername(rawUsername) {
     submit.disabled = true;
     setAccountStatus("Checking and claiming your name...");
     try {
-        let { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
-        if (sessionError) throw sessionError;
+        let { data: sessionData } = await withSupabaseRetry(() => supabaseClient.auth.getSession(), "Supabase");
         if (!sessionData.session) {
-            const signedIn = await supabaseClient.auth.signInAnonymously();
-            if (signedIn.error) throw signedIn.error;
+            const signedIn = await withSupabaseRetry(() => supabaseClient.auth.signInAnonymously(), "Anonymous sign-in");
             sessionData = { session: signedIn.data.session };
         }
 
         const userId = sessionData.session.user.id;
-        const { data: existing, error: existingError } = await supabaseClient
+        const { data: existing } = await withSupabaseRetry(() => supabaseClient
             .from("player_leaderboard")
             .select("username")
             .eq("user_id", userId)
-            .maybeSingle();
-        if (existingError) throw existingError;
+            .maybeSingle(), "Leaderboard");
         if (existing?.username && existing.username.toLowerCase() !== username.toLowerCase()) {
             throw new Error(`This account already owns the name ${existing.username}.`);
         }
 
         if (!existing) {
-            const { error } = await supabaseClient
+            await withSupabaseRetry(() => supabaseClient
                 .from("player_leaderboard")
-                .insert({ ...getLeaderboardSnapshot(userId), username });
-            if (error?.code === "23505") throw new Error("That username is already taken. Choose another.");
-            if (error) throw error;
+                .insert({ ...getLeaderboardSnapshot(userId), username }), "Username claim");
         }
 
         game.supabase_user_id = userId;
@@ -5841,7 +5860,9 @@ async function claimPlayerUsername(rawUsername) {
         await publishLeaderboard(true);
         updateUI();
     } catch (error) {
-        const message = error.code === "PGRST205"
+        const message = error.code === "23505"
+            ? "That username is already taken. Choose another."
+            : error.code === "PGRST205"
             ? "Leaderboard database is not set up. Run supabase/leaderboard.sql and enable Anonymous Sign-Ins in Supabase."
             : error.message || "Could not claim that username.";
         setAccountStatus(message.includes("Anonymous")
