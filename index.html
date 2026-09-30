@@ -4750,12 +4750,14 @@ ipcRenderer.on("update-error", (event, data) => {
 let fs = null;
 let path = null;
 let electronApp = null;
+let https = null;
 
 try {
     if (typeof require === "function") {
         fs = require("fs");
         path = require("path");
         electronApp = require("electron").app;
+        https = require("https");
     }
 } catch (err) {
     console.warn("Electron APIs unavailable; using browser save storage.");
@@ -5723,6 +5725,7 @@ function isTransientSupabaseError(error) {
 }
 
 async function directSupabaseRequest(pathname, options = {}) {
+    if (https) return nodeSupabaseRequest(pathname, options);
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 12000);
     try {
@@ -5751,17 +5754,62 @@ async function directSupabaseRequest(pathname, options = {}) {
     }
 }
 
+function nodeSupabaseRequest(pathname, options = {}) {
+    return new Promise((resolve, reject) => {
+        const url = new URL(`${SUPABASE_URL}${pathname}`);
+        const body = options.body || null;
+        const request = https.request({
+            protocol: url.protocol,
+            hostname: url.hostname,
+            port: url.port || 443,
+            path: `${url.pathname}${url.search}`,
+            method: options.method || "GET",
+            headers: {
+                apikey: SUPABASE_PUBLISHABLE_KEY,
+                ...(options.accessToken ? { Authorization: `Bearer ${options.accessToken}` } : {}),
+                ...(body ? { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(body) } : {}),
+                ...(options.headers || {})
+            }
+        }, response => {
+            let text = "";
+            response.setEncoding("utf8");
+            response.on("data", chunk => text += chunk);
+            response.on("end", () => {
+                let data = null;
+                try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+                if ((response.statusCode || 500) < 200 || (response.statusCode || 500) >= 300) {
+                    const error = new Error(data?.msg || data?.message || data?.error_description || `Supabase HTTP ${response.statusCode}`);
+                    error.status = response.statusCode;
+                    error.code = data?.code;
+                    reject(error);
+                    return;
+                }
+                resolve(data);
+            });
+        });
+        request.setTimeout(12000, () => request.destroy(new Error("Supabase request timed out")));
+        request.on("error", reject);
+        if (body) request.write(body);
+        request.end();
+    });
+}
+
 async function directAnonymousSignIn() {
     const data = await directSupabaseRequest("/auth/v1/signup", {
         method: "POST",
         body: JSON.stringify({})
     });
-    const session = await supabaseClient.auth.setSession({
-        access_token: data.access_token,
-        refresh_token: data.refresh_token
-    });
-    if (session.error) throw session.error;
-    return { data: { session: session.data.session, user: session.data.user }, error: null };
+    return {
+        data: {
+            session: {
+                access_token: data.access_token,
+                refresh_token: data.refresh_token,
+                user: data.user
+            },
+            user: data.user
+        },
+        error: null
+    };
 }
 
 async function directLeaderboardProfile(userId, accessToken) {
@@ -5804,25 +5852,7 @@ async function signInAnonymouslyWithFallback() {
     } catch (error) {
         if (!isTransientSupabaseError(error)) throw error;
 
-        const response = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
-            method: "POST",
-            headers: {
-                apikey: SUPABASE_PUBLISHABLE_KEY,
-                "Content-Type": "application/json"
-            },
-            body: "{}"
-        });
-        const payload = await response.json().catch(() => ({}));
-        if (!response.ok || !payload.access_token || !payload.refresh_token) {
-            throw new Error(payload.msg || payload.message || `Anonymous sign-in failed (${response.status}).`);
-        }
-
-        const { data, error: sessionError } = await supabaseClient.auth.setSession({
-            access_token: payload.access_token,
-            refresh_token: payload.refresh_token
-        });
-        if (sessionError) throw sessionError;
-        return { data };
+        return directAnonymousSignIn();
     }
 }
 

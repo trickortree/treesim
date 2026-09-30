@@ -1,6 +1,6 @@
 {
   "name": "hypergamous-tree-chopping-simulator-3",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "Hypergamous Tree Chopping Simulator 3",
   "main": "main.js",
   "scripts": {
@@ -44,7 +44,7 @@
       "releaseType": "release"
     },
     "releaseInfo": {
-      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.1.2\n\n- Fixed anonymous username registration when the Supabase SDK reports Failed to fetch.\n- Added direct REST fallbacks for anonymous sign-in, username lookup, and username claim after transient SDK failures.\n- Username claims still enforce the global unique-name database constraint."
+      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.1.3\n\n- Fixed anonymous username registration in Electron by bypassing the failing Chromium fetch path with native HTTPS fallback requests.\n- Anonymous sign-in, username lookup, and username claim now share the same direct fallback path.\n- Username claims still enforce the global unique-name database constraint."
     }
   }
 }
