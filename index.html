@@ -5722,6 +5722,65 @@ function isTransientSupabaseError(error) {
         || Number(error?.status) >= 500;
 }
 
+async function directSupabaseRequest(pathname, options = {}) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12000);
+    try {
+        const response = await fetch(`${SUPABASE_URL}${pathname}`, {
+            ...options,
+            signal: controller.signal,
+            headers: {
+                apikey: SUPABASE_PUBLISHABLE_KEY,
+                ...(options.accessToken ? { Authorization: `Bearer ${options.accessToken}` } : {}),
+                ...(options.body ? { "Content-Type": "application/json" } : {}),
+                ...(options.headers || {})
+            }
+        });
+        const text = await response.text();
+        let data = null;
+        try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+        if (!response.ok) {
+            const error = new Error(data?.msg || data?.message || data?.error_description || `Supabase HTTP ${response.status}`);
+            error.status = response.status;
+            error.code = data?.code;
+            throw error;
+        }
+        return data;
+    } finally {
+        clearTimeout(timeout);
+    }
+}
+
+async function directAnonymousSignIn() {
+    const data = await directSupabaseRequest("/auth/v1/signup", {
+        method: "POST",
+        body: JSON.stringify({})
+    });
+    const session = await supabaseClient.auth.setSession({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token
+    });
+    if (session.error) throw session.error;
+    return { data: { session: session.data.session, user: session.data.user }, error: null };
+}
+
+async function directLeaderboardProfile(userId, accessToken) {
+    const rows = await directSupabaseRequest(
+        `/rest/v1/player_leaderboard?select=username&user_id=eq.${encodeURIComponent(userId)}&limit=1`,
+        { method: "GET", accessToken }
+    );
+    return rows?.[0] || null;
+}
+
+async function directLeaderboardInsert(payload, accessToken) {
+    return directSupabaseRequest("/rest/v1/player_leaderboard", {
+        method: "POST",
+        accessToken,
+        headers: { Prefer: "return=minimal" },
+        body: JSON.stringify(payload)
+    });
+}
+
 async function withSupabaseRetry(operation, label) {
     let lastError = null;
     for (let attempt = 0; attempt < 3; attempt++) {
@@ -5737,6 +5796,34 @@ async function withSupabaseRetry(operation, label) {
         }
     }
     throw lastError || new Error("Supabase request failed.");
+}
+
+async function signInAnonymouslyWithFallback() {
+    try {
+        return await withSupabaseRetry(() => supabaseClient.auth.signInAnonymously(), "Anonymous sign-in");
+    } catch (error) {
+        if (!isTransientSupabaseError(error)) throw error;
+
+        const response = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+            method: "POST",
+            headers: {
+                apikey: SUPABASE_PUBLISHABLE_KEY,
+                "Content-Type": "application/json"
+            },
+            body: "{}"
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || !payload.access_token || !payload.refresh_token) {
+            throw new Error(payload.msg || payload.message || `Anonymous sign-in failed (${response.status}).`);
+        }
+
+        const { data, error: sessionError } = await supabaseClient.auth.setSession({
+            access_token: payload.access_token,
+            refresh_token: payload.refresh_token
+        });
+        if (sessionError) throw sessionError;
+        return { data };
+    }
 }
 
 async function publishLeaderboard(force = false) {
@@ -5832,24 +5919,39 @@ async function claimPlayerUsername(rawUsername) {
     try {
         let { data: sessionData } = await withSupabaseRetry(() => supabaseClient.auth.getSession(), "Supabase");
         if (!sessionData.session) {
-            const signedIn = await withSupabaseRetry(() => supabaseClient.auth.signInAnonymously(), "Anonymous sign-in");
+            const signedIn = await signInAnonymouslyWithFallback();
             sessionData = { session: signedIn.data.session };
         }
 
         const userId = sessionData.session.user.id;
-        const { data: existing } = await withSupabaseRetry(() => supabaseClient
-            .from("player_leaderboard")
-            .select("username")
-            .eq("user_id", userId)
-            .maybeSingle(), "Leaderboard");
+        let existing;
+        try {
+            const result = await withSupabaseRetry(() => supabaseClient
+                .from("player_leaderboard")
+                .select("username")
+                .eq("user_id", userId)
+                .maybeSingle(), "Leaderboard");
+            existing = result.data;
+        } catch (error) {
+            if (!isTransientSupabaseError(error)) throw error;
+            setAccountStatus("Using direct leaderboard fallback...");
+            existing = await directLeaderboardProfile(userId, sessionData.session.access_token);
+        }
         if (existing?.username && existing.username.toLowerCase() !== username.toLowerCase()) {
             throw new Error(`This account already owns the name ${existing.username}.`);
         }
 
         if (!existing) {
-            await withSupabaseRetry(() => supabaseClient
-                .from("player_leaderboard")
-                .insert({ ...getLeaderboardSnapshot(userId), username }), "Username claim");
+            const payload = { ...getLeaderboardSnapshot(userId), username };
+            try {
+                await withSupabaseRetry(() => supabaseClient
+                    .from("player_leaderboard")
+                    .insert(payload), "Username claim");
+            } catch (error) {
+                if (!isTransientSupabaseError(error)) throw error;
+                setAccountStatus("Using direct username claim fallback...");
+                await directLeaderboardInsert(payload, sessionData.session.access_token);
+            }
         }
 
         game.supabase_user_id = userId;

@@ -1,6 +1,6 @@
 {
   "name": "hypergamous-tree-chopping-simulator-3",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Hypergamous Tree Chopping Simulator 3",
   "main": "main.js",
   "scripts": {
@@ -44,7 +44,7 @@
       "releaseType": "release"
     },
     "releaseInfo": {
-      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.1.1\n\n- Fixed first-time username registration during intermittent Supabase network latency.\n- Username claims now retry transient fetch, timeout, and server errors before showing a clear failure message.\n- Existing 1.1.0 gameplay systems remain unchanged."
+      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.1.2\n\n- Fixed anonymous username registration when the Supabase SDK reports Failed to fetch.\n- Added direct REST fallbacks for anonymous sign-in, username lookup, and username claim after transient SDK failures.\n- Username claims still enforce the global unique-name database constraint."
     }
   }
 }
