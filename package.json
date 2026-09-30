@@ -1,6 +1,6 @@
 {
   "name": "hypergamous-tree-chopping-simulator-3",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "Hypergamous Tree Chopping Simulator 3",
   "main": "main.js",
   "scripts": {
@@ -44,7 +44,7 @@
       "releaseType": "release"
     },
     "releaseInfo": {
-      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.1.4\n\n- Added an X button for local-only play when leaderboard registration is unavailable.\n- Fixed leaderboard reads with the same native HTTPS fallback used by username registration.\n- Registered players now appear in the leaderboard even when the Supabase SDK fetch path fails."
+      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.1.5\n\n- Generated rebirth tiers, axe upgrades, and axe skins now use unique combinatorial names instead of repeating 'Name #' patterns, with a collision check so no generated name duplicates another.\n- Fixed a bug where rebirth tiers 1-5 all rewarded only 1 shard; shard rewards now scale smoothly and distinctly from your very first rebirth.\n- Fixed a bug where leaderboard reads and the anonymous sign-in fallback were missing a required Authorization header, causing the leaderboard to fail to load or show stale data.\n- Periodic leaderboard score syncing (chickens, rebirths, logs, etc.) now uses the same retry and fallback logic as registration, so it no longer silently fails.\n- Added a 'While You Were Away' offline earnings popup on launch."
     }
   }
 }

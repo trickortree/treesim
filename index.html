@@ -3669,6 +3669,13 @@ button {
 
 .account-overlay { display: none; position: fixed; z-index: 1200; inset: 0; align-items: center; justify-content: center; padding: 20px; background: rgba(2,4,7,.88); backdrop-filter: blur(12px); }
 .account-overlay.open { display: flex; }
+.offline-overlay { display: none; position: fixed; z-index: 1190; inset: 0; align-items: center; justify-content: center; padding: 20px; background: rgba(2,4,7,.88); backdrop-filter: blur(12px); }
+.offline-overlay.open { display: flex; }
+.offline-modal { width: min(420px, 100%); padding: 24px; border: 1px solid #344436; border-radius: 12px; background: #101811; box-shadow: 0 30px 90px rgba(0,0,0,.65); text-align: center; }
+.offline-icon { font-size: 36px; margin-bottom: 6px; }
+.offline-duration { margin-top: 4px; color: #a7b49f; font-size: 12px; }
+.offline-earnings { margin: 18px 0; padding: 14px; border-radius: 9px; background: rgba(255,255,255,.04); font-size: 22px; font-weight: 900; color: #8ef58e; }
+.offline-earnings small { display: block; margin-top: 4px; font-size: 11px; font-weight: 700; color: #a7b49f; }
 .account-close { position: absolute; top: 12px; right: 14px; width: 28px; height: 28px; border: 0; background: transparent; color: #92a08f; cursor: pointer; font-size: 20px; }
 .account-modal { width: min(420px, 100%); padding: 24px; border: 1px solid #344436; border-radius: 12px; background: #101811; box-shadow: 0 30px 90px rgba(0,0,0,.65); }
 .account-label { display: block; margin: 18px 0 6px; color: #d6dfd0; font-size: 11px; font-weight: 850; }
@@ -4516,6 +4523,16 @@ button {
     </form>
 </div>
 
+<div class="offline-overlay" id="offline-overlay" aria-modal="true" role="dialog" aria-labelledby="offline-title">
+    <div class="offline-modal">
+        <div class="offline-icon">🌲</div>
+        <div class="section-title" id="offline-title">While You Were Away...</div>
+        <div class="offline-duration" id="offline-duration"></div>
+        <div class="offline-earnings" id="offline-earnings"></div>
+        <button class="buy-btn" id="offline-close" type="button">COLLECT</button>
+    </div>
+</div>
+
 <!-- UPDATE MODAL -->
 <div id="update-overlay">
     <div id="update-modal">
@@ -4814,6 +4831,7 @@ const DEFAULT_DATA = {
     supabase_user_id: null,
     leaderboard_bypass: false,
     quick_open_cooldown_until: 0,
+    last_online_at: null,
     treeName: "hypergamous trees",
     current_axe_index: 0,
     axe_skins: {},
@@ -5063,11 +5081,21 @@ const BASE_AXE_SKINS = [
 ];
 
 function generateExtraAxeSkins(count = 500) {
-    const suffixes = [
-        "Bramble", "Ember", "Vale", "Drift", "Summit", "King", "Warden", "Gale",
-        "Bloom", "Echo", "Rift", "Hollow", "Horizon", "Bastion", "Dawn", "Comet",
-        "Aether", "Obsidian", "Starfall", "Thunder", "Titan", "Frost", "Lattice", "Pulse",
-        "Oracle", "Vapor", "Sunfire", "Mist", "Eclipse", "Myth", "Prime", "Nova"
+    // Combinatorial adjective + noun pairing keeps every generated name unique without
+    // resorting to a trailing "#N" counter (25 x 25 = 625 distinct combinations).
+    const adjectives = [
+        "Bramble", "Ember", "Vale", "Drift", "Summit", "Wandering", "Warden", "Gale",
+        "Bloom", "Echoing", "Rift", "Hollow", "Horizon", "Bastion", "Dawnlit", "Comet",
+        "Aether", "Obsidian", "Starfall", "Thunder", "Titan", "Frostbound", "Lattice", "Pulsing",
+        "Oracle", "Vapor", "Sunfire", "Mistveil", "Eclipsed", "Mythic", "Primal", "Nova",
+        "Gilded", "Runic", "Hallowed", "Verdant"
+    ];
+    const nouns = [
+        "Fang", "Cleaver", "Reaver", "Hatchet", "Cutter", "Splitter", "Breaker", "Crescent",
+        "Talon", "Bite", "Edge", "Wing", "Shard", "Claw", "Chopper", "Blade",
+        "Carver", "Ripper", "Piercer", "Slicer", "Strike", "Maul", "Warfang", "Herald",
+        "Sentinel", "Warden", "Relic", "Crown", "Bloom", "Whisper", "Storm", "Ember",
+        "Rune", "Vow", "Oath", "Requiem"
     ];
     const rarities = ["Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Exotic", "Ancient", "Celestial", "Divine", "Godly", "Astral", "Eclipse", "Voidborn", "Genesis"];
     const colors = ["#9ca3af", "#22c55e", "#3b82f6", "#a855f7", "#f59e0b", "#ec4899", "#06b6d4", "#f97316", "#8b5cf6", "#facc15", "#fb7185", "#67e8f9", "#c084fc", "#a78bfa", "#fda4af"];
@@ -5075,8 +5103,9 @@ function generateExtraAxeSkins(count = 500) {
 
     for (let i = 0; i < count; i++) {
         const rarity = rarities[i % rarities.length];
-        const suffix = suffixes[i % suffixes.length];
-        const name = `Elder ${suffix} ${i + 1}`;
+        const adjective = adjectives[i % adjectives.length];
+        const noun = nouns[Math.floor(i / adjectives.length) % nouns.length];
+        const name = `${adjective} ${noun}`;
         generated.push({
             name,
             rarity,
@@ -5287,16 +5316,21 @@ AXE_UPGRADES.push(...PRESTIGE_AXE_UPGRADES);
 
 function generateExtraAxeUpgrades(count = 500) {
     const generated = [];
+    // families x forms x epithets = 10 x 5 x 10 = 500 unique combinations, no "#N" suffix needed.
     const families = ["Bramble", "Ember", "Vale", "Rift", "Starfall", "Elder", "Comet", "Worldroot", "Aether", "Genesis"];
     const forms = ["Cleaver", "Hatchet", "Splitter", "Timberfall", "Riftcutter"];
+    const epithets = ["Warden", "Herald", "Sovereign", "Wraith", "Paragon", "Harbinger", "Vanguard", "Oracle", "Zealot", "Ascendant"];
     let cost = AXE_UPGRADES.at(-1).cost;
     let power = AXE_UPGRADES.at(-1).base_add;
 
     for (let index = 0; index < count; index++) {
         cost *= 1.04;
         power *= 1.045;
+        const family = families[index % families.length];
+        const form = forms[Math.floor(index / families.length) % forms.length];
+        const epithet = epithets[Math.floor(index / (families.length * forms.length)) % epithets.length];
         generated.push({
-            name: `${families[index % families.length]} ${forms[Math.floor(index / families.length) % forms.length]} ${String(index + 1).padStart(3, "0")}`,
+            name: `${family} ${form} of the ${epithet}`,
             cost: Math.ceil(cost),
             base_add: Math.ceil(power)
         });
@@ -5424,20 +5458,47 @@ const BASE_REBIRTH_DATA = {
 };
 
 function generateRebirthData() {
+    // Exponential curve (not the raw shards field, which crushed tiers 1-5 to a flat 1 via *0.02)
+    // so every base tier gives a distinct, growing shard reward starting from tier 1.
     const result = Object.fromEntries(Object.entries(BASE_REBIRTH_DATA).map(([tier, data]) => [
         tier,
-        { ...data, cost: data.cost * 10, shards: Math.max(1, Math.round(data.shards * 0.02)) }
+        { ...data, cost: data.cost * 10, shards: Math.max(5, Math.round(5 * Math.pow(1.35, Number(tier) - 1))) }
     ]));
     const lastTier = Math.max(...Object.keys(BASE_REBIRTH_DATA).map(Number));
+    // Adjective x noun pairing gives 30 x 30 = 900 unique frontier names, far more than the 34 needed.
+    const adjectives = [
+        "Rootbound", "Starforged", "Everdusk", "Hollowed", "Wandering", "Gilded", "Ashen", "Verdant",
+        "Sundered", "Boreal", "Nightbloom", "Emberlit", "Frostwoven", "Stormbound", "Hallowed", "Runic",
+        "Thornveil", "Moonlit", "Duskbound", "Wildroot", "Sablewood", "Glimmering", "Cindergrove", "Wraithbark",
+        "Skyward", "Ironroot", "Silvervein", "Duskglass", "Emberfall", "Winterbound"
+    ];
+    const nouns = [
+        "Canopy", "Expanse", "Thicket", "Grove", "Wilds", "Frontier", "Reach", "Hollow",
+        "Sanctum", "Bastion", "Vale", "Timberlands", "Understory", "Highwood", "Deepwood", "Glade",
+        "Woodland", "Arbor", "Timberfall", "Underbrush", "Coppice", "Wildwood", "Thornwood", "Rootway",
+        "Bough", "Treeline", "Loam", "Overgrowth", "Heartwood", "Evergreen"
+    ];
+    const usedNames = new Set(Object.values(result).map(data => data.name));
+    let cursor = 0;
     for (let tier = lastTier + 1; tier <= lastTier + 34; tier++) {
         const previous = result[tier - 1];
         const nextCost = Number(previous.cost) * 1.9;
         const nextPenalty = Number((previous.penalty * 1.015).toFixed(2));
         const nextShards = Math.min(1000, 350 + (tier - lastTier) * 4);
 
+        // Skip combinations that collide with an existing (base or generated) name.
+        let name;
+        do {
+            const adjective = adjectives[cursor % adjectives.length];
+            const noun = nouns[Math.floor(cursor / adjectives.length) % nouns.length];
+            name = `The ${adjective} ${noun}`;
+            cursor++;
+        } while (usedNames.has(name));
+        usedNames.add(name);
+
         result[tier] = {
             penalty: nextPenalty,
-            name: `Forest Rift ${tier}`,
+            name,
             cost: nextCost,
             shards: nextShards
         };
@@ -5663,6 +5724,7 @@ function loadGame() {
 function saveGame() {
 
     try {
+        game.last_online_at = Date.now();
         const raw = JSON.stringify(game, null, 2);
 
         if (IS_ELECTRON) {
@@ -5737,7 +5799,7 @@ async function directSupabaseRequest(pathname, options = {}) {
             signal: controller.signal,
             headers: {
                 apikey: SUPABASE_PUBLISHABLE_KEY,
-                ...(options.accessToken ? { Authorization: `Bearer ${options.accessToken}` } : {}),
+                Authorization: `Bearer ${options.accessToken || SUPABASE_PUBLISHABLE_KEY}`,
                 ...(options.body ? { "Content-Type": "application/json" } : {}),
                 ...(options.headers || {})
             }
@@ -5769,7 +5831,7 @@ function nodeSupabaseRequest(pathname, options = {}) {
             method: options.method || "GET",
             headers: {
                 apikey: SUPABASE_PUBLISHABLE_KEY,
-                ...(options.accessToken ? { Authorization: `Bearer ${options.accessToken}` } : {}),
+                Authorization: `Bearer ${options.accessToken || SUPABASE_PUBLISHABLE_KEY}`,
                 ...(body ? { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(body) } : {}),
                 ...(options.headers || {})
             }
@@ -5832,6 +5894,15 @@ async function directLeaderboardInsert(payload, accessToken) {
     });
 }
 
+async function directLeaderboardUpsert(payload, accessToken) {
+    return directSupabaseRequest("/rest/v1/player_leaderboard?on_conflict=user_id", {
+        method: "POST",
+        accessToken,
+        headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+        body: JSON.stringify(payload)
+    });
+}
+
 async function withSupabaseRetry(operation, label) {
     let lastError = null;
     for (let attempt = 0; attempt < 3; attempt++) {
@@ -5865,10 +5936,19 @@ async function publishLeaderboard(force = false) {
 
     leaderboardPushInFlight = true;
     try {
-        const { error } = await supabaseClient
-            .from("player_leaderboard")
-            .upsert(getLeaderboardSnapshot(), { onConflict: "user_id" });
-        if (error) throw error;
+        const payload = getLeaderboardSnapshot();
+        try {
+            const { error } = await withSupabaseRetry(() => supabaseClient
+                .from("player_leaderboard")
+                .upsert(payload, { onConflict: "user_id" }), "Leaderboard sync");
+            if (error) throw error;
+        } catch (error) {
+            if (!isTransientSupabaseError(error)) throw error;
+            const { data: sessionData } = await withSupabaseRetry(() => supabaseClient.auth.getSession(), "Supabase");
+            const accessToken = sessionData?.session?.access_token;
+            if (!accessToken) throw error;
+            await directLeaderboardUpsert(payload, accessToken);
+        }
         leaderboardLastPushAt = Date.now();
     } catch (error) {
         console.error("Leaderboard update failed:", error);
@@ -6134,6 +6214,38 @@ function getRebirthPenalty() {
         1 + game.rebirth_upgrades.mult * 0.2;
 
     return base * upgradeBonus * getPrestigeMultiplier();
+}
+
+const OFFLINE_EARNINGS_MIN_SECONDS = 60;
+const OFFLINE_EARNINGS_CAP_SECONDS = 8 * 3600;
+const OFFLINE_EARNINGS_EFFICIENCY = 0.5;
+
+function formatOfflineDuration(totalSeconds) {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    if (hours > 0) return `${hours}h ${minutes}m`;
+    if (minutes > 0) return `${minutes}m`;
+    return "less than a minute";
+}
+
+function applyOfflineEarnings() {
+    const lastOnline = Number(game.last_online_at) || 0;
+    if (!lastOnline) return;
+
+    const elapsedSeconds = (Date.now() - lastOnline) / 1000;
+    if (elapsedSeconds < OFFLINE_EARNINGS_MIN_SECONDS) return;
+
+    const cappedSeconds = Math.min(elapsedSeconds, OFFLINE_EARNINGS_CAP_SECONDS);
+    const earnings = Math.floor(getPassiveRate() * cappedSeconds * OFFLINE_EARNINGS_EFFICIENCY);
+    if (earnings <= 0) return;
+
+    game.numOC += earnings;
+    saveGame();
+
+    $("offline-duration").textContent = `You were away for ${formatOfflineDuration(elapsedSeconds)}.`;
+    $("offline-earnings").innerHTML = `+${formatNumber(earnings)} logs<small>Passive production at 50% rate, capped at 8 hours away</small>`;
+    $("offline-overlay").classList.add("open");
+    updateUI();
 }
 
 function getPrestigeMultiplier() {
@@ -9511,7 +9623,13 @@ function gameLoop(now) {
 renderCaseDropTables();
 updateUI();
 renderChopAxe();
-initializePlayerAccount();
+initializePlayerAccount().then(() => {
+    if (!$("account-overlay").classList.contains("open")) applyOfflineEarnings();
+});
+
+$("offline-close").addEventListener("click", () => {
+    $("offline-overlay").classList.remove("open");
+});
 
 
 /* If this page is opened outside Electron, the game still works
