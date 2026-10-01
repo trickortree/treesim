@@ -1,6 +1,6 @@
 {
   "name": "hypergamous-tree-chopping-simulator-3",
-  "version": "1.1.8",
+  "version": "1.2.0",
   "description": "Hypergamous Tree Chopping Simulator 3",
   "main": "main.js",
   "scripts": {
@@ -44,7 +44,7 @@
       "releaseType": "release"
     },
     "releaseInfo": {
-      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.1.8\n\n- OBLIVION, REVEALED: the case now shows its live entry fee directly in logs, rising as your balance grows. Unlock at 500 million logs; no percentage math hidden in the button.\n- A FAIR DOOR TO THE VOID: authenticated players without a leaderboard row can still open the case; their permanent relic claim displays a stable Player identity.\n- CASE FEEDBACK: failed attempts show the actual service error and refund the exact entry fee. The Oblivion result stays separate from ordinary case rewards.\n- The 500M unlock, 1-in-100,000,000 one-of-one odds, +20% maximum axe-skin bonus, and standard chicken sale controls remain intact."
+      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.2.0\n\n- NAME FIXED: the title bar and sidebar logo now correctly say Hypergamous instead of a leftover Looksmaxxing label.\n- LEADERBOARD RELIABILITY: standings now load from a public fallback read even if the signed-in session check fails, instead of leaving the board empty.\n- REBIRTH RESONANCE: a new Incubator Lab upgrade (unlocks at Rebirth 30) that increases rebirth shard gain by 10% per level.\n- 8 NEW ACHIEVEMENTS: Into the Void, Relic Master, Lab Scholar, Prestige Ascendant, Coop Architect, Mutation Collector, Sharpest Edge, and On the Board.\n- The Oblivion Case's exact rising entry fee, fallback claim identity for unregistered leaderboard players, 500M unlock, and all prior mechanics remain intact."
     }
   }
 }

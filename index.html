@@ -8,7 +8,7 @@
 >
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Looksmaxxing Tree Chopping Simulator 3</title>
+<title>Hypergamous Tree Chopping Simulator 3</title>
 
 <style>
 :root {
@@ -3718,7 +3718,7 @@ button {
     <aside class="sidebar">
 
         <div class="logo">
-            <div class="logo-title">LOOKSMAXXING</div>
+            <div class="logo-title">HYPERGAMOUS</div>
             <div class="logo-sub">TREE CHOPPING SIMULATOR 3</div>
         </div>
 
@@ -4248,6 +4248,16 @@ button {
                         </div>
                         <button class="buy-btn" id="prestige-study-btn" type="button"></button>
                         <button class="buy-btn" id="prestige-study-max-btn" type="button">MAX</button>
+                    </div>
+
+                    <div class="lab-card card">
+                        <div class="lab-icon">🔁</div>
+                        <div class="lab-body">
+                            <div class="lab-name">Rebirth Resonance</div>
+                            <div class="lab-desc" id="resonance-desc">+10% rebirth shard gain per level • Unlocks at Rebirth 30.</div>
+                        </div>
+                        <button class="buy-btn" id="resonance-btn" type="button"></button>
+                        <button class="buy-btn" id="resonance-max-btn" type="button">MAX</button>
                     </div>
 
                     <div class="lab-card card">
@@ -4848,7 +4858,8 @@ const EGG_RESEARCH_DEFS = {
     egg_mult: { baseCost: 100, unlockRebirth: 10, description: "+10% eggs from every flock drop per level." },
     feather_boost: { baseCost: 40, description: "Increases passive logs by 15% per level." },
     sap_resonance: { baseCost: 250, unlockRebirth: 20, description: "Increases passive logs by 8% per level." },
-    prestige_study: { baseCost: 500, unlockPrestige: 1, description: "Increases all log output by 10% per level." }
+    prestige_study: { baseCost: 500, unlockPrestige: 1, description: "Increases all log output by 10% per level." },
+    rebirth_resonance: { baseCost: 750, unlockRebirth: 30, description: "Increases rebirth shard gain by 10% per level." }
 };
 
 const DEFAULT_DATA = {
@@ -4910,7 +4921,8 @@ const DEFAULT_DATA = {
         egg_mult: 0,
         feather_boost: 0,
         sap_resonance: 0,
-        prestige_study: 0
+        prestige_study: 0,
+        rebirth_resonance: 0
     },
 
     mutated_chickens: {
@@ -5551,7 +5563,15 @@ const ACHIEVEMENT_DEFS = [
     { id: "axe-vault", name: "Axe Vault", description: "Keep fifty axes in your locker at once.", goal: 50, progress: () => game.axe_inventory.length, reward: { logs: 500000 } },
     { id: "world-walker", name: "World Walker", description: "Reach rebirth tier eight.", goal: 8, progress: () => game.rebirth, reward: { shards: 250 } },
     { id: "beyond-the-boughs", name: "Beyond the Boughs", description: "Reach rebirth tier twelve.", goal: 12, progress: () => game.rebirth, reward: { shards: 1000 } },
-    { id: "worldtree-keeper", name: "Worldtree Keeper", description: "Reach the final atlas frontier.", goal: 50, progress: () => game.rebirth, reward: { shards: 5000 } }
+    { id: "worldtree-keeper", name: "Worldtree Keeper", description: "Reach the final atlas frontier.", goal: 50, progress: () => game.rebirth, reward: { shards: 5000 } },
+    { id: "into-the-void", name: "Into the Void", description: "Chop a total of 500 million logs, enough to unlock the Oblivion Case.", goal: 500000000, progress: () => game.total_chopped, reward: { shards: 300 } },
+    { id: "relic-master", name: "Relic Master", description: "Max every shard relic upgrade in the Shard Shop.", goal: 25, progress: () => (game.shard_upgrades?.case_luck || 0) + (game.shard_upgrades?.pity || 0) + (game.shard_upgrades?.egg_yield || 0), reward: { logs: 2000000 } },
+    { id: "lab-scholar", name: "Lab Scholar", description: "Reach a combined level of 50 across the original five Incubator Lab upgrades.", goal: 50, progress: () => ["click_boost", "egg_mult", "feather_boost", "sap_resonance", "prestige_study"].reduce((sum, key) => sum + (Number(game.egg_upgrades[key]) || 0), 0), reward: { logs: 1000000 } },
+    { id: "prestige-ascendant", name: "Prestige Ascendant", description: "Reach the maximum Prestige tier.", goal: PRESTIGE_LIMIT, progress: () => game.prestige, reward: { shards: 2000 } },
+    { id: "coop-architect", name: "Coop Architect", description: "Upgrade the Chicken Coop to level 25.", goal: 25, progress: () => game.coop_level, reward: { logs: 250000 } },
+    { id: "mutation-collector", name: "Mutation Collector", description: "Own at least one Golden, Neon, and Void mutated chicken at the same time.", goal: 3, progress: () => ["golden", "neon", "void"].filter(key => (game.mutated_chickens[key] || 0) > 0).length, reward: { shards: 150 } },
+    { id: "golden-axe-bonus", name: "Sharpest Edge", description: "Own an axe skin valuable enough to hit the maximum +20% output bonus.", goal: 1, progress: () => getAxeSkinOutputMultiplier() >= 1 + AXE_SKIN_OUTPUT_BONUS_CAP ? 1 : 0, reward: { shards: 400 } },
+    { id: "leaderboard-ready", name: "On the Board", description: "Claim a unique global leaderboard username.", goal: 1, progress: () => (game.player_username && !game.leaderboard_bypass) ? 1 : 0, reward: { logs: 50000 } }
 ];
 
 let game = loadGame();
@@ -7305,7 +7325,8 @@ function updateLab() {
         { type: "egg_mult", buy: "brood-btn", max: "brood-max-btn", description: "brood-desc" },
         { type: "feather_boost", buy: "feather-btn", max: "feather-max-btn" },
         { type: "sap_resonance", buy: "sap-btn", max: "sap-max-btn", description: "sap-desc" },
-        { type: "prestige_study", buy: "prestige-study-btn", max: "prestige-study-max-btn", description: "prestige-study-desc" }
+        { type: "prestige_study", buy: "prestige-study-btn", max: "prestige-study-max-btn", description: "prestige-study-desc" },
+        { type: "rebirth_resonance", buy: "resonance-btn", max: "resonance-max-btn", description: "resonance-desc" }
     ];
 
     for (const control of researchControls) {
@@ -7647,7 +7668,7 @@ function doRebirth() {
     }
 
     game.rebirth++;
-    game.rebirth_shards += data.shards;
+    game.rebirth_shards += Math.floor(data.shards * (1 + (game.egg_upgrades.rebirth_resonance || 0) * 0.1));
 
     game.numOC =
         50 * game.rebirth_upgrades.start_logs;
@@ -9703,6 +9724,7 @@ $("click-upgrade-btn")
 $("brood-btn").addEventListener("click", () => buyEggUpgrade("egg_mult"));
 $("sap-btn").addEventListener("click", () => buyEggUpgrade("sap_resonance"));
 $("prestige-study-btn").addEventListener("click", () => buyEggUpgrade("prestige_study"));
+$("resonance-btn").addEventListener("click", () => buyEggUpgrade("rebirth_resonance"));
 
 $("feather-btn")
     .addEventListener("click", () => {
@@ -9717,6 +9739,7 @@ $("click-max-btn")
 $("brood-max-btn").addEventListener("click", () => buyMaxEggUpgrade("egg_mult"));
 $("sap-max-btn").addEventListener("click", () => buyMaxEggUpgrade("sap_resonance"));
 $("prestige-study-max-btn").addEventListener("click", () => buyMaxEggUpgrade("prestige_study"));
+$("resonance-max-btn").addEventListener("click", () => buyMaxEggUpgrade("rebirth_resonance"));
 
 $("feather-max-btn")
     .addEventListener("click", () => {
