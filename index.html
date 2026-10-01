@@ -4145,7 +4145,7 @@ button {
 
                     <div class="action-grid">
 
-                        <button class="buy-btn" id="hatch-btn">
+                            <button class="buy-btn" id="hatch-btn">
                             🐣 Hatch Chicken
                         </button>
 
@@ -4160,6 +4160,9 @@ button {
                         <button class="buy-btn max-buy-btn" id="chicken-max-btn" type="button">
                             BUY MAX
                         </button>
+
+                        <button class="buy-btn sell" id="sell-chicken-btn" type="button">SELL ONE</button>
+                        <button class="buy-btn sell" id="sell-chicken-all-btn" type="button">SELL ALL STANDARD</button>
 
                     </div>
 
@@ -4437,11 +4440,11 @@ button {
                     <div class="market-card card oblivion-card" style="--case-accent:#3d0a4a">
                         <div class="market-icon">🌑</div>
                         <div class="market-title">Oblivion Case</div>
-                        <div class="market-desc">Almost everything in here is cursed junk. Somewhere in the void is a 1-in-100,000,000 chance for THE Axe Skin — a single, permanent, global relic. The instant someone wins it, this case closes forever.</div>
+                        <div class="market-desc">Unlocks at 500 million logs. Each attempt costs 10% of your current logs. A 1-in-100,000,000 chance for the one-of-one relic closes the case forever.</div>
                         <div class="market-case-metrics"><span>Attempts worldwide <strong id="oblivion-attempts-count">--</strong></span><span>1 in 100,000,000</span></div>
                         <div class="market-result" id="oblivion-result">Ready to open.</div>
                         <div class="market-actions">
-                            <button class="buy-btn" id="oblivion-btn" type="button" disabled>OPEN — 5,000 LOGS</button>
+                            <button class="buy-btn" id="oblivion-btn" type="button" disabled>UNLOCK AT 500M LOGS</button>
                         </div>
                     </div>
 
@@ -5607,6 +5610,18 @@ function getSkinSellValue(skinName, conditionName, mutationName = null) {
     return Math.max(5, Math.floor((rarityBase[skin.rarity] || 25) * condition.multiplier * mutationMultiplier / 5) * 5);
 }
 
+const AXE_SKIN_BONUS_SELL_VALUE_CAP = 150000;
+const AXE_SKIN_OUTPUT_BONUS_CAP = 0.2;
+
+function getAxeSkinOutputMultiplier() {
+    const bestSellValue = (game.axe_inventory || []).reduce((best, item) => Math.max(
+        best,
+        getSkinSellValue(item.skinName, item.condition, item.mutationName)
+    ), 0);
+    const bonus = Math.min(AXE_SKIN_OUTPUT_BONUS_CAP, bestSellValue / AXE_SKIN_BONUS_SELL_VALUE_CAP * AXE_SKIN_OUTPUT_BONUS_CAP);
+    return 1 + bonus;
+}
+
 function createAxeInventoryItem(skinName, conditionName, mutationName = null) {
     const condition = getConditionDefinition(conditionName);
     return {
@@ -6181,7 +6196,14 @@ async function loadLeaderboard() {
     }
 }
 
+const OBLIVION_UNLOCK_LOGS = 500000000;
+const OBLIVION_COST_RATE = 0.1;
 let oblivionState = { claimedBy: null, claimedAt: null, totalAttempts: 0, loaded: false };
+let oblivionOpening = false;
+
+function getOblivionCaseCost() {
+    return Math.ceil(Math.max(0, Number(game.numOC) || 0) * OBLIVION_COST_RATE);
+}
 
 async function loadOblivionStatus() {
     if (!supabaseClient) return;
@@ -6213,22 +6235,36 @@ async function loadOblivionStatus() {
 
 function renderOblivionBanner() {
     const banner = $("oblivion-banner");
-    const button = $("oblivion-btn");
     const attemptsEl = $("oblivion-attempts-count");
     if (attemptsEl) attemptsEl.textContent = formatNumber(oblivionState.totalAttempts);
-    if (!banner) return;
+    if (!banner) {
+        updateOblivionCaseButton();
+        return;
+    }
 
     if (oblivionState.claimedBy) {
         const when = oblivionState.claimedAt ? new Date(oblivionState.claimedAt).toLocaleDateString() : "an unknown date";
         banner.innerHTML = `🌑 <strong>THE OBLIVION RELIC HAS BEEN CLAIMED</strong> by <strong>${oblivionState.claimedBy}</strong> on ${when}, after <strong>${formatNumber(oblivionState.totalAttempts)}</strong> cases opened worldwide. The case is now closed forever.`;
-        if (button) { button.disabled = true; button.textContent = "CLAIMED — CASE CLOSED"; }
     } else if (oblivionState.loaded) {
-        banner.innerHTML = `🌑 <strong>THE OBLIVION RELIC</strong> remains unclaimed. <strong>${formatNumber(oblivionState.totalAttempts)}</strong> cases opened worldwide chasing the 1-in-100,000,000 chance.`;
-        if (button) { button.disabled = false; button.textContent = `OPEN — ${formatNumber(CASE_DEFINITIONS.oblivion.cost)} LOGS`; }
+        banner.innerHTML = `🌑 <strong>THE OBLIVION RELIC</strong> remains unclaimed. <strong>${formatNumber(oblivionState.totalAttempts)}</strong> cases opened worldwide. Unlock at 500 million logs; each attempt costs 10% of your current balance.`;
     } else {
         banner.textContent = "🌑 Loading Oblivion Relic status...";
-        if (button) button.disabled = true;
     }
+    updateOblivionCaseButton();
+}
+
+function updateOblivionCaseButton() {
+    const button = $("oblivion-btn");
+    if (!button) return;
+
+    const unlocked = game.numOC >= OBLIVION_UNLOCK_LOGS;
+    const hasAccount = !!supabaseClient && !game.leaderboard_bypass && !!game.player_username && !!game.supabase_user_id;
+    button.disabled = !oblivionState.loaded || !!oblivionState.claimedBy || !unlocked || !hasAccount || caseOpening || oblivionOpening;
+    if (oblivionState.claimedBy) button.textContent = "CLAIMED — CASE CLOSED";
+    else if (!oblivionState.loaded) button.textContent = "CHECKING RELIC STATUS...";
+    else if (!unlocked) button.textContent = "UNLOCK AT 500M LOGS";
+    else if (!hasAccount) button.textContent = "CLAIM A NAME TO OPEN";
+    else button.textContent = `OPEN — 10% / ${formatNumber(getOblivionCaseCost())} LOGS`;
 }
 
 async function attemptOblivionClaim() {
@@ -6251,27 +6287,41 @@ async function attemptOblivionClaim() {
 
 async function openOblivionCase() {
     const definition = CASE_DEFINITIONS.oblivion;
-    if (!definition || caseOpening || oblivionState.claimedBy) return;
+    if (!definition || caseOpening || oblivionOpening || oblivionState.claimedBy) return;
 
     if (!supabaseClient || game.leaderboard_bypass || !game.player_username || !game.supabase_user_id) {
         toast("Register a leaderboard username to attempt the Oblivion Case.");
         return;
     }
 
-    if (game.numOC < definition.cost) return;
+    if (game.numOC < OBLIVION_UNLOCK_LOGS) {
+        toast("The Oblivion Case unlocks at 500 million logs.");
+        return;
+    }
+
+    const caseCost = getOblivionCaseCost();
+    if (game.numOC < caseCost) return;
 
     const button = $("oblivion-btn");
-    game.numOC -= definition.cost;
+    oblivionOpening = true;
+    caseOpening = true;
+    game.numOC -= caseCost;
     if (button) { button.disabled = true; button.textContent = "OPENING..."; }
     updateUI();
 
     let result;
     try {
         result = await attemptOblivionClaim();
+        if (!result || result.total_attempts == null) throw new Error("The relic service returned no attempt result.");
     } catch (error) {
         console.error("Oblivion Relic attempt failed:", error);
-        game.numOC += definition.cost;
-        toast("Could not reach the Oblivion Relic. Your logs were not spent — try again.");
+        game.numOC += caseCost;
+        oblivionOpening = false;
+        caseOpening = false;
+        saveGame();
+        const resultEl = $("oblivion-result");
+        if (resultEl) resultEl.textContent = `The relic service could not complete the roll: ${error.message || "unknown error"}. ${formatNumber(caseCost)} logs refunded.`;
+        toast("Oblivion Case failed. Your logs were refunded.");
         renderOblivionBanner();
         updateUI();
         return;
@@ -6290,7 +6340,7 @@ async function openOblivionCase() {
         winningItem = OBLIVION_JUNK_ITEMS[Math.floor(Math.random() * OBLIVION_JUNK_ITEMS.length)];
     }
 
-    const inventoryItem = handleCaseReward(winningItem, "oblivion", { showAxeActions: false, silent: true });
+    const inventoryItem = handleCaseReward(winningItem, "oblivion", { showAxeActions: false, showCaseResult: false, silent: true });
     const resultEl = $("oblivion-result");
     if (resultEl) {
         const mutationLabel = winningItem.mutationName ? ` • ${winningItem.mutationName}` : "";
@@ -6308,7 +6358,10 @@ async function openOblivionCase() {
         triggerCaseRevealEffect(winningItem);
     }
 
+    oblivionOpening = false;
+    caseOpening = false;
     renderOblivionBanner();
+    updateUI();
 }
 
 
@@ -6377,7 +6430,7 @@ function getRebirthPenalty() {
     const upgradeBonus =
         1 + game.rebirth_upgrades.mult * 0.2;
 
-    return base * upgradeBonus * getPrestigeMultiplier();
+    return base * upgradeBonus * getPrestigeMultiplier() * getAxeSkinOutputMultiplier();
 }
 
 const OFFLINE_EARNINGS_MIN_SECONDS = 60;
@@ -6909,8 +6962,9 @@ function updateEquipment() {
                 : `LV. ${game.current_axe_index + 1}`;
 
         const skin = getEquippedAxeSkin();
+        const skinBonus = Math.round((getAxeSkinOutputMultiplier() - 1) * 100);
         $("axe-info").textContent =
-            `Cost: ${formatNumber(axe.cost)} Logs • Power: +${formatNumber(axe.base_add)} • Skin: ${skin.name}`;
+            `Cost: ${formatNumber(axe.cost)} Logs • Power: +${formatNumber(axe.base_add)} • Skin: ${skin.name} • Collection bonus: +${skinBonus}%`;
 
         $("axe-btn").textContent =
             `Upgrade Tool — ${formatNumber(axe.cost)} Logs`;
@@ -6929,8 +6983,9 @@ function updateEquipment() {
         $("axe-level").textContent =
             "MAX";
 
+        const skinBonus = Math.round((getAxeSkinOutputMultiplier() - 1) * 100);
         $("axe-info").textContent =
-            `Peak efficiency achieved • Skin: ${getEquippedAxeSkin().name}`;
+            `Peak efficiency achieved • Skin: ${getEquippedAxeSkin().name} • Collection bonus: +${skinBonus}%`;
 
         $("axe-btn").textContent =
             "MAXED";
@@ -7219,6 +7274,13 @@ function updateCoop() {
     $("chicken-btn").disabled = game.chickens >= MAX_UPGRADE_LEVEL || game.numOC < chickenCost;
     $("chicken-max-btn").disabled = game.chickens >= MAX_UPGRADE_LEVEL || game.numOC < chickenCost;
 
+    const sellOneButton = $("sell-chicken-btn");
+    sellOneButton.textContent = `SELL ONE — ${formatNumber(getChickenSaleValue(1))} LOGS`;
+    sellOneButton.disabled = game.chickens <= 0;
+    const sellAllButton = $("sell-chicken-all-btn");
+    sellAllButton.textContent = `SELL ALL STANDARD — ${formatNumber(getChickenSaleValue(game.chickens))} LOGS`;
+    sellAllButton.disabled = game.chickens <= 0;
+
     $("hatch-btn").textContent = "🐣 Hatch Chicken — 5 Eggs";
     $("hatch-btn").disabled = game.chickens >= MAX_UPGRADE_LEVEL || game.eggs < 5;
     $("hatch-max-btn").disabled = game.chickens >= MAX_UPGRADE_LEVEL || game.eggs < 5;
@@ -7312,6 +7374,7 @@ function updateMarket() {
     $("mutant-case-count").textContent = MUTANT_CASE_ITEMS.length;
     $("mutated-axe-case-count").textContent = NORMAL_CASE_ITEMS.length;
     $("mutated-flock-case-count").textContent = MUTANT_CASE_ITEMS.length;
+    updateOblivionCaseButton();
 }
 
 
@@ -7783,6 +7846,24 @@ function hatchChicken() {
     updateUI();
 }
 
+function getChickenSaleValue(count = 1) {
+    const saleCount = Math.min(game.chickens, Math.max(0, Math.floor(Number(count) || 0)));
+    return saleCount * 50;
+}
+
+function sellChickens(count = 1) {
+    const saleCount = Math.min(game.chickens, Math.max(0, Math.floor(Number(count) || 0)));
+    if (saleCount <= 0) return;
+
+    const logs = getChickenSaleValue(saleCount);
+    game.chickens -= saleCount;
+    game.numOC += logs;
+    coopVisualDirty = true;
+    saveGame();
+    toast(`Sold ${saleCount} standard chicken${saleCount === 1 ? "" : "s"} for ${formatNumber(logs)} logs.`);
+    updateUI();
+}
+
 function upgradeCoop() {
 
     if (game.coop_level >= MAX_UPGRADE_LEVEL) return;
@@ -8224,7 +8305,7 @@ const CASE_DEFINITIONS = {
     mutatedFlock: { title: "Mutated Flock Case", cost: 10000, kind: "mutated-chicken" },
     worldtree: { title: "Worldtree Cache", cost: 50000, kind: "mixed" },
     prestigeVault: { title: "Prestige Vault", cost: 1, currency: "prestige_tokens", kind: "prestige" },
-    oblivion: { title: "Oblivion Case", cost: 5000, kind: "oblivion" }
+    oblivion: { title: "Oblivion Case", unlockLogs: OBLIVION_UNLOCK_LOGS, costRate: OBLIVION_COST_RATE, kind: "oblivion" }
 };
 
 // The Oblivion Relic: a single, permanent, server-claimed copy of THE Axe Skin.
@@ -8783,12 +8864,13 @@ function triggerCaseRevealEffect(item) {
 
 function handleCaseReward(winningItem, caseType, options = {}) {
     let inventoryItem = null;
+    const caseResultEl = options.showCaseResult === false ? null : $("case-result");
     const mutationLabel = winningItem.mutationName ? ` • ${winningItem.mutationName}` : "";
     if (winningItem.kind === "skin") {
         const condition = rollAxeCondition();
         inventoryItem = grantAxeSkin(winningItem.skinName, condition, winningItem.mutationName);
-        if (options.showAxeActions !== false) {
-            $("case-result").innerHTML = `
+        if (caseResultEl && options.showAxeActions !== false) {
+            caseResultEl.innerHTML = `
                 <div class="case-win-title" style="color:${RARITY_COLORS[winningItem.rarity] || "#aeb8c7"}">${winningItem.name}</div>
                 <div class="case-win-subtitle">${winningItem.rarity}${mutationLabel} • ${condition} • Added to your locker</div>
                 <div class="case-win-actions">
@@ -8798,15 +8880,15 @@ function handleCaseReward(winningItem, caseType, options = {}) {
 
             $("case-equip-won").addEventListener("click", () => {
                 equipAxeItem(inventoryItem.id);
-                $("case-result").innerHTML = `<div class="case-win-title" style="color:${RARITY_COLORS[winningItem.rarity] || "#aeb8c7"}">${winningItem.name} EQUIPPED</div>`;
+                caseResultEl.innerHTML = `<div class="case-win-title" style="color:${RARITY_COLORS[winningItem.rarity] || "#aeb8c7"}">${winningItem.name} EQUIPPED</div>`;
             }, { once: true });
 
             $("case-sell-won").addEventListener("click", () => {
                 const sold = sellAxeItem(inventoryItem.id);
-                if (sold) $("case-result").innerHTML = `<div class="case-win-title">SOLD FOR ${formatNumber(inventoryItem.sellValue)} LOGS</div>`;
+                if (sold) caseResultEl.innerHTML = `<div class="case-win-title">SOLD FOR ${formatNumber(inventoryItem.sellValue)} LOGS</div>`;
             }, { once: true });
-        } else {
-            $("case-result").innerHTML = `
+        } else if (caseResultEl) {
+            caseResultEl.innerHTML = `
                 <div class="case-win-title" style="color:${RARITY_COLORS[winningItem.rarity] || "#aeb8c7"}">${winningItem.name}</div>
                 <div class="case-win-subtitle">${winningItem.rarity}${mutationLabel} • ${condition} • Added to your locker</div>`;
         }
@@ -8817,7 +8899,7 @@ function handleCaseReward(winningItem, caseType, options = {}) {
             coopVisualDirty = true;
         }
 
-        $("case-result").innerHTML = `
+        if (caseResultEl) caseResultEl.innerHTML = `
             <div class="case-win-title" style="color:${RARITY_COLORS[winningItem.rarity] || "#aeb8c7"}">${winningItem.name.toUpperCase()} ADDED</div>
             <div class="case-win-subtitle">${winningItem.rarity}${mutationLabel} • Added to your coop.</div>`;
     }
@@ -8846,6 +8928,10 @@ function handleCaseReward(winningItem, caseType, options = {}) {
 }
 
 function quickOpenCase(type) {
+    if (type === "oblivion") {
+        void openOblivionCase();
+        return;
+    }
     const definition = CASE_DEFINITIONS[type];
     if (!definition) return;
     const cooldownRemaining = getQuickOpenCooldownRemaining();
@@ -8926,6 +9012,7 @@ function animateCaseTrack(track, winningItem, pool) {
 }
 
 async function openCase(type, batchCount = 1) {
+    if (type === "oblivion") return openOblivionCase();
     const definition = CASE_DEFINITIONS[type];
     const balance = definition?.currency ? Number(game[definition.currency]) || 0 : game.numOC;
     if (![1, 3].includes(batchCount) || !definition || balance < definition.cost * batchCount || caseOpening) return;
@@ -9593,6 +9680,9 @@ $("chicken-btn")
 
 $("hatch-btn")
     .addEventListener("click", hatchChicken);
+
+$("sell-chicken-btn").addEventListener("click", () => sellChickens(1));
+$("sell-chicken-all-btn").addEventListener("click", () => sellChickens(game.chickens));
 
 $("coop-btn")
     .addEventListener("click", upgradeCoop);

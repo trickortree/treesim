@@ -63,3 +63,5 @@ end;
 $$;
 
 grant execute on function public.attempt_oblivion_relic(boolean) to authenticated;
+
+notify pgrst, 'reload schema';

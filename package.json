@@ -1,6 +1,6 @@
 {
   "name": "hypergamous-tree-chopping-simulator-3",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "Hypergamous Tree Chopping Simulator 3",
   "main": "main.js",
   "scripts": {
@@ -44,7 +44,7 @@
       "releaseType": "release"
     },
     "releaseInfo": {
-      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.1.6\n\n- Increased active Lumberjack, Sawmill, and Steam Engine output and eased their escalating costs.\n- First Prestige is now available after rebirth 25; later Prestiges still require rebirth 50.\n- Added the global one-of-one Oblivion Case and server-rolled relic claim.\n- Offline earnings remain disabled.\n- Improved leaderboard retry, authentication, and direct REST fallback handling.\n- Added unique generated rebirth, axe upgrade, and axe skin names, plus smoother early rebirth shard rewards."
+      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.1.7\n\n- OBLIVION AWAKENS: the global relic case now unlocks at 500 million logs and charges 10% of your live balance per attempt. The one-of-one roll is server-decided, errors refund the exact cost, and the result stays in its own case display.\n- AXE COLLECTION RESONANCE: your highest-value owned axe skin boosts all log output, scaling to a maximum +20% at 150,000 logs of sell value.\n- COOP COMMERCE: sell one or all standard chickens for 50 logs each. Mutated and special flock members are untouched.\n- CASE FLOW REFINED: every Oblivion entry point uses the same unlock and percentage pricing.\n- Prestige, active automation, and offline-earnings behavior remain as in 1.1.6."
     }
   }
 }
