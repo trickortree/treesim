@@ -1,6 +1,6 @@
 {
   "name": "hypergamous-tree-chopping-simulator-3",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "description": "Hypergamous Tree Chopping Simulator 3",
   "main": "main.js",
   "scripts": {
@@ -44,7 +44,7 @@
       "releaseType": "release"
     },
     "releaseInfo": {
-      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.1.7\n\n- OBLIVION AWAKENS: the global relic case now unlocks at 500 million logs and charges 10% of your live balance per attempt. The one-of-one roll is server-decided, errors refund the exact cost, and the result stays in its own case display.\n- AXE COLLECTION RESONANCE: your highest-value owned axe skin boosts all log output, scaling to a maximum +20% at 150,000 logs of sell value.\n- COOP COMMERCE: sell one or all standard chickens for 50 logs each. Mutated and special flock members are untouched.\n- CASE FLOW REFINED: every Oblivion entry point uses the same unlock and percentage pricing.\n- Prestige, active automation, and offline-earnings behavior remain as in 1.1.6."
+      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.1.8\n\n- OBLIVION, REVEALED: the case now shows its live entry fee directly in logs, rising as your balance grows. Unlock at 500 million logs; no percentage math hidden in the button.\n- A FAIR DOOR TO THE VOID: authenticated players without a leaderboard row can still open the case; their permanent relic claim displays a stable Player identity.\n- CASE FEEDBACK: failed attempts show the actual service error and refund the exact entry fee. The Oblivion result stays separate from ordinary case rewards.\n- The 500M unlock, 1-in-100,000,000 one-of-one odds, +20% maximum axe-skin bonus, and standard chicken sale controls remain intact."
     }
   }
 }

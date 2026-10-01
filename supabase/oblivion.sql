@@ -33,13 +33,18 @@ security definer
 set search_path = public
 as $$
 declare
+    v_user_id uuid := auth.uid();
     v_username text;
     v_rows int := 0;
     v_won_claim boolean := false;
 begin
-    select username into v_username from public.player_leaderboard where user_id = auth.uid();
+    if v_user_id is null then
+        raise exception 'Sign in before opening the Oblivion Case.';
+    end if;
+
+    select username into v_username from public.player_leaderboard where user_id = v_user_id;
     if v_username is null then
-        raise exception 'You must claim a leaderboard username before opening the Oblivion Case.';
+        v_username := 'Player-' || substr(replace(v_user_id::text, '-', ''), 1, 12);
     end if;
 
     update public.oblivion_relic

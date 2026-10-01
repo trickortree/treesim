@@ -4440,8 +4440,8 @@ button {
                     <div class="market-card card oblivion-card" style="--case-accent:#3d0a4a">
                         <div class="market-icon">🌑</div>
                         <div class="market-title">Oblivion Case</div>
-                        <div class="market-desc">Unlocks at 500 million logs. Each attempt costs 10% of your current logs. A 1-in-100,000,000 chance for the one-of-one relic closes the case forever.</div>
-                        <div class="market-case-metrics"><span>Attempts worldwide <strong id="oblivion-attempts-count">--</strong></span><span>1 in 100,000,000</span></div>
+                        <div class="market-desc">Unlocks at 500 million logs. Entry fee rises with your log balance. Find the 1-in-100,000,000 one-of-one relic to close the case forever.</div>
+                        <div class="market-case-metrics"><span>Attempts worldwide <strong id="oblivion-attempts-count">--</strong></span><span>Current entry fee <strong id="oblivion-price">--</strong></span></div>
                         <div class="market-result" id="oblivion-result">Ready to open.</div>
                         <div class="market-actions">
                             <button class="buy-btn" id="oblivion-btn" type="button" disabled>UNLOCK AT 500M LOGS</button>
@@ -6161,8 +6161,13 @@ async function loadLeaderboard() {
                 .limit(50), "Leaderboard");
             data = result.data;
         } catch (error) {
-            const { data: sessionData } = await supabaseClient.auth.getSession();
-            const accessToken = sessionData?.session?.access_token;
+            let accessToken = null;
+            try {
+                const { data: sessionData } = await supabaseClient.auth.getSession();
+                accessToken = sessionData?.session?.access_token || null;
+            } catch (sessionError) {
+                console.warn("Leaderboard session lookup failed; trying public read:", sessionError);
+            }
             data = await directSupabaseRequest(`/rest/v1/player_leaderboard?select=username,score,rarest_axe_name,rarest_axe_rarity,rarest_axe_rank,total_chopped,rebirth,chickens&order=${orderColumn}.desc&limit=50`, { accessToken });
         }
 
@@ -6246,7 +6251,7 @@ function renderOblivionBanner() {
         const when = oblivionState.claimedAt ? new Date(oblivionState.claimedAt).toLocaleDateString() : "an unknown date";
         banner.innerHTML = `🌑 <strong>THE OBLIVION RELIC HAS BEEN CLAIMED</strong> by <strong>${oblivionState.claimedBy}</strong> on ${when}, after <strong>${formatNumber(oblivionState.totalAttempts)}</strong> cases opened worldwide. The case is now closed forever.`;
     } else if (oblivionState.loaded) {
-        banner.innerHTML = `🌑 <strong>THE OBLIVION RELIC</strong> remains unclaimed. <strong>${formatNumber(oblivionState.totalAttempts)}</strong> cases opened worldwide. Unlock at 500 million logs; each attempt costs 10% of your current balance.`;
+        banner.innerHTML = `🌑 <strong>THE OBLIVION RELIC</strong> remains unclaimed. <strong>${formatNumber(oblivionState.totalAttempts)}</strong> cases opened worldwide. Entry fee rises with your log balance.`;
     } else {
         banner.textContent = "🌑 Loading Oblivion Relic status...";
     }
@@ -6255,6 +6260,9 @@ function renderOblivionBanner() {
 
 function updateOblivionCaseButton() {
     const button = $("oblivion-btn");
+    const price = getOblivionCaseCost();
+    const priceElement = $("oblivion-price");
+    if (priceElement) priceElement.textContent = `${formatNumber(price)} logs`;
     if (!button) return;
 
     const unlocked = game.numOC >= OBLIVION_UNLOCK_LOGS;
@@ -6264,7 +6272,7 @@ function updateOblivionCaseButton() {
     else if (!oblivionState.loaded) button.textContent = "CHECKING RELIC STATUS...";
     else if (!unlocked) button.textContent = "UNLOCK AT 500M LOGS";
     else if (!hasAccount) button.textContent = "CLAIM A NAME TO OPEN";
-    else button.textContent = `OPEN — 10% / ${formatNumber(getOblivionCaseCost())} LOGS`;
+    else button.textContent = `OPEN — ${formatNumber(price)} LOGS`;
 }
 
 async function attemptOblivionClaim() {
