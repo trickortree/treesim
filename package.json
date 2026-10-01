@@ -1,6 +1,6 @@
 {
   "name": "hypergamous-tree-chopping-simulator-3",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Hypergamous Tree Chopping Simulator 3",
   "main": "main.js",
   "scripts": {
@@ -12,8 +12,8 @@
     "electron-builder": "^26.15.3"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.117.2",
-    "electron-updater": "^6.8.9"
+    "electron-updater": "^6.8.9",
+    "firebase": "^12.19.0"
   },
   "build": {
     "appId": "com.trickortree.treesim",
@@ -44,7 +44,7 @@
       "releaseType": "release"
     },
     "releaseInfo": {
-      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.2.0\n\n- NAME FIXED: the title bar and sidebar logo now correctly say Hypergamous instead of a leftover Looksmaxxing label.\n- LEADERBOARD RELIABILITY: standings now load from a public fallback read even if the signed-in session check fails, instead of leaving the board empty.\n- REBIRTH RESONANCE: a new Incubator Lab upgrade (unlocks at Rebirth 30) that increases rebirth shard gain by 10% per level.\n- 8 NEW ACHIEVEMENTS: Into the Void, Relic Master, Lab Scholar, Prestige Ascendant, Coop Architect, Mutation Collector, Sharpest Edge, and On the Board.\n- The Oblivion Case's exact rising entry fee, fallback claim identity for unregistered leaderboard players, 500M unlock, and all prior mechanics remain intact."
+      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.2.1\n\n- NEW BACKEND: the leaderboard, usernames, and Oblivion Relic now run on Firebase (Auth + Firestore) instead of Supabase, with silent anonymous sign-in that persists across restarts.\n- OBLIVION OVERHAUL: unlock threshold raised to 50 billion logs, entry fee raised to 25% of your balance, and two new all-in options — OPEN 5 and OPEN 50 (which also resets your Auto Clickers, Sawmills, and Steam Engines), both spending your entire log balance. OPEN 50 requires a 5-second warning confirmation.\n- PRESTIGE EXPANDED: 5 new Prestige tiers (10 total). Each Prestige now also permanently reduces all earnings by 10%, stacking independently of the existing Prestige output bonus.\n- Leaderboard and username claiming are more reliable thanks to the new backend and a Content Security Policy fix."
     }
   }
 }

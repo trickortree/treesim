@@ -48,6 +48,13 @@ function createWindow() {
     );
 
     mainWindow.webContents.on(
+        "console-message",
+        (event, level, message, line, sourceId) => {
+            console.log(`[renderer] ${message} (${sourceId}:${line})`);
+        }
+    );
+
+    mainWindow.webContents.on(
         "did-finish-load",
         () => {
             rendererReady = true;

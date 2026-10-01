@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta
     http-equiv="Content-Security-Policy"
-    content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:;"
+    content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data:; connect-src 'self' https://*.googleapis.com;"
 >
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -4450,11 +4450,13 @@ button {
                     <div class="market-card card oblivion-card" style="--case-accent:#3d0a4a">
                         <div class="market-icon">🌑</div>
                         <div class="market-title">Oblivion Case</div>
-                        <div class="market-desc">Unlocks at 500 million logs. Entry fee rises with your log balance. Find the 1-in-100,000,000 one-of-one relic to close the case forever.</div>
+                        <div class="market-desc">Unlocks at 50 billion logs. Entry fee rises with your log balance. Find the 1-in-100,000,000 one-of-one relic to close the case forever.</div>
                         <div class="market-case-metrics"><span>Attempts worldwide <strong id="oblivion-attempts-count">--</strong></span><span>Current entry fee <strong id="oblivion-price">--</strong></span></div>
                         <div class="market-result" id="oblivion-result">Ready to open.</div>
                         <div class="market-actions">
-                            <button class="buy-btn" id="oblivion-btn" type="button" disabled>UNLOCK AT 500M LOGS</button>
+                            <button class="buy-btn" id="oblivion-btn" type="button" disabled>UNLOCK AT 50B LOGS</button>
+                            <button class="buy-btn red" id="oblivion-open5-btn" type="button" disabled>OPEN 5 — ALL LOGS</button>
+                            <button class="buy-btn red" id="oblivion-open50-btn" type="button" disabled>OPEN 50 — ALL LOGS + RESET AUTOMATION</button>
                         </div>
                     </div>
 
@@ -4562,6 +4564,18 @@ button {
         <div class="account-status" id="account-status" role="status"></div>
         <button class="buy-btn" id="account-submit" type="submit">CLAIM USERNAME</button>
     </form>
+</div>
+
+<div class="account-overlay" id="oblivion-warning-overlay" aria-modal="true" role="dialog" aria-labelledby="oblivion-warning-title">
+    <div class="account-modal">
+        <div class="section-title" id="oblivion-warning-title">⚠ Open the Oblivion Case 50 Times?</div>
+        <div class="section-sub">This spends your ENTIRE log balance and resets your Auto Clickers, Sawmills, and Steam Engines back to zero. This cannot be undone.</div>
+        <div class="account-status" id="oblivion-warning-status" role="status"></div>
+        <div class="market-actions">
+            <button class="buy-btn" id="oblivion-warning-cancel" type="button">CANCEL</button>
+            <button class="buy-btn red" id="oblivion-warning-confirm" type="button" disabled>WAIT 5S...</button>
+        </div>
+    </div>
 </div>
 
 <div class="offline-overlay" id="offline-overlay" aria-modal="true" role="dialog" aria-labelledby="offline-title">
@@ -4824,26 +4838,57 @@ try {
 }
 
 const IS_ELECTRON = !!(fs && path && electronApp);
-const SUPABASE_URL = "https://dcyrvcdilspkohritbek.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_s8uzmlFKzWnZ3_82APeEgw_THGDH0QC";
-let supabaseClient = null;
+const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyARDvBCkSMRQhR8MSxTrs7-YxpPBXpVkBs",
+    authDomain: "treesim-a59eb.firebaseapp.com",
+    projectId: "treesim-a59eb",
+    storageBucket: "treesim-a59eb.firebasestorage.app",
+    messagingSenderId: "492638513643",
+    appId: "1:492638513643:web:d9adfeda6ff41b199d11ae"
+};
+let firebaseAuth = null;
+let firestoreDb = null;
+let firebaseSignInAnonymously = null;
+let firestoreDoc = null;
+let firestoreGetDoc = null;
+let firestoreSetDoc = null;
+let firestoreCollectionRef = null;
+let firestoreQuery = null;
+let firestoreOrderBy = null;
+let firestoreLimitFn = null;
+let firestoreGetDocs = null;
+let firestoreRunTransaction = null;
+let firestoreServerTimestamp = null;
 try {
-    const { createClient } = require("@supabase/supabase-js");
-    const supabaseFetch = (input, init = {}) => {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 12000);
-        if (init.signal) {
-            if (init.signal.aborted) controller.abort(init.signal.reason);
-            else init.signal.addEventListener("abort", () => controller.abort(init.signal.reason), { once: true });
-        }
-        return fetch(input, { ...init, signal: controller.signal }).finally(() => clearTimeout(timeout));
-    };
-    supabaseClient = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false },
-        global: { fetch: supabaseFetch }
+    const { initializeApp } = require("firebase/app");
+    const authModule = require("firebase/auth");
+    const firestoreModule = require("firebase/firestore");
+
+    const firebaseApp = initializeApp(FIREBASE_CONFIG);
+    // Electron's nodeIntegration exposes Node globals (process, require) in the
+    // renderer, which Firebase Auth's environment auto-detection misreads as a
+    // server context, silently falling back to in-memory (non-persistent)
+    // auth. Forcing indexedDBLocalPersistence keeps anonymous sign-in across
+    // app restarts.
+    firebaseAuth = authModule.initializeAuth(firebaseApp, {
+        persistence: authModule.indexedDBLocalPersistence
     });
+    firestoreDb = firestoreModule.getFirestore(firebaseApp);
+
+    firebaseSignInAnonymously = authModule.signInAnonymously;
+
+    firestoreDoc = firestoreModule.doc;
+    firestoreGetDoc = firestoreModule.getDoc;
+    firestoreSetDoc = firestoreModule.setDoc;
+    firestoreCollectionRef = firestoreModule.collection;
+    firestoreQuery = firestoreModule.query;
+    firestoreOrderBy = firestoreModule.orderBy;
+    firestoreLimitFn = firestoreModule.limit;
+    firestoreGetDocs = firestoreModule.getDocs;
+    firestoreRunTransaction = firestoreModule.runTransaction;
+    firestoreServerTimestamp = firestoreModule.serverTimestamp;
 } catch (error) {
-    console.error("Supabase client unavailable:", error);
+    console.error("Firebase client unavailable:", error);
 }
 const SAVE_FILE = IS_ELECTRON
     ? path.join(electronApp.getPath("userData"), "savegame_v7.json")
@@ -4871,6 +4916,7 @@ const DEFAULT_DATA = {
     prestige_tokens: 0,
     player_username: null,
     supabase_user_id: null,
+    firebase_user_id: null,
     leaderboard_bypass: false,
     quick_open_cooldown_until: 0,
     last_online_at: null,
@@ -5327,7 +5373,7 @@ const AXE_UPGRADES = [
 ];
 
 const BASE_AXE_UPGRADE_COUNT = AXE_UPGRADES.length;
-const PRESTIGE_LIMIT = 5;
+const PRESTIGE_LIMIT = 10;
 const PRESTIGE_AXE_UPGRADES = [
     { name: "Rootbound Axe", cost: 1e35, base_add: 1e33 },
     { name: "Verdant Singularity", cost: 1e36, base_add: 1e34 },
@@ -5564,7 +5610,7 @@ const ACHIEVEMENT_DEFS = [
     { id: "world-walker", name: "World Walker", description: "Reach rebirth tier eight.", goal: 8, progress: () => game.rebirth, reward: { shards: 250 } },
     { id: "beyond-the-boughs", name: "Beyond the Boughs", description: "Reach rebirth tier twelve.", goal: 12, progress: () => game.rebirth, reward: { shards: 1000 } },
     { id: "worldtree-keeper", name: "Worldtree Keeper", description: "Reach the final atlas frontier.", goal: 50, progress: () => game.rebirth, reward: { shards: 5000 } },
-    { id: "into-the-void", name: "Into the Void", description: "Chop a total of 500 million logs, enough to unlock the Oblivion Case.", goal: 500000000, progress: () => game.total_chopped, reward: { shards: 300 } },
+    { id: "into-the-void", name: "Into the Void", description: "Chop a total of 50 billion logs, enough to unlock the Oblivion Case.", goal: 50000000000, progress: () => game.total_chopped, reward: { shards: 300 } },
     { id: "relic-master", name: "Relic Master", description: "Max every shard relic upgrade in the Shard Shop.", goal: 25, progress: () => (game.shard_upgrades?.case_luck || 0) + (game.shard_upgrades?.pity || 0) + (game.shard_upgrades?.egg_yield || 0), reward: { logs: 2000000 } },
     { id: "lab-scholar", name: "Lab Scholar", description: "Reach a combined level of 50 across the original five Incubator Lab upgrades.", goal: 50, progress: () => ["click_boost", "egg_mult", "feather_boost", "sap_resonance", "prestige_study"].reduce((sum, key) => sum + (Number(game.egg_upgrades[key]) || 0), 0), reward: { logs: 1000000 } },
     { id: "prestige-ascendant", name: "Prestige Ascendant", description: "Reach the maximum Prestige tier.", goal: PRESTIGE_LIMIT, progress: () => game.prestige, reward: { shards: 2000 } },
@@ -5820,7 +5866,7 @@ function setAccountStatus(message, isError = false) {
     status.style.color = isError ? "#ff8f8f" : "#a7b49f";
 }
 
-function getLeaderboardSnapshot(userId = game.supabase_user_id) {
+function getLeaderboardSnapshot(userId = game.firebase_user_id, usernameOverride = game.player_username) {
     let rarestItem = getEquippedAxeItem() || game.axe_inventory[0];
     let rarestRank = -1;
     for (const item of game.axe_inventory) {
@@ -5838,7 +5884,7 @@ function getLeaderboardSnapshot(userId = game.supabase_user_id) {
     const logs = Math.max(0, Number(game.numOC) || 0);
     return {
         user_id: userId,
-        username: game.player_username,
+        username: usernameOverride,
         score: Math.floor(Math.min(Number.MAX_SAFE_INTEGER, chopped + logs)),
         rarest_axe_name: `${rarestItem?.mutationName ? `${rarestItem.mutationName} ` : ""}${rarestItem?.skinName || "Default Axe"}`,
         rarest_axe_rarity: rarestSkin.rarity,
@@ -5850,174 +5896,15 @@ function getLeaderboardSnapshot(userId = game.supabase_user_id) {
     };
 }
 
-function isTransientSupabaseError(error) {
-    const text = String(error?.message || error || "").toLowerCase();
-    return error?.name === "AbortError"
-        || text.includes("failed to fetch")
-        || text.includes("network")
-        || text.includes("timeout")
-        || Number(error?.status) >= 500;
-}
-
-async function directSupabaseRequest(pathname, options = {}) {
-    if (https) return nodeSupabaseRequest(pathname, options);
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 12000);
-    try {
-        const response = await fetch(`${SUPABASE_URL}${pathname}`, {
-            ...options,
-            signal: controller.signal,
-            headers: {
-                apikey: SUPABASE_PUBLISHABLE_KEY,
-                Authorization: `Bearer ${options.accessToken || SUPABASE_PUBLISHABLE_KEY}`,
-                ...(options.body ? { "Content-Type": "application/json" } : {}),
-                ...(options.headers || {})
-            }
-        });
-        const text = await response.text();
-        let data = null;
-        try { data = text ? JSON.parse(text) : null; } catch { data = text; }
-        if (!response.ok) {
-            const error = new Error(data?.msg || data?.message || data?.error_description || `Supabase HTTP ${response.status}`);
-            error.status = response.status;
-            error.code = data?.code;
-            throw error;
-        }
-        return data;
-    } finally {
-        clearTimeout(timeout);
-    }
-}
-
-function nodeSupabaseRequest(pathname, options = {}) {
-    return new Promise((resolve, reject) => {
-        const url = new URL(`${SUPABASE_URL}${pathname}`);
-        const body = options.body || null;
-        const request = https.request({
-            protocol: url.protocol,
-            hostname: url.hostname,
-            port: url.port || 443,
-            path: `${url.pathname}${url.search}`,
-            method: options.method || "GET",
-            headers: {
-                apikey: SUPABASE_PUBLISHABLE_KEY,
-                Authorization: `Bearer ${options.accessToken || SUPABASE_PUBLISHABLE_KEY}`,
-                ...(body ? { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(body) } : {}),
-                ...(options.headers || {})
-            }
-        }, response => {
-            let text = "";
-            response.setEncoding("utf8");
-            response.on("data", chunk => text += chunk);
-            response.on("end", () => {
-                let data = null;
-                try { data = text ? JSON.parse(text) : null; } catch { data = text; }
-                if ((response.statusCode || 500) < 200 || (response.statusCode || 500) >= 300) {
-                    const error = new Error(data?.msg || data?.message || data?.error_description || `Supabase HTTP ${response.statusCode}`);
-                    error.status = response.statusCode;
-                    error.code = data?.code;
-                    reject(error);
-                    return;
-                }
-                resolve(data);
-            });
-        });
-        request.setTimeout(12000, () => request.destroy(new Error("Supabase request timed out")));
-        request.on("error", reject);
-        if (body) request.write(body);
-        request.end();
-    });
-}
-
-async function directAnonymousSignIn() {
-    const data = await directSupabaseRequest("/auth/v1/signup", {
-        method: "POST",
-        body: JSON.stringify({})
-    });
-    return {
-        data: {
-            session: {
-                access_token: data.access_token,
-                refresh_token: data.refresh_token,
-                user: data.user
-            },
-            user: data.user
-        },
-        error: null
-    };
-}
-
-async function directLeaderboardProfile(userId, accessToken) {
-    const rows = await directSupabaseRequest(
-        `/rest/v1/player_leaderboard?select=username&user_id=eq.${encodeURIComponent(userId)}&limit=1`,
-        { method: "GET", accessToken }
-    );
-    return rows?.[0] || null;
-}
-
-async function directLeaderboardInsert(payload, accessToken) {
-    return directSupabaseRequest("/rest/v1/player_leaderboard", {
-        method: "POST",
-        accessToken,
-        headers: { Prefer: "return=minimal" },
-        body: JSON.stringify(payload)
-    });
-}
-
-async function directLeaderboardUpsert(payload, accessToken) {
-    return directSupabaseRequest("/rest/v1/player_leaderboard?on_conflict=user_id", {
-        method: "POST",
-        accessToken,
-        headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
-        body: JSON.stringify(payload)
-    });
-}
-
-async function withSupabaseRetry(operation, label) {
-    let lastError = null;
-    for (let attempt = 0; attempt < 3; attempt++) {
-        try {
-            const result = await operation();
-            if (result?.error) throw result.error;
-            return result;
-        } catch (error) {
-            lastError = error;
-            if (!isTransientSupabaseError(error) || attempt === 2) throw error;
-            setAccountStatus(`${label} temporarily unavailable. Retrying (${attempt + 2}/3)...`);
-            await new Promise(resolve => setTimeout(resolve, 700 * (attempt + 1)));
-        }
-    }
-    throw lastError || new Error("Supabase request failed.");
-}
-
-async function signInAnonymouslyWithFallback() {
-    try {
-        return await withSupabaseRetry(() => supabaseClient.auth.signInAnonymously(), "Anonymous sign-in");
-    } catch (error) {
-        if (!isTransientSupabaseError(error)) throw error;
-
-        return directAnonymousSignIn();
-    }
-}
-
 async function publishLeaderboard(force = false) {
-    if (!supabaseClient || !game.supabase_user_id || !game.player_username || leaderboardPushInFlight) return;
+    if (!firestoreDb || !game.firebase_user_id || !game.player_username || leaderboardPushInFlight) return;
     if (!force && Date.now() - leaderboardLastPushAt < LEADERBOARD_SYNC_INTERVAL_MS) return;
 
     leaderboardPushInFlight = true;
     try {
         const payload = getLeaderboardSnapshot();
-        try {
-            const { error } = await withSupabaseRetry(() => supabaseClient
-                .from("player_leaderboard")
-                .upsert(payload, { onConflict: "user_id" }), "Leaderboard sync");
-            if (error) throw error;
-        } catch (error) {
-            const { data: sessionData } = await withSupabaseRetry(() => supabaseClient.auth.getSession(), "Supabase");
-            const accessToken = sessionData?.session?.access_token;
-            if (!accessToken) throw error;
-            await directLeaderboardUpsert(payload, accessToken);
-        }
+        const playerRef = firestoreDoc(firestoreDb, "players", game.firebase_user_id);
+        await firestoreSetDoc(playerRef, payload, { merge: true });
         leaderboardLastPushAt = Date.now();
     } catch (error) {
         console.error("Leaderboard update failed:", error);
@@ -6029,63 +5916,56 @@ async function publishLeaderboard(force = false) {
 
 async function initializePlayerAccount() {
     const overlay = $("account-overlay");
-    overlay.classList.add("open");
+
     if (game.leaderboard_bypass) {
         overlay.classList.remove("open");
         $("leaderboard-player").textContent = "Local mode • Not connected to the global leaderboard";
         return;
     }
-    if (game.player_username && game.supabase_user_id) {
-        overlay.classList.remove("open");
-        $("leaderboard-player").textContent = `Playing as ${game.player_username}`;
-        void publishLeaderboard(true);
-        return;
-    }
 
-    if (!supabaseClient) {
+    overlay.classList.add("open");
+
+    if (!firebaseAuth || !firestoreDb) {
         setAccountStatus("Leaderboard service is unavailable. The game is locked until the connection is restored.", true);
         return;
     }
 
     try {
-        const { data } = await withSupabaseRetry(() => supabaseClient.auth.getSession(), "Supabase");
-        const session = data.session;
-        if (session && game.supabase_user_id === session.user.id && game.player_username) {
+        await firebaseAuth.authStateReady();
+        if (!firebaseAuth.currentUser) {
+            await firebaseSignInAnonymously(firebaseAuth);
+        }
+        const currentUser = firebaseAuth.currentUser;
+
+        if (game.player_username && game.firebase_user_id === currentUser.uid) {
             overlay.classList.remove("open");
             $("leaderboard-player").textContent = `Playing as ${game.player_username}`;
             void publishLeaderboard(true);
             return;
         }
-        if (session && (!game.supabase_user_id || game.supabase_user_id === session.user.id)) {
-            const { data: profile } = await withSupabaseRetry(() => supabaseClient
-                .from("player_leaderboard")
-                .select("username")
-                .eq("user_id", session.user.id)
-                .maybeSingle(), "Leaderboard");
-            if (profile?.username) {
-                game.supabase_user_id = session.user.id;
-                game.player_username = profile.username;
-                saveGame();
-                overlay.classList.remove("open");
-                $("leaderboard-player").textContent = `Playing as ${profile.username}`;
-                await publishLeaderboard(true);
-                return;
-            }
+
+        const playerRef = firestoreDoc(firestoreDb, "players", currentUser.uid);
+        const snap = await firestoreGetDoc(playerRef);
+        if (snap.exists() && snap.data().username) {
+            game.firebase_user_id = currentUser.uid;
+            game.player_username = snap.data().username;
+            saveGame();
+            overlay.classList.remove("open");
+            $("leaderboard-player").textContent = `Playing as ${game.player_username}`;
+            await publishLeaderboard(true);
+            return;
         }
 
         setAccountStatus(game.player_username
             ? `Your saved name is ${game.player_username}; reconnecting its account is required to continue.`
             : "Choose a unique name to create your global player account.");
     } catch (error) {
-        if (game.player_username && game.supabase_user_id) {
+        if (game.player_username && game.firebase_user_id) {
             overlay.classList.remove("open");
             $("leaderboard-player").textContent = `Playing as ${game.player_username} • Offline; leaderboard sync will retry.`;
             return;
         }
-        const message = error.code === "PGRST205"
-            ? "Leaderboard database is not set up. Run supabase/leaderboard.sql and enable Anonymous Sign-Ins in Supabase."
-            : error.message || "Could not connect to the leaderboard service.";
-        setAccountStatus(message, true);
+        setAccountStatus(error.message || "Could not connect to the leaderboard service.", true);
     }
 }
 
@@ -6095,7 +5975,7 @@ async function claimPlayerUsername(rawUsername) {
         setAccountStatus("Use 3-20 letters, numbers, or underscores.", true);
         return;
     }
-    if (!supabaseClient) {
+    if (!firestoreDb || !firebaseAuth) {
         setAccountStatus("Leaderboard service is unavailable. Try again when connected.", true);
         return;
     }
@@ -6104,57 +5984,42 @@ async function claimPlayerUsername(rawUsername) {
     submit.disabled = true;
     setAccountStatus("Checking and claiming your name...");
     try {
-        let { data: sessionData } = await withSupabaseRetry(() => supabaseClient.auth.getSession(), "Supabase");
-        if (!sessionData.session) {
-            const signedIn = await signInAnonymouslyWithFallback();
-            sessionData = { session: signedIn.data.session };
+        await firebaseAuth.authStateReady();
+        if (!firebaseAuth.currentUser) {
+            await firebaseSignInAnonymously(firebaseAuth);
         }
+        const uid = firebaseAuth.currentUser.uid;
+        const lowerUsername = username.toLowerCase();
 
-        const userId = sessionData.session.user.id;
-        let existing;
-        try {
-            const result = await withSupabaseRetry(() => supabaseClient
-                .from("player_leaderboard")
-                .select("username")
-                .eq("user_id", userId)
-                .maybeSingle(), "Leaderboard");
-            existing = result.data;
-        } catch (error) {
-            setAccountStatus("Using direct leaderboard fallback...");
-            existing = await directLeaderboardProfile(userId, sessionData.session.access_token);
-        }
-        if (existing?.username && existing.username.toLowerCase() !== username.toLowerCase()) {
-            throw new Error(`This account already owns the name ${existing.username}.`);
-        }
+        await firestoreRunTransaction(firestoreDb, async transaction => {
+            const usernameRef = firestoreDoc(firestoreDb, "usernames", lowerUsername);
+            const playerRef = firestoreDoc(firestoreDb, "players", uid);
+            const [usernameSnap, playerSnap] = await Promise.all([transaction.get(usernameRef), transaction.get(playerRef)]);
 
-        if (!existing) {
-            const payload = { ...getLeaderboardSnapshot(userId), username };
-            try {
-                await withSupabaseRetry(() => supabaseClient
-                    .from("player_leaderboard")
-                    .insert(payload), "Username claim");
-            } catch (error) {
-                setAccountStatus("Using direct username claim fallback...");
-                await directLeaderboardInsert(payload, sessionData.session.access_token);
+            if (playerSnap.exists() && playerSnap.data().username) {
+                if (playerSnap.data().username.toLowerCase() !== lowerUsername) {
+                    throw new Error(`This account already owns the name ${playerSnap.data().username}.`);
+                }
+                return;
             }
-        }
 
-        game.supabase_user_id = userId;
-        game.player_username = existing?.username || username;
+            if (usernameSnap.exists()) {
+                throw new Error("That username is already taken. Choose another.");
+            }
+
+            transaction.set(usernameRef, { uid });
+            transaction.set(playerRef, getLeaderboardSnapshot(uid, username));
+        });
+
+        game.firebase_user_id = uid;
+        game.player_username = username;
         saveGame();
         $("account-overlay").classList.remove("open");
         $("leaderboard-player").textContent = `Playing as ${game.player_username}`;
         await publishLeaderboard(true);
         updateUI();
     } catch (error) {
-        const message = error.code === "23505"
-            ? "That username is already taken. Choose another."
-            : error.code === "PGRST205"
-            ? "Leaderboard database is not set up. Run supabase/leaderboard.sql and enable Anonymous Sign-Ins in Supabase."
-            : error.message || "Could not claim that username.";
-        setAccountStatus(message.includes("Anonymous")
-            ? "Anonymous sign-in is disabled. Enable it in Supabase Authentication providers, then try again."
-            : message, true);
+        setAccountStatus(error.message || "Could not claim that username.", true);
     } finally {
         submit.disabled = false;
     }
@@ -6163,7 +6028,7 @@ async function claimPlayerUsername(rawUsername) {
 async function loadLeaderboard() {
     const list = $("leaderboard-list");
     const status = $("leaderboard-status");
-    if (!supabaseClient) {
+    if (!firestoreDb) {
         status.textContent = "Leaderboard service is unavailable.";
         return;
     }
@@ -6172,26 +6037,11 @@ async function loadLeaderboard() {
     status.textContent = "Loading global standings...";
     list.replaceChildren();
     try {
-        let data;
-        try {
-            const result = await withSupabaseRetry(() => supabaseClient
-                .from("player_leaderboard")
-                .select("username,score,rarest_axe_name,rarest_axe_rarity,rarest_axe_rank,total_chopped,rebirth,chickens")
-                .order(orderColumn, { ascending: false })
-                .limit(50), "Leaderboard");
-            data = result.data;
-        } catch (error) {
-            let accessToken = null;
-            try {
-                const { data: sessionData } = await supabaseClient.auth.getSession();
-                accessToken = sessionData?.session?.access_token || null;
-            } catch (sessionError) {
-                console.warn("Leaderboard session lookup failed; trying public read:", sessionError);
-            }
-            data = await directSupabaseRequest(`/rest/v1/player_leaderboard?select=username,score,rarest_axe_name,rarest_axe_rarity,rarest_axe_rank,total_chopped,rebirth,chickens&order=${orderColumn}.desc&limit=50`, { accessToken });
-        }
+        const playersRef = firestoreCollectionRef(firestoreDb, "players");
+        const leaderboardQuery = firestoreQuery(playersRef, firestoreOrderBy(orderColumn, "desc"), firestoreLimitFn(50));
+        const snapshot = await firestoreGetDocs(leaderboardQuery);
+        const data = snapshot.docs.map(docSnap => docSnap.data());
 
-        data = Array.isArray(data) ? data : [];
         const fragment = document.createDocumentFragment();
         for (let index = 0; index < data.length; index++) {
             const player = data[index];
@@ -6221,8 +6071,8 @@ async function loadLeaderboard() {
     }
 }
 
-const OBLIVION_UNLOCK_LOGS = 500000000;
-const OBLIVION_COST_RATE = 0.1;
+const OBLIVION_UNLOCK_LOGS = 50000000000;
+const OBLIVION_COST_RATE = 0.25;
 let oblivionState = { claimedBy: null, claimedAt: null, totalAttempts: 0, loaded: false };
 let oblivionOpening = false;
 
@@ -6231,25 +6081,15 @@ function getOblivionCaseCost() {
 }
 
 async function loadOblivionStatus() {
-    if (!supabaseClient) return;
+    if (!firestoreDb) return;
     try {
-        let rows;
-        try {
-            const result = await withSupabaseRetry(() => supabaseClient
-                .from("oblivion_relic")
-                .select("claimed_by,claimed_at,total_attempts")
-                .eq("id", 1)
-                .limit(1), "Oblivion Relic");
-            rows = result.data;
-        } catch (error) {
-            if (!isTransientSupabaseError(error)) throw error;
-            rows = await directSupabaseRequest("/rest/v1/oblivion_relic?select=claimed_by,claimed_at,total_attempts&id=eq.1&limit=1");
-        }
-        const row = rows?.[0];
-        if (row) {
-            oblivionState.claimedBy = row.claimed_by || null;
-            oblivionState.claimedAt = row.claimed_at || null;
-            oblivionState.totalAttempts = Number(row.total_attempts) || 0;
+        const relicRef = firestoreDoc(firestoreDb, "meta", "oblivion_relic");
+        const snap = await firestoreGetDoc(relicRef);
+        if (snap.exists()) {
+            const data = snap.data();
+            oblivionState.claimedBy = data.claimed_by || null;
+            oblivionState.claimedAt = data.claimed_at?.toDate ? data.claimed_at.toDate().toISOString() : null;
+            oblivionState.totalAttempts = Number(data.total_attempts) || 0;
         }
         oblivionState.loaded = true;
     } catch (error) {
@@ -6286,44 +6126,189 @@ function updateOblivionCaseButton() {
     if (!button) return;
 
     const unlocked = game.numOC >= OBLIVION_UNLOCK_LOGS;
-    const hasAccount = !!supabaseClient && !game.leaderboard_bypass && !!game.player_username && !!game.supabase_user_id;
-    button.disabled = !oblivionState.loaded || !!oblivionState.claimedBy || !unlocked || !hasAccount || caseOpening || oblivionOpening;
+    const hasAccount = !!firestoreDb && !game.leaderboard_bypass && !!game.player_username && !!game.firebase_user_id;
+    const locked = !oblivionState.loaded || !!oblivionState.claimedBy || !unlocked || !hasAccount || caseOpening || oblivionOpening;
+    button.disabled = locked;
     if (oblivionState.claimedBy) button.textContent = "CLAIMED — CASE CLOSED";
     else if (!oblivionState.loaded) button.textContent = "CHECKING RELIC STATUS...";
-    else if (!unlocked) button.textContent = "UNLOCK AT 500M LOGS";
+    else if (!unlocked) button.textContent = "UNLOCK AT 50B LOGS";
     else if (!hasAccount) button.textContent = "CLAIM A NAME TO OPEN";
     else button.textContent = `OPEN — ${formatNumber(price)} LOGS`;
+
+    const open5Button = $("oblivion-open5-btn");
+    const open50Button = $("oblivion-open50-btn");
+    const batchLocked = locked || game.numOC <= 0;
+    if (open5Button) {
+        open5Button.disabled = batchLocked;
+        open5Button.textContent = unlocked ? `OPEN 5 — ${formatNumber(game.numOC)} LOGS` : "OPEN 5 — ALL LOGS";
+    }
+    if (open50Button) {
+        open50Button.disabled = batchLocked;
+        open50Button.textContent = unlocked ? `OPEN 50 — ${formatNumber(game.numOC)} LOGS + RESET` : "OPEN 50 — ALL LOGS + RESET AUTOMATION";
+    }
 }
 
+// NOTE ON TRUST MODEL: this project runs on Firebase's free Spark plan (no
+// Cloud Functions), so the 1-in-100,000,000 roll happens here on the client
+// rather than in a trusted server environment. A modified client could in
+// theory always report a "win". The Firestore transaction below still
+// guarantees only one winner is ever recorded (atomic compare-and-swap on
+// claimed_by, enforced again by firestore.rules), but the odds themselves
+// are not server-verified. This tradeoff was an explicit choice to avoid
+// Firebase's paid Blaze plan.
 async function attemptOblivionClaim() {
-    try {
-        const { data, error } = await withSupabaseRetry(() => supabaseClient.rpc("attempt_oblivion_relic", { p_won: false }), "Oblivion Relic");
-        if (error) throw error;
-        return Array.isArray(data) ? data[0] : data;
-    } catch (error) {
-        if (!isTransientSupabaseError(error)) throw error;
-        const { data: sessionData } = await withSupabaseRetry(() => supabaseClient.auth.getSession(), "Supabase");
-        const accessToken = sessionData?.session?.access_token;
-        const rows = await directSupabaseRequest("/rest/v1/rpc/attempt_oblivion_relic", {
-            method: "POST",
-            accessToken,
-            body: JSON.stringify({ p_won: false })
-        });
-        return Array.isArray(rows) ? rows[0] : rows;
+    if (!firestoreDb || !firebaseAuth?.currentUser) throw new Error("Sign in before opening the Oblivion Case.");
+    const uid = firebaseAuth.currentUser.uid;
+    const won = Math.random() < 1 / 100000000;
+    const relicRef = firestoreDoc(firestoreDb, "meta", "oblivion_relic");
+
+    return firestoreRunTransaction(firestoreDb, async transaction => {
+        const snap = await transaction.get(relicRef);
+        const data = snap.exists() ? snap.data() : { claimed_by: null, claimed_at: null, total_attempts: 0 };
+        const alreadyClaimed = !!data.claimed_by;
+        const nextAttempts = (Number(data.total_attempts) || 0) + 1;
+        const wonClaim = won && !alreadyClaimed;
+
+        const update = { total_attempts: nextAttempts };
+        if (wonClaim) {
+            update.claimed_by = game.player_username || `Player-${uid.slice(0, 12)}`;
+            update.claimed_at = firestoreServerTimestamp();
+        }
+        transaction.set(relicRef, update, { merge: true });
+
+        return {
+            claimed_by: wonClaim ? update.claimed_by : (data.claimed_by || null),
+            claimed_at: wonClaim ? new Date().toISOString() : (data.claimed_at?.toDate ? data.claimed_at.toDate().toISOString() : null),
+            total_attempts: nextAttempts,
+            won_claim: wonClaim
+        };
+    });
+}
+
+async function openOblivionBatch(count) {
+    const definition = CASE_DEFINITIONS.oblivion;
+    if (!definition || caseOpening || oblivionOpening || oblivionState.claimedBy) return;
+
+    if (!firestoreDb || game.leaderboard_bypass || !game.player_username || !game.firebase_user_id) {
+        toast("Register a leaderboard username to attempt the Oblivion Case.");
+        return;
     }
+
+    if (game.numOC < OBLIVION_UNLOCK_LOGS) {
+        toast("The Oblivion Case unlocks at 50 billion logs.");
+        return;
+    }
+
+    if (game.numOC <= 0) return;
+
+    const totalCost = game.numOC;
+    oblivionOpening = true;
+    caseOpening = true;
+    game.numOC = 0;
+    if (count === 50) {
+        game.auto_clickers = 0;
+        game.auto_clicker_cost = 25;
+        game.sawmills = 0;
+        game.sawmill_cost = 250;
+        game.steam_engines = 0;
+        game.steam_cost = 2500;
+    }
+    updateUI();
+
+    let attemptsRun = 0;
+    let won = false;
+    let errorMessage = null;
+    for (let i = 0; i < count; i++) {
+        if (oblivionState.claimedBy) break;
+        let result;
+        try {
+            result = await attemptOblivionClaim();
+            if (!result || result.total_attempts == null) throw new Error("The relic service returned no attempt result.");
+        } catch (error) {
+            console.error("Oblivion Relic batch attempt failed:", error);
+            errorMessage = error.message || "unknown error";
+            break;
+        }
+        attemptsRun++;
+        oblivionState.claimedBy = result?.claimed_by || oblivionState.claimedBy;
+        oblivionState.claimedAt = result?.claimed_at || oblivionState.claimedAt;
+        oblivionState.totalAttempts = Number(result?.total_attempts) || oblivionState.totalAttempts;
+        oblivionState.loaded = true;
+
+        if (result?.won_claim) {
+            won = true;
+            const winningItem = { name: "??? Axe", kind: "skin", skinName: OBLIVION_RELIC_SKIN_NAME, rarity: "Hypergamous", color: "#f8fafc" };
+            handleCaseReward(winningItem, "oblivion", { showAxeActions: false, showCaseResult: false, silent: true });
+            toast("🌑 YOU CLAIMED THE OBLIVION RELIC. Only you will ever own this axe.");
+            const resultEl = $("oblivion-result");
+            if (resultEl) {
+                resultEl.innerHTML = `<div class="case-win-title" style="color:${RARITY_COLORS.Hypergamous}">??? Axe — CLAIMED FOREVER</div><div class="case-win-subtitle">You are the only person who will ever own this axe.</div>`;
+            }
+            $("case-overlay").classList.add("open");
+            $("case-title").textContent = "??? CASE";
+            $("case-cost").textContent = "THE OBLIVION RELIC ANSWERED";
+            $("case-result").textContent = "??? Axe added to your locker.";
+            $("case-close").disabled = false;
+            triggerCaseRevealEffect(winningItem);
+            break;
+        }
+    }
+
+    if (!won) {
+        const resultEl = $("oblivion-result");
+        if (resultEl) {
+            resultEl.textContent = errorMessage
+                ? `Completed ${attemptsRun}/${count} pulls before a service error (${errorMessage}). ${formatNumber(totalCost)} logs were spent; none refunded.`
+                : `Completed ${attemptsRun} pulls. No relic this time. ${formatNumber(totalCost)} logs spent.`;
+        }
+        if (!errorMessage) toast(`Oblivion batch complete: ${attemptsRun} pulls, no relic.`);
+    }
+
+    oblivionOpening = false;
+    caseOpening = false;
+    saveGame();
+    renderOblivionBanner();
+    updateUI();
+}
+
+let oblivionWarningTimer = null;
+
+function openOblivionWarning() {
+    const overlay = $("oblivion-warning-overlay");
+    const confirmBtn = $("oblivion-warning-confirm");
+    overlay.classList.add("open");
+    confirmBtn.disabled = true;
+    let remaining = 5;
+    confirmBtn.textContent = `WAIT ${remaining}S...`;
+    clearInterval(oblivionWarningTimer);
+    oblivionWarningTimer = setInterval(() => {
+        remaining--;
+        if (remaining <= 0) {
+            clearInterval(oblivionWarningTimer);
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = "YES, OPEN ANYWAY";
+        } else {
+            confirmBtn.textContent = `WAIT ${remaining}S...`;
+        }
+    }, 1000);
+}
+
+function closeOblivionWarning() {
+    clearInterval(oblivionWarningTimer);
+    $("oblivion-warning-overlay").classList.remove("open");
 }
 
 async function openOblivionCase() {
     const definition = CASE_DEFINITIONS.oblivion;
     if (!definition || caseOpening || oblivionOpening || oblivionState.claimedBy) return;
 
-    if (!supabaseClient || game.leaderboard_bypass || !game.player_username || !game.supabase_user_id) {
+    if (!firestoreDb || game.leaderboard_bypass || !game.player_username || !game.firebase_user_id) {
         toast("Register a leaderboard username to attempt the Oblivion Case.");
         return;
     }
 
     if (game.numOC < OBLIVION_UNLOCK_LOGS) {
-        toast("The Oblivion Case unlocks at 500 million logs.");
+        toast("The Oblivion Case unlocks at 50 billion logs.");
         return;
     }
 
@@ -6450,6 +6435,10 @@ function formatNumber(value) {
     return Math.floor(value).toLocaleString();
 }
 
+function getPrestigePenalty() {
+    return Math.pow(0.9, Math.max(0, Number(game.prestige) || 0));
+}
+
 function getRebirthPenalty() {
 
     const base =
@@ -6458,7 +6447,7 @@ function getRebirthPenalty() {
     const upgradeBonus =
         1 + game.rebirth_upgrades.mult * 0.2;
 
-    return base * upgradeBonus * getPrestigeMultiplier() * getAxeSkinOutputMultiplier();
+    return base * upgradeBonus * getPrestigeMultiplier() * getPrestigePenalty() * getAxeSkinOutputMultiplier();
 }
 
 const OFFLINE_EARNINGS_MIN_SECONDS = 60;
@@ -9784,6 +9773,14 @@ $("worldtree-open-three-btn").addEventListener("click", () => openCase("worldtre
 $("prestige-vault-btn").addEventListener("click", () => openCase("prestigeVault"));
 $("prestige-vault-open-three-btn").addEventListener("click", () => openCase("prestigeVault", 3));
 $("oblivion-btn").addEventListener("click", () => openOblivionCase());
+$("oblivion-open5-btn").addEventListener("click", () => openOblivionBatch(5));
+$("oblivion-open50-btn").addEventListener("click", () => openOblivionWarning());
+$("oblivion-warning-cancel").addEventListener("click", () => closeOblivionWarning());
+$("oblivion-warning-confirm").addEventListener("click", () => {
+    if ($("oblivion-warning-confirm").disabled) return;
+    closeOblivionWarning();
+    openOblivionBatch(50);
+});
 
 $("normal-drop-toggle")
     .addEventListener("click", () => toggleCaseDropTable("normal"));

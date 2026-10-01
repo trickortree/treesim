@@ -1,0 +1,51 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Public leaderboard rows. Owner can create their own row once and update
+    // their own stats, but the username field is immutable after creation.
+    match /players/{uid} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.username is string
+        && request.resource.data.username.matches('^[A-Za-z0-9_]{3,20}$');
+      allow update: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.username == resource.data.username;
+      allow delete: if false;
+    }
+
+    // Reservation docs keyed by lowercase username, enforcing global uniqueness
+    // the same way the Postgres `lower(username)` unique index did.
+    match /usernames/{lowerUsername} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // Oblivion relic status. No Cloud Functions on the free Spark plan, so
+    // the roll happens client-side and this is the only server-enforced
+    // guarantee left: total_attempts can only increase by exactly 1 per
+    // write, and claimed_by can only ever go from null to a value once
+    // (never overwritten), keeping a true single-winner guarantee even
+    // though the odds themselves are not independently verified server-side.
+    match /meta/oblivion_relic {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.total_attempts == 1
+        && (!('claimed_by' in request.resource.data) || request.resource.data.claimed_by == null);
+      allow update: if request.auth != null
+        && request.resource.data.total_attempts == resource.data.total_attempts + 1
+        && (resource.data.claimed_by == null || request.resource.data.claimed_by == resource.data.claimed_by);
+      allow delete: if false;
+    }
+
+    // Any other server-authoritative singletons stay fully read-only to clients.
+    match /meta/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}
