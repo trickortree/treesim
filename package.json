@@ -1,6 +1,6 @@
 {
   "name": "hypergamous-tree-chopping-simulator-3",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "Hypergamous Tree Chopping Simulator 3",
   "main": "main.js",
   "scripts": {
@@ -44,7 +44,7 @@
       "releaseType": "release"
     },
     "releaseInfo": {
-      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.1.5\n\n- Generated rebirth tiers, axe upgrades, and axe skins now use unique combinatorial names instead of repeating 'Name #' patterns, with a collision check so no generated name duplicates another.\n- Fixed a bug where rebirth tiers 1-5 all rewarded only 1 shard; shard rewards now scale smoothly and distinctly from your very first rebirth.\n- Fixed a bug where leaderboard reads and the anonymous sign-in fallback were missing a required Authorization header, causing the leaderboard to fail to load or show stale data.\n- Periodic leaderboard score syncing (chickens, rebirths, logs, etc.) now uses the same retry and fallback logic as registration, so it no longer silently fails.\n- Added a 'While You Were Away' offline earnings popup on launch."
+      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.1.6\n\n- Increased active Lumberjack, Sawmill, and Steam Engine output and eased their escalating costs.\n- First Prestige is now available after rebirth 25; later Prestiges still require rebirth 50.\n- Added the global one-of-one Oblivion Case and server-rolled relic claim.\n- Offline earnings remain disabled.\n- Improved leaderboard retry, authentication, and direct REST fallback handling.\n- Added unique generated rebirth, axe upgrade, and axe skin names, plus smoother early rebirth shard rewards."
     }
   }
 }

@@ -3965,7 +3965,7 @@ button {
                         </div>
 
                         <div class="upgrade-info" id="sawmill-info">
-                            Sawmills: 0 • +8 logs/s each
+                            Sawmills: 0 • +12 logs/s each
                         </div>
 
                         <div class="max-buy-row">
@@ -3983,7 +3983,7 @@ button {
                         </div>
 
                         <div class="upgrade-info" id="steam-info">
-                            Steam Engines: 0 • +45 logs/s each
+                            Steam Engines: 0 • +60 logs/s each
                         </div>
 
                         <div class="max-buy-row">
@@ -4111,7 +4111,7 @@ button {
                 <div class="prestige-card card">
                     <div>
                         <div class="prestige-title" id="prestige-name">Prestige 0 / 5</div>
-                        <div class="prestige-copy" id="prestige-info">Reach the final rebirth and buy every unlocked axe to prestige.</div>
+                        <div class="prestige-copy" id="prestige-info">Reach rebirth 25 for your first Prestige; later Prestiges require rebirth 50.</div>
                         <div class="prestige-bonus" id="prestige-bonus">Permanent forest power: x1.00</div>
                     </div>
                     <button class="buy-btn prestige-btn" id="prestige-btn" type="button" disabled>PRESTIGE LOCKED</button>
@@ -6231,9 +6231,9 @@ function renderOblivionBanner() {
     }
 }
 
-async function attemptOblivionClaim(won) {
+async function attemptOblivionClaim() {
     try {
-        const { data, error } = await withSupabaseRetry(() => supabaseClient.rpc("attempt_oblivion_relic", { p_won: won }), "Oblivion Relic");
+        const { data, error } = await withSupabaseRetry(() => supabaseClient.rpc("attempt_oblivion_relic", { p_won: false }), "Oblivion Relic");
         if (error) throw error;
         return Array.isArray(data) ? data[0] : data;
     } catch (error) {
@@ -6243,7 +6243,7 @@ async function attemptOblivionClaim(won) {
         const rows = await directSupabaseRequest("/rest/v1/rpc/attempt_oblivion_relic", {
             method: "POST",
             accessToken,
-            body: JSON.stringify({ p_won: won })
+            body: JSON.stringify({ p_won: false })
         });
         return Array.isArray(rows) ? rows[0] : rows;
     }
@@ -6265,10 +6265,9 @@ async function openOblivionCase() {
     if (button) { button.disabled = true; button.textContent = "OPENING..."; }
     updateUI();
 
-    const wonLocally = Math.random() < OBLIVION_WIN_CHANCE;
     let result;
     try {
-        result = await attemptOblivionClaim(wonLocally);
+        result = await attemptOblivionClaim();
     } catch (error) {
         console.error("Oblivion Relic attempt failed:", error);
         game.numOC += definition.cost;
@@ -6284,12 +6283,9 @@ async function openOblivionCase() {
     oblivionState.loaded = true;
 
     let winningItem;
-    if (wonLocally && result?.won_claim) {
+    if (result?.won_claim) {
         winningItem = { name: "??? Axe", kind: "skin", skinName: OBLIVION_RELIC_SKIN_NAME, rarity: "Hypergamous", color: "#f8fafc" };
         toast("🌑 YOU CLAIMED THE OBLIVION RELIC. Only you will ever own this axe.");
-    } else if (wonLocally && !result?.won_claim) {
-        winningItem = pickCaseItem(PRESTIGE_CASE_ITEMS, OBLIVION_CONSOLATION_RARITIES);
-        toast("So close — someone else claimed the Oblivion Relic moments before you. A consolation relic was awarded instead.");
     } else {
         winningItem = OBLIVION_JUNK_ITEMS[Math.floor(Math.random() * OBLIVION_JUNK_ITEMS.length)];
     }
@@ -6303,7 +6299,7 @@ async function openOblivionCase() {
             : `<div class="case-win-title" style="color:${RARITY_COLORS[winningItem.rarity] || "#aeb8c7"}">${winningItem.name}</div><div class="case-win-subtitle">${winningItem.rarity}${mutationLabel}${inventoryItem ? " • Added to your locker" : ""}</div>`;
     }
 
-    if (winningItem.rarity === "Hypergamous" && result?.won_claim) {
+    if (result?.won_claim) {
         $("case-overlay").classList.add("open");
         $("case-title").textContent = "??? CASE";
         $("case-cost").textContent = "THE OBLIVION RELIC ANSWERED";
@@ -6417,13 +6413,13 @@ function getPassiveRate() {
 
     const baseClicker =
         game.auto_clickers *
-        (0.15 + game.current_axe_index * 0.12);
+        (0.25 + game.current_axe_index * 0.15);
 
     const baseSawmill =
-        game.sawmills * 8;
+        game.sawmills * 12;
 
     const baseSteam =
-        game.steam_engines * 45;
+        game.steam_engines * 60;
 
     const totalBase =
         baseClicker +
@@ -6576,17 +6572,17 @@ function buyMaxLogUpgrade(type) {
             if (game.auto_clickers >= MAX_UPGRADE_LEVEL || game.numOC < game.auto_clicker_cost) break;
             game.numOC -= game.auto_clicker_cost;
             game.auto_clickers++;
-            game.auto_clicker_cost *= 1.5;
+            game.auto_clicker_cost *= 1.45;
         } else if (type === "sawmill") {
             if (game.sawmills >= MAX_UPGRADE_LEVEL || game.numOC < game.sawmill_cost) break;
             game.numOC -= game.sawmill_cost;
             game.sawmills++;
-            game.sawmill_cost *= 1.6;
+            game.sawmill_cost *= 1.5;
         } else if (type === "steam") {
             if (game.steam_engines >= MAX_UPGRADE_LEVEL || game.numOC < game.steam_cost) break;
             game.numOC -= game.steam_cost;
             game.steam_engines++;
-            game.steam_cost *= 1.7;
+            game.steam_cost *= 1.6;
         } else if (type === "pet") {
             const cost = 500 * (game.pet_level + 1);
             if (game.pet_level >= MAX_UPGRADE_LEVEL || game.numOC < cost) break;
@@ -6629,12 +6625,19 @@ function getAvailableAxeCount() {
     );
 }
 
+const FIRST_PRESTIGE_REBIRTH_REQUIREMENT = 25;
+
+function getPrestigeRebirthRequirement() {
+    if (game.prestige === 0) return FIRST_PRESTIGE_REBIRTH_REQUIREMENT;
+    return Math.max(...Object.keys(REBIRTH_DATA).map(Number));
+}
+
 function canPrestige() {
-    const maxRebirth = Math.max(...Object.keys(REBIRTH_DATA).map(Number));
+    const requiredRebirth = getPrestigeRebirthRequirement();
     return game.prestige < PRESTIGE_LIMIT &&
-        game.rebirth >= maxRebirth &&
+        game.rebirth >= requiredRebirth &&
         game.current_axe_index >= getAvailableAxeCount() &&
-        game.numOC >= REBIRTH_DATA[maxRebirth].cost * (game.prestige + 2);
+        game.numOC >= REBIRTH_DATA[requiredRebirth].cost * (game.prestige + 2);
 }
 
 function getNextCost() {
@@ -6940,7 +6943,7 @@ function updateEquipment() {
 
     $("auto-info").textContent =
         `Lumberjacks: ${game.auto_clickers} • +${formatNumber(
-            0.15 + game.current_axe_index * 0.12
+            0.25 + game.current_axe_index * 0.15
         )} base logs/s each`;
 
     $("auto-btn").textContent =
@@ -6952,7 +6955,7 @@ function updateEquipment() {
         game.auto_clickers >= MAX_UPGRADE_LEVEL || game.numOC < game.auto_clicker_cost;
 
     $("sawmill-info").textContent =
-        `Sawmills: ${game.sawmills} • +8 logs/s each`;
+        `Sawmills: ${game.sawmills} • +12 logs/s each`;
 
     $("sawmill-btn").textContent =
         `Build Sawmill — ${formatNumber(game.sawmill_cost)} Logs`;
@@ -6963,7 +6966,7 @@ function updateEquipment() {
         game.sawmills >= MAX_UPGRADE_LEVEL || game.numOC < game.sawmill_cost;
 
     $("steam-info").textContent =
-        `Steam Engines: ${game.steam_engines} • +45 logs/s each`;
+        `Steam Engines: ${game.steam_engines} • +60 logs/s each`;
 
     $("steam-btn").textContent =
         `Build Steam Engine — ${formatNumber(game.steam_cost)} Logs`;
@@ -6983,6 +6986,7 @@ function updateRebirth() {
 
     const max =
         Math.max(...Object.keys(REBIRTH_DATA));
+    const prestigeRebirthRequirement = getPrestigeRebirthRequirement();
 
     $("shards").textContent =
         `💎 Available Shards: ${game.rebirth_shards}`;
@@ -7031,11 +7035,11 @@ function updateRebirth() {
         $("prestige-btn").textContent = "ALL PRESTIGES COMPLETE";
         $("prestige-btn").disabled = true;
     } else if (prestigeReady) {
-        $("prestige-info").textContent = `Final rebirth reached and all ${availableAxes} unlocked axes owned. Prestige to unlock the next five.`;
+        $("prestige-info").textContent = `Rebirth ${prestigeRebirthRequirement} reached and all ${availableAxes} unlocked axes owned. Prestige to unlock the next five.`;
         $("prestige-btn").textContent = `PRESTIGE ${game.prestige + 1}`;
         $("prestige-btn").disabled = false;
-    } else if (game.rebirth < max) {
-        $("prestige-info").textContent = `Reach rebirth ${max}, then buy the remaining ${axesRemaining} unlocked axes.`;
+    } else if (game.rebirth < prestigeRebirthRequirement) {
+        $("prestige-info").textContent = `Reach rebirth ${prestigeRebirthRequirement}, then buy the remaining ${axesRemaining} unlocked axes.`;
         $("prestige-btn").textContent = "PRESTIGE LOCKED";
         $("prestige-btn").disabled = true;
     } else {
@@ -7511,7 +7515,7 @@ function buyAuto() {
     game.numOC -= game.auto_clicker_cost;
     game.auto_clickers++;
 
-    game.auto_clicker_cost *= 1.5;
+    game.auto_clicker_cost *= 1.45;
 
     toast("🧑‍🌾 Lumberjack hired!");
 
@@ -7527,7 +7531,7 @@ function buySawmill() {
     game.numOC -= game.sawmill_cost;
     game.sawmills++;
 
-    game.sawmill_cost *= 1.6;
+    game.sawmill_cost *= 1.5;
 
     toast("🏭 Sawmill constructed!");
 
@@ -7543,7 +7547,7 @@ function buySteam() {
     game.numOC -= game.steam_cost;
     game.steam_engines++;
 
-    game.steam_cost *= 1.7;
+    game.steam_cost *= 1.6;
 
     toast("🚂 Steam Engine online!");
 
@@ -8226,9 +8230,7 @@ const CASE_DEFINITIONS = {
 // The Oblivion Relic: a single, permanent, server-claimed copy of THE Axe Skin.
 // Once one player wins it, the case closes for everyone else, forever.
 const OBLIVION_RELIC_SKIN_NAME = "THE Axe Skin";
-const OBLIVION_WIN_CHANCE = 1 / 100000000;
 const OBLIVION_JUNK_ITEMS = NORMAL_CASE_ITEMS.filter(item => item.rarity === "Common");
-const OBLIVION_CONSOLATION_RARITIES = ["Ancient", "Celestial", "Divine", "Godly", "Astral", "Eclipse", "Voidborn", "Omniscient", "Genesis"];
 
 function getCasePool(type) {
     if (type === "mutatedAxe") return MUTATED_AXE_CASE_ITEMS;
