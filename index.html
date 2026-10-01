@@ -8,7 +8,7 @@
 >
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Hypergamous Tree Chopping Simulator 3</title>
+<title>Looksmaxxing Tree Chopping Simulator 3</title>
 
 <style>
 :root {
@@ -1360,6 +1360,21 @@ button {
 }
 
 .market-case-metrics strong { color: #f4d27a; }
+
+.oblivion-banner {
+    margin: 0 0 16px;
+    padding: 12px 16px;
+    border: 1px solid #4c1d63;
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(61,10,74,.35), rgba(10,4,14,.55));
+    color: #e6d3ff;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+.oblivion-card { border-color: #4c1d63; }
+.oblivion-card .buy-btn:disabled { opacity: .55; cursor: not-allowed; }
 
 .market-actions {
     display: grid;
@@ -3703,7 +3718,7 @@ button {
     <aside class="sidebar">
 
         <div class="logo">
-            <div class="logo-title">HYPERGAMOUS</div>
+            <div class="logo-title">LOOKSMAXXING</div>
             <div class="logo-sub">TREE CHOPPING SIMULATOR 3</div>
         </div>
 
@@ -3772,7 +3787,7 @@ button {
                     Chop Area
                 </div>
                 <div class="page-subtitle" id="top-subtitle">
-                    Turn trees into ridiculous amounts of logs.
+                    Turn mid trees into elite amounts of logs.
                 </div>
             </div>
 
@@ -4292,6 +4307,8 @@ button {
                     Open specialized cases for axe skins and mutant chickens.
                 </div>
 
+                <div class="oblivion-banner" id="oblivion-banner">🌑 Loading Oblivion Relic status...</div>
+
                 <div class="market-grid">
 
                     <div class="market-card card" style="--case-accent:#a7c95c">
@@ -4303,7 +4320,7 @@ button {
                         </div>
 
                         <div class="market-desc">
-                            Every pull is a real axe skin. THE Axe Skin is Hypergamous rarity with a 0.000001% chance.
+                            Every pull is a real axe skin.
                         </div>
 
                         <div class="market-case-metrics">
@@ -4414,6 +4431,17 @@ button {
                         <div class="market-actions">
                             <button class="buy-btn purple" id="prestige-vault-btn" type="button">OPEN — 1 TOKEN</button>
                             <button class="buy-btn case-open-three" id="prestige-vault-open-three-btn" type="button">OPEN 3 — 3 TOKENS</button>
+                        </div>
+                    </div>
+
+                    <div class="market-card card oblivion-card" style="--case-accent:#3d0a4a">
+                        <div class="market-icon">🌑</div>
+                        <div class="market-title">Oblivion Case</div>
+                        <div class="market-desc">Almost everything in here is cursed junk. Somewhere in the void is a 1-in-100,000,000 chance for THE Axe Skin — a single, permanent, global relic. The instant someone wins it, this case closes forever.</div>
+                        <div class="market-case-metrics"><span>Attempts worldwide <strong id="oblivion-attempts-count">--</strong></span><span>1 in 100,000,000</span></div>
+                        <div class="market-result" id="oblivion-result">Ready to open.</div>
+                        <div class="market-actions">
+                            <button class="buy-btn" id="oblivion-btn" type="button" disabled>OPEN — 5,000 LOGS</button>
                         </div>
                     </div>
 
@@ -4832,7 +4860,7 @@ const DEFAULT_DATA = {
     leaderboard_bypass: false,
     quick_open_cooldown_until: 0,
     last_online_at: null,
-    treeName: "hypergamous trees",
+    treeName: "looksmaxxing trees",
     current_axe_index: 0,
     axe_skins: {},
     axe_inventory: [],
@@ -5345,112 +5373,112 @@ const BASE_REBIRTH_DATA = {
 
     1: {
         penalty: 0.12,
-        name: "hypergamous foid trees",
+        name: "looksmaxxing starter trees",
         cost: 1000000,
         shards: 2
     },
 
     2: {
         penalty: 0.22,
-        name: "hypergamous DNR foid trees",
+        name: "looksmaxxing DNR trees",
         cost: 25000000,
         shards: 6
     },
 
     3: {
         penalty: 0.36,
-        name: "hypergamous DNR JBG foid trees",
+        name: "looksmaxxing JBG trees",
         cost: 1000000000,
         shards: 15
     },
 
     4: {
         penalty: 0.58,
-        name: "Transcendent Alpha Trees",
+        name: "mogger alpha trees",
         cost: 50000000000,
         shards: 32
     },
 
     5: {
         penalty: 0.90,
-        name: "Cosmic Chad Trees",
+        name: "cosmic chad trees",
         cost: 1000000000000,
         shards: 65
     },
 
     6: {
         penalty: 1.40,
-        name: "Galactic Hyper Trees",
+        name: "galactic mog trees",
         cost: 25000000000000,
         shards: 140
     },
 
     7: {
         penalty: 2.10,
-        name: "Dimensional Tree Lords",
+        name: "dimensional mogger trees",
         cost: 1000000000000000,
         shards: 290
     },
 
     8: {
         penalty: 3.20,
-        name: "Universal Forest Gods",
+        name: "universal looksmaxx trees",
         cost: 50000000000000000,
         shards: 600
     },
 
     9: {
         penalty: 4.80,
-        name: "Omniversal Tree Entities",
+        name: "omniversal mog entities",
         cost: 2500000000000000000,
         shards: 1200
     },
 
     10: {
         penalty: 7.20,
-        name: "THE ETERNAL FOREST",
+        name: "THE ETERNAL MOG FOREST",
         cost: 100000000000000000000,
         shards: 2500
     },
 
     11: {
         penalty: 10.75,
-        name: "Beyond Reality Trees",
+        name: "beyond-reality mog trees",
         cost: 10000000000000000000000,
         shards: 5000
     },
 
     12: {
         penalty: 16.00,
-        name: "Infinite Hyper Trees",
+        name: "infinite looksmaxx trees",
         cost: 1000000000000000000000000,
         shards: 10000
     },
 
     13: {
         penalty: 24.00,
-        name: "The Rootbound Expanse",
+        name: "the rootbound mog expanse",
         cost: 10000000000000000000000000000,
         shards: 20000
     },
 
     14: {
         penalty: 36.00,
-        name: "The Starfall Canopy",
+        name: "the starfall looksmaxx canopy",
         cost: 10000000000000000000000000000000,
         shards: 40000
     },
 
     15: {
         penalty: 54.00,
-        name: "The First Forest",
+        name: "the first mog forest",
         cost: 10000000000000000000000000000000000,
         shards: 80000
     },
 
     16: {
         penalty: 82.00,
-        name: "The Hypergamous Worldtree",
+        name: "the looksmaxxing worldtree",
         cost: 10000000000000000000000000000000000000,
         shards: 160000
     }
@@ -5467,7 +5495,7 @@ function generateRebirthData() {
     const lastTier = Math.max(...Object.keys(BASE_REBIRTH_DATA).map(Number));
     // Adjective x noun pairing gives 30 x 30 = 900 unique frontier names, far more than the 34 needed.
     const adjectives = [
-        "Rootbound", "Starforged", "Everdusk", "Hollowed", "Wandering", "Gilded", "Ashen", "Verdant",
+        "Looksmaxxed", "Mogbound", "Jawline", "Aura", "Chadlit", "Giga", "Zyzzborn", "Verdant",
         "Sundered", "Boreal", "Nightbloom", "Emberlit", "Frostwoven", "Stormbound", "Hallowed", "Runic",
         "Thornveil", "Moonlit", "Duskbound", "Wildroot", "Sablewood", "Glimmering", "Cindergrove", "Wraithbark",
         "Skyward", "Ironroot", "Silvervein", "Duskglass", "Emberfall", "Winterbound"
@@ -5532,6 +5560,12 @@ game.next_axe_item_id = Number.isFinite(game.next_axe_item_id) ? game.next_axe_i
 game.equipped_axe_skin = game.equipped_axe_skin || "Default Axe";
 game.equipped_axe_item_id = game.equipped_axe_item_id || null;
 game.chicken_variants = (game.chicken_variants && typeof game.chicken_variants === "object") ? game.chicken_variants : {};
+if (!game.treeName || /hypergamous|foid|jbg/i.test(game.treeName)) {
+    game.treeName = game.rebirth > 0
+        ? REBIRTH_DATA[game.rebirth]?.name || "looksmaxxing frontier trees"
+        : "looksmaxxing trees";
+    saveGame();
+}
 
 function getSkinDefinition(name) {
     return AXE_SKINS.find(skin => skin.name === name) || AXE_SKINS[0];
@@ -5648,6 +5682,7 @@ const lastCaseResults = {
 let leaderboardMetric = "score";
 let leaderboardPushInFlight = false;
 let leaderboardLastPushAt = 0;
+const LEADERBOARD_SYNC_INTERVAL_MS = 5 * 60 * 1000;
 
 let gameTick = 0;
 let caseOpening = false;
@@ -5932,7 +5967,7 @@ async function signInAnonymouslyWithFallback() {
 
 async function publishLeaderboard(force = false) {
     if (!supabaseClient || !game.supabase_user_id || !game.player_username || leaderboardPushInFlight) return;
-    if (!force && Date.now() - leaderboardLastPushAt < 30000) return;
+    if (!force && Date.now() - leaderboardLastPushAt < LEADERBOARD_SYNC_INTERVAL_MS) return;
 
     leaderboardPushInFlight = true;
     try {
@@ -5943,7 +5978,6 @@ async function publishLeaderboard(force = false) {
                 .upsert(payload, { onConflict: "user_id" }), "Leaderboard sync");
             if (error) throw error;
         } catch (error) {
-            if (!isTransientSupabaseError(error)) throw error;
             const { data: sessionData } = await withSupabaseRetry(() => supabaseClient.auth.getSession(), "Supabase");
             const accessToken = sessionData?.session?.access_token;
             if (!accessToken) throw error;
@@ -6051,7 +6085,6 @@ async function claimPlayerUsername(rawUsername) {
                 .maybeSingle(), "Leaderboard");
             existing = result.data;
         } catch (error) {
-            if (!isTransientSupabaseError(error)) throw error;
             setAccountStatus("Using direct leaderboard fallback...");
             existing = await directLeaderboardProfile(userId, sessionData.session.access_token);
         }
@@ -6066,7 +6099,6 @@ async function claimPlayerUsername(rawUsername) {
                     .from("player_leaderboard")
                     .insert(payload), "Username claim");
             } catch (error) {
-                if (!isTransientSupabaseError(error)) throw error;
                 setAccountStatus("Using direct username claim fallback...");
                 await directLeaderboardInsert(payload, sessionData.session.access_token);
             }
@@ -6114,10 +6146,12 @@ async function loadLeaderboard() {
                 .limit(50), "Leaderboard");
             data = result.data;
         } catch (error) {
-            if (!isTransientSupabaseError(error)) throw error;
-            data = await directSupabaseRequest(`/rest/v1/player_leaderboard?select=username,score,rarest_axe_name,rarest_axe_rarity,rarest_axe_rank,total_chopped,rebirth,chickens&order=${orderColumn}.desc&limit=50`);
+            const { data: sessionData } = await supabaseClient.auth.getSession();
+            const accessToken = sessionData?.session?.access_token;
+            data = await directSupabaseRequest(`/rest/v1/player_leaderboard?select=username,score,rarest_axe_name,rarest_axe_rarity,rarest_axe_rank,total_chopped,rebirth,chickens&order=${orderColumn}.desc&limit=50`, { accessToken });
         }
 
+        data = Array.isArray(data) ? data : [];
         const fragment = document.createDocumentFragment();
         for (let index = 0; index < data.length; index++) {
             const player = data[index];
@@ -6145,6 +6179,140 @@ async function loadLeaderboard() {
     } catch (error) {
         status.textContent = error.message || "Could not load the leaderboard.";
     }
+}
+
+let oblivionState = { claimedBy: null, claimedAt: null, totalAttempts: 0, loaded: false };
+
+async function loadOblivionStatus() {
+    if (!supabaseClient) return;
+    try {
+        let rows;
+        try {
+            const result = await withSupabaseRetry(() => supabaseClient
+                .from("oblivion_relic")
+                .select("claimed_by,claimed_at,total_attempts")
+                .eq("id", 1)
+                .limit(1), "Oblivion Relic");
+            rows = result.data;
+        } catch (error) {
+            if (!isTransientSupabaseError(error)) throw error;
+            rows = await directSupabaseRequest("/rest/v1/oblivion_relic?select=claimed_by,claimed_at,total_attempts&id=eq.1&limit=1");
+        }
+        const row = rows?.[0];
+        if (row) {
+            oblivionState.claimedBy = row.claimed_by || null;
+            oblivionState.claimedAt = row.claimed_at || null;
+            oblivionState.totalAttempts = Number(row.total_attempts) || 0;
+        }
+        oblivionState.loaded = true;
+    } catch (error) {
+        console.error("Failed to load Oblivion Relic status:", error);
+    }
+    renderOblivionBanner();
+}
+
+function renderOblivionBanner() {
+    const banner = $("oblivion-banner");
+    const button = $("oblivion-btn");
+    const attemptsEl = $("oblivion-attempts-count");
+    if (attemptsEl) attemptsEl.textContent = formatNumber(oblivionState.totalAttempts);
+    if (!banner) return;
+
+    if (oblivionState.claimedBy) {
+        const when = oblivionState.claimedAt ? new Date(oblivionState.claimedAt).toLocaleDateString() : "an unknown date";
+        banner.innerHTML = `🌑 <strong>THE OBLIVION RELIC HAS BEEN CLAIMED</strong> by <strong>${oblivionState.claimedBy}</strong> on ${when}, after <strong>${formatNumber(oblivionState.totalAttempts)}</strong> cases opened worldwide. The case is now closed forever.`;
+        if (button) { button.disabled = true; button.textContent = "CLAIMED — CASE CLOSED"; }
+    } else if (oblivionState.loaded) {
+        banner.innerHTML = `🌑 <strong>THE OBLIVION RELIC</strong> remains unclaimed. <strong>${formatNumber(oblivionState.totalAttempts)}</strong> cases opened worldwide chasing the 1-in-100,000,000 chance.`;
+        if (button) { button.disabled = false; button.textContent = `OPEN — ${formatNumber(CASE_DEFINITIONS.oblivion.cost)} LOGS`; }
+    } else {
+        banner.textContent = "🌑 Loading Oblivion Relic status...";
+        if (button) button.disabled = true;
+    }
+}
+
+async function attemptOblivionClaim(won) {
+    try {
+        const { data, error } = await withSupabaseRetry(() => supabaseClient.rpc("attempt_oblivion_relic", { p_won: won }), "Oblivion Relic");
+        if (error) throw error;
+        return Array.isArray(data) ? data[0] : data;
+    } catch (error) {
+        if (!isTransientSupabaseError(error)) throw error;
+        const { data: sessionData } = await withSupabaseRetry(() => supabaseClient.auth.getSession(), "Supabase");
+        const accessToken = sessionData?.session?.access_token;
+        const rows = await directSupabaseRequest("/rest/v1/rpc/attempt_oblivion_relic", {
+            method: "POST",
+            accessToken,
+            body: JSON.stringify({ p_won: won })
+        });
+        return Array.isArray(rows) ? rows[0] : rows;
+    }
+}
+
+async function openOblivionCase() {
+    const definition = CASE_DEFINITIONS.oblivion;
+    if (!definition || caseOpening || oblivionState.claimedBy) return;
+
+    if (!supabaseClient || game.leaderboard_bypass || !game.player_username || !game.supabase_user_id) {
+        toast("Register a leaderboard username to attempt the Oblivion Case.");
+        return;
+    }
+
+    if (game.numOC < definition.cost) return;
+
+    const button = $("oblivion-btn");
+    game.numOC -= definition.cost;
+    if (button) { button.disabled = true; button.textContent = "OPENING..."; }
+    updateUI();
+
+    const wonLocally = Math.random() < OBLIVION_WIN_CHANCE;
+    let result;
+    try {
+        result = await attemptOblivionClaim(wonLocally);
+    } catch (error) {
+        console.error("Oblivion Relic attempt failed:", error);
+        game.numOC += definition.cost;
+        toast("Could not reach the Oblivion Relic. Your logs were not spent — try again.");
+        renderOblivionBanner();
+        updateUI();
+        return;
+    }
+
+    oblivionState.claimedBy = result?.claimed_by || oblivionState.claimedBy;
+    oblivionState.claimedAt = result?.claimed_at || oblivionState.claimedAt;
+    oblivionState.totalAttempts = Number(result?.total_attempts) || oblivionState.totalAttempts;
+    oblivionState.loaded = true;
+
+    let winningItem;
+    if (wonLocally && result?.won_claim) {
+        winningItem = { name: "??? Axe", kind: "skin", skinName: OBLIVION_RELIC_SKIN_NAME, rarity: "Hypergamous", color: "#f8fafc" };
+        toast("🌑 YOU CLAIMED THE OBLIVION RELIC. Only you will ever own this axe.");
+    } else if (wonLocally && !result?.won_claim) {
+        winningItem = pickCaseItem(PRESTIGE_CASE_ITEMS, OBLIVION_CONSOLATION_RARITIES);
+        toast("So close — someone else claimed the Oblivion Relic moments before you. A consolation relic was awarded instead.");
+    } else {
+        winningItem = OBLIVION_JUNK_ITEMS[Math.floor(Math.random() * OBLIVION_JUNK_ITEMS.length)];
+    }
+
+    const inventoryItem = handleCaseReward(winningItem, "oblivion", { showAxeActions: false, silent: true });
+    const resultEl = $("oblivion-result");
+    if (resultEl) {
+        const mutationLabel = winningItem.mutationName ? ` • ${winningItem.mutationName}` : "";
+        resultEl.innerHTML = winningItem.rarity === "Hypergamous"
+            ? `<div class="case-win-title" style="color:${RARITY_COLORS.Hypergamous}">${winningItem.name} — CLAIMED FOREVER</div><div class="case-win-subtitle">You are the only person who will ever own this axe.</div>`
+            : `<div class="case-win-title" style="color:${RARITY_COLORS[winningItem.rarity] || "#aeb8c7"}">${winningItem.name}</div><div class="case-win-subtitle">${winningItem.rarity}${mutationLabel}${inventoryItem ? " • Added to your locker" : ""}</div>`;
+    }
+
+    if (winningItem.rarity === "Hypergamous" && result?.won_claim) {
+        $("case-overlay").classList.add("open");
+        $("case-title").textContent = "??? CASE";
+        $("case-cost").textContent = "THE OBLIVION RELIC ANSWERED";
+        $("case-result").textContent = "??? Axe added to your locker.";
+        $("case-close").disabled = false;
+        triggerCaseRevealEffect(winningItem);
+    }
+
+    renderOblivionBanner();
 }
 
 
@@ -6229,23 +6397,11 @@ function formatOfflineDuration(totalSeconds) {
 }
 
 function applyOfflineEarnings() {
-    const lastOnline = Number(game.last_online_at) || 0;
-    if (!lastOnline) return;
-
-    const elapsedSeconds = (Date.now() - lastOnline) / 1000;
-    if (elapsedSeconds < OFFLINE_EARNINGS_MIN_SECONDS) return;
-
-    const cappedSeconds = Math.min(elapsedSeconds, OFFLINE_EARNINGS_CAP_SECONDS);
-    const earnings = Math.floor(getPassiveRate() * cappedSeconds * OFFLINE_EARNINGS_EFFICIENCY);
-    if (earnings <= 0) return;
-
-    game.numOC += earnings;
+    // Passive production only runs while the game is open. Clear legacy timestamps
+    // so older saves cannot receive the retired offline payout.
+    if (!game.last_online_at) return;
+    game.last_online_at = Date.now();
     saveGame();
-
-    $("offline-duration").textContent = `You were away for ${formatOfflineDuration(elapsedSeconds)}.`;
-    $("offline-earnings").innerHTML = `+${formatNumber(earnings)} logs<small>Passive production at 50% rate, capped at 8 hours away</small>`;
-    $("offline-overlay").classList.add("open");
-    updateUI();
 }
 
 function getPrestigeMultiplier() {
@@ -7695,8 +7851,9 @@ function upgradePet() {
    CASE SYSTEM
 ========================================================= */
 
+// THE Axe Skin is excluded here on purpose — it is now only obtainable through the Oblivion Case's global one-of-one claim.
 const NORMAL_CASE_ITEMS = AXE_SKINS
-    .filter(skin => skin.name !== "Default Axe")
+    .filter(skin => skin.name !== "Default Axe" && skin.name !== "THE Axe Skin")
     .map(skin => ({
         name: `${skin.name} Skin`,
         kind: "skin",
@@ -7929,8 +8086,7 @@ const CASE_RARITY_CHANCES = {
         { rarity: "Eclipse", chance: 0.004 },
         { rarity: "Voidborn", chance: 0.003 },
         { rarity: "Omniscient", chance: 0.002 },
-        { rarity: "Genesis", chance: 0.000999 },
-        { rarity: "Hypergamous", chance: 0.000001 }
+        { rarity: "Genesis", chance: 0.001 }
     ],
     mutant: [
         { rarity: "Common", chance: 58.07 },
@@ -7959,8 +8115,7 @@ const CASE_RARITY_CHANCES = {
         { rarity: "Eclipse", chance: 0.7 },
         { rarity: "Voidborn", chance: 0.2 },
         { rarity: "Omniscient", chance: 0.08 },
-        { rarity: "Genesis", chance: 0.019 },
-        { rarity: "Hypergamous", chance: 0.001 }
+        { rarity: "Genesis", chance: 0.02 }
     ]
 };
 
@@ -7994,7 +8149,8 @@ function applyCasePity(type, item) {
     }
 
     game.case_pity[type] = 0;
-    const pool = getCasePool(type).filter(entry => RARITY_ORDER.indexOf(entry.rarity) >= RARITY_ORDER.indexOf("Ancient"));
+    // Hypergamous is excluded from pity too: it can only ever be won through the Oblivion Case's claim system.
+    const pool = getCasePool(type).filter(entry => RARITY_ORDER.indexOf(entry.rarity) >= RARITY_ORDER.indexOf("Ancient") && entry.rarity !== "Hypergamous");
     return pool.length ? pool[Math.floor(Math.random() * pool.length)] : item;
 }
 
@@ -8063,14 +8219,23 @@ const CASE_DEFINITIONS = {
     mutatedAxe: { title: "Mutated Axe Case", cost: 12000, kind: "mutated-axe" },
     mutatedFlock: { title: "Mutated Flock Case", cost: 10000, kind: "mutated-chicken" },
     worldtree: { title: "Worldtree Cache", cost: 50000, kind: "mixed" },
-    prestigeVault: { title: "Prestige Vault", cost: 1, currency: "prestige_tokens", kind: "prestige" }
+    prestigeVault: { title: "Prestige Vault", cost: 1, currency: "prestige_tokens", kind: "prestige" },
+    oblivion: { title: "Oblivion Case", cost: 5000, kind: "oblivion" }
 };
+
+// The Oblivion Relic: a single, permanent, server-claimed copy of THE Axe Skin.
+// Once one player wins it, the case closes for everyone else, forever.
+const OBLIVION_RELIC_SKIN_NAME = "THE Axe Skin";
+const OBLIVION_WIN_CHANCE = 1 / 100000000;
+const OBLIVION_JUNK_ITEMS = NORMAL_CASE_ITEMS.filter(item => item.rarity === "Common");
+const OBLIVION_CONSOLATION_RARITIES = ["Ancient", "Celestial", "Divine", "Godly", "Astral", "Eclipse", "Voidborn", "Omniscient", "Genesis"];
 
 function getCasePool(type) {
     if (type === "mutatedAxe") return MUTATED_AXE_CASE_ITEMS;
     if (type === "mutant" || type === "mutatedFlock") return MUTATED_CHICK_CASE_ITEMS;
     if (type === "prestigeVault") return PRESTIGE_CASE_ITEMS;
     if (type === "worldtree") return [...NORMAL_CASE_ITEMS, ...MUTANT_CASE_ITEMS];
+    if (type === "oblivion") return OBLIVION_JUNK_ITEMS;
     return NORMAL_CASE_ITEMS;
 }
 
@@ -9248,6 +9413,7 @@ document.querySelectorAll(".nav-btn").forEach(btn => {
         if (page === "worlds") renderForestAtlas();
         if (page === "achievements") renderAchievements();
         if (page === "leaderboard") loadLeaderboard();
+        if (page === "market") loadOblivionStatus();
     });
 });
 
@@ -9494,6 +9660,7 @@ $("mutated-flock-open-three-btn").addEventListener("click", () => openCase("muta
 $("worldtree-open-three-btn").addEventListener("click", () => openCase("worldtree", 3));
 $("prestige-vault-btn").addEventListener("click", () => openCase("prestigeVault"));
 $("prestige-vault-open-three-btn").addEventListener("click", () => openCase("prestigeVault", 3));
+$("oblivion-btn").addEventListener("click", () => openOblivionCase());
 
 $("normal-drop-toggle")
     .addEventListener("click", () => toggleCaseDropTable("normal"));
@@ -9626,6 +9793,7 @@ renderChopAxe();
 initializePlayerAccount().then(() => {
     if (!$("account-overlay").classList.contains("open")) applyOfflineEarnings();
 });
+loadOblivionStatus();
 
 $("offline-close").addEventListener("click", () => {
     $("offline-overlay").classList.remove("open");

@@ -19,6 +19,7 @@ create unique index if not exists player_leaderboard_username_ci
 
 alter table public.player_leaderboard enable row level security;
 
+grant usage on schema public to anon, authenticated;
 grant select on public.player_leaderboard to anon, authenticated;
 grant insert, update on public.player_leaderboard to authenticated;
 revoke delete, truncate on public.player_leaderboard from anon, authenticated;
@@ -58,3 +59,6 @@ create policy "Players update their own leaderboard row"
     to authenticated
     using (auth.uid() = user_id)
     with check (auth.uid() = user_id);
+
+-- Keep the table readable after rerunning this script following a dashboard reset.
+notify pgrst, 'reload schema';
