@@ -79,7 +79,8 @@ service cloud.firestore {
         && (!('claimed_by' in request.resource.data) || request.resource.data.claimed_by == null);
       allow update: if request.auth != null
         && request.resource.data.total_attempts == resource.data.total_attempts + 1
-        && (resource.data.claimed_by == null || request.resource.data.claimed_by == resource.data.claimed_by);
+        && (resource.data.get('claimed_by', null) == null
+          || request.resource.data.get('claimed_by', null) == resource.data.get('claimed_by', null));
       allow delete: if false;
     }
 
