@@ -1,6 +1,6 @@
 {
   "name": "hypergamous-tree-chopping-simulator-3",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "Hypergamous Tree Chopping Simulator 3",
   "main": "main.js",
   "scripts": {
@@ -44,7 +44,7 @@
       "releaseType": "release"
     },
     "releaseInfo": {
-      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.2.3\n\n- FIXED: reopening the game said your username was already taken. The game now remembers your leaderboard account between restarts."
+      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.2.4\n\n- OBLIVION CASE now spins a full reel like the other cases, with ??? tiles flying past for suspense.\n- LEADERBOARD PROFILES: click any player to see their stats and showcase axe, and jump straight to a trade with them.\n- SHOWCASE AXE: pick any axe you own to show off on your profile and leaderboard row.\n- PRESTIGE now counts on the leaderboard: the Prestige / Rebirths tab ranks prestige first.\n- Leaderboard standings now refresh every 5-25 minutes. Trade offers are checked every 5 minutes and whenever you open the Trading tab.\n- Heads up: Tree App Store coming soon!"
     }
   }
 }

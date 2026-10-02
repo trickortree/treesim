@@ -3701,6 +3701,22 @@ button {
 .leaderboard-tab { padding: 9px 12px; border: 1px solid #293544; border-radius: 6px; background: #101720; color: #aeb8c7; cursor: pointer; font-size: 10px; font-weight: 850; }
 .leaderboard-tab.active { border-color: #83a84d; background: #1d2a19; color: #e9f2dd; }
 .leaderboard-list { display: grid; gap: 6px; }
+.announce-banner { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 8px 40px; background: #b91c1c; color: #fff; font-size: 12px; font-weight: 850; letter-spacing: .04em; position: relative; }
+.announce-banner[hidden] { display: none; }
+.announce-close { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; border: 0; background: transparent; color: #fff; font-size: 18px; cursor: pointer; }
+.showcase-bar { max-width: 420px; margin-bottom: 8px; }
+.showcase-bar .account-label { margin-top: 8px; }
+.leaderboard-row { cursor: pointer; }
+.leaderboard-row:hover { border-color: #83a84d; }
+.profile-modal { width: min(460px, 100%); }
+.profile-showcase { display: flex; align-items: center; gap: 14px; margin: 14px 0; padding: 12px; border: 1px solid #293544; border-radius: 8px; background: #0b1119; }
+.profile-showcase img { width: 96px; height: 96px; object-fit: contain; }
+.profile-showcase .profile-axe-name { font-weight: 900; font-size: 14px; }
+.profile-showcase .profile-axe-meta { margin-top: 4px; color: #a7b49f; font-size: 11px; }
+.profile-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.profile-stat { padding: 8px 10px; border-radius: 6px; background: #0b1119; font-size: 11px; color: #a7b49f; }
+.profile-stat strong { display: block; color: #e9f2dd; font-size: 14px; }
+.profile-actions { display: flex; gap: 8px; margin-top: 14px; }
 .trade-form { display: grid; grid-template-columns: minmax(180px,1.4fr) minmax(120px,1fr) minmax(100px,.7fr) auto; gap: 8px; align-items: center; }
 .trade-row { display: grid; grid-template-columns: minmax(160px,1.5fr) minmax(100px,.8fr) minmax(90px,.6fr) auto; gap: 12px; align-items: center; min-height: 48px; padding: 8px 12px; border: 1px solid #252f3a; border-radius: 6px; background: #101720; color: #dce3e9; font-size: 11px; }
 .trade-row .buy-btn { padding: 6px 10px; margin-left: 6px; }
@@ -3790,6 +3806,11 @@ button {
     </aside>
 
     <main class="main">
+
+        <div class="announce-banner" id="tree-store-banner" hidden>
+            <span>🌳 Tree App Store coming soon</span>
+            <button class="announce-close" id="tree-store-banner-close" type="button" aria-label="Dismiss">×</button>
+        </div>
 
         <header class="topbar">
             <div>
@@ -4324,12 +4345,17 @@ button {
                 <div class="section-title">Global Leaderboard</div>
                 <div class="section-sub" id="leaderboard-player">Sign in with your unique player name to compete.</div>
                 <button class="buy-btn" id="leaderboard-connect" type="button" hidden>CONNECT TO LEADERBOARD</button>
+                <div class="section-sub" id="leaderboard-note">Standings refresh every 5–25 minutes, so recent progress may take a little while to show up. Click a player to view their profile.</div>
+                <div class="showcase-bar">
+                    <label class="account-label" for="showcase-select">Your showcase axe</label>
+                    <select class="account-input" id="showcase-select"></select>
+                </div>
                 <div class="leaderboard-toolbar">
                     <div class="leaderboard-tabs" role="tablist" aria-label="Leaderboard category">
                         <button class="leaderboard-tab active" data-leaderboard-tab="score" type="button">Score</button>
                         <button class="leaderboard-tab" data-leaderboard-tab="rarest_axe_rank" type="button">Rarest Axe</button>
                         <button class="leaderboard-tab" data-leaderboard-tab="total_chopped" type="button">Logs Chopped</button>
-                        <button class="leaderboard-tab" data-leaderboard-tab="rebirth" type="button">Rebirths</button>
+                        <button class="leaderboard-tab" data-leaderboard-tab="rebirth_rank" type="button">Prestige / Rebirths</button>
                         <button class="leaderboard-tab" data-leaderboard-tab="chickens" type="button">Chickens</button>
                     </div>
                     <button class="buy-btn" id="leaderboard-refresh" type="button">REFRESH</button>
@@ -4591,6 +4617,19 @@ button {
         <div class="account-status" id="account-status" role="status"></div>
         <button class="buy-btn" id="account-submit" type="submit">CLAIM USERNAME</button>
     </form>
+</div>
+
+<div class="account-overlay" id="profile-overlay" aria-modal="true" role="dialog" aria-labelledby="profile-title">
+    <div class="account-modal profile-modal" style="position:relative">
+        <button class="account-close" id="profile-close" type="button" aria-label="Close profile">×</button>
+        <div class="section-title" id="profile-title">Player</div>
+        <div class="section-sub" id="profile-sub"></div>
+        <div class="profile-showcase" id="profile-showcase"></div>
+        <div class="profile-stats" id="profile-stats"></div>
+        <div class="profile-actions">
+            <button class="buy-btn" id="profile-trade" type="button">🤝 TRADE</button>
+        </div>
+    </div>
 </div>
 
 <div class="account-overlay" id="oblivion-warning-overlay" aria-modal="true" role="dialog" aria-labelledby="oblivion-warning-title">
@@ -5006,6 +5045,7 @@ const DEFAULT_DATA = {
     case_pity: { normal: 0, mutant: 0, mutatedAxe: 0, mutatedFlock: 0, worldtree: 0 },
     recent_discoveries: [],
     prestige_milestones: [],
+    showcase_axe_id: null,
 
     achievements: [],
 
@@ -5817,7 +5857,14 @@ const lastCaseResults = {
 let leaderboardMetric = "score";
 let leaderboardPushInFlight = false;
 let leaderboardLastPushAt = 0;
-const LEADERBOARD_SYNC_INTERVAL_MS = 5 * 60 * 1000;
+const LEADERBOARD_SYNC_MIN_MS = 5 * 60 * 1000;
+const LEADERBOARD_SYNC_MAX_MS = 25 * 60 * 1000;
+// Each player's standings refresh at a random point 5-25 minutes after the last
+// one, which spreads writes out (Firestore free-plan quota) across players.
+function nextLeaderboardSyncDelay() {
+    return LEADERBOARD_SYNC_MIN_MS + Math.random() * (LEADERBOARD_SYNC_MAX_MS - LEADERBOARD_SYNC_MIN_MS);
+}
+let leaderboardSyncDelay = nextLeaderboardSyncDelay();
 
 let gameTick = 0;
 let caseOpening = false;
@@ -5934,6 +5981,8 @@ function getLeaderboardSnapshot(userId = game.firebase_user_id, usernameOverride
     }
 
     const rarestSkin = getSkinDefinition(rarestItem?.skinName || "Default Axe");
+    const showcaseItem = getAxeItemById(game.showcase_axe_id) || rarestItem;
+    const showcaseSkin = getSkinDefinition(showcaseItem?.skinName || "Default Axe");
     const chopped = Math.max(0, Number(game.total_chopped) || 0);
     const logs = Math.max(0, Number(game.numOC) || 0);
     return {
@@ -5943,8 +5992,21 @@ function getLeaderboardSnapshot(userId = game.firebase_user_id, usernameOverride
         rarest_axe_name: `${rarestItem?.mutationName ? `${rarestItem.mutationName} ` : ""}${rarestItem?.skinName || "Default Axe"}`,
         rarest_axe_rarity: rarestSkin.rarity,
         rarest_axe_rank: Math.max(0, rarestRank),
+        rarest_skin: rarestItem?.skinName || "Default Axe",
+        rarest_mutation: rarestItem?.mutationName || null,
+        rarest_condition: rarestItem?.condition || "Factory New",
+        showcase_skin: showcaseItem?.skinName || "Default Axe",
+        showcase_mutation: showcaseItem?.mutationName || null,
+        showcase_condition: showcaseItem?.condition || "Factory New",
+        showcase_rarity: showcaseSkin.rarity,
+        total_clicks: Math.floor(Math.min(Number.MAX_SAFE_INTEGER, Math.max(0, Number(game.total_clicks) || 0))),
+        achievements: Array.isArray(game.achievements) ? game.achievements.length : 0,
+        axes_owned: game.axe_inventory.length,
         total_chopped: Math.floor(Math.min(Number.MAX_SAFE_INTEGER, chopped)),
         rebirth: Math.max(0, Number(game.rebirth) || 0),
+        prestige: Math.max(0, Number(game.prestige) || 0),
+        // Prestige outranks any rebirth count (rebirth caps at 50).
+        rebirth_rank: Math.max(0, Number(game.prestige) || 0) * 1000 + Math.max(0, Number(game.rebirth) || 0),
         chickens: Math.max(0, totalChickens()),
         updated_at: new Date().toISOString()
     };
@@ -5952,7 +6014,7 @@ function getLeaderboardSnapshot(userId = game.firebase_user_id, usernameOverride
 
 async function publishLeaderboard(force = false) {
     if (!firestoreDb || !game.firebase_user_id || !game.player_username || leaderboardPushInFlight) return;
-    if (!force && Date.now() - leaderboardLastPushAt < LEADERBOARD_SYNC_INTERVAL_MS) return;
+    if (!force && Date.now() - leaderboardLastPushAt < leaderboardSyncDelay) return;
 
     leaderboardPushInFlight = true;
     try {
@@ -5960,6 +6022,7 @@ async function publishLeaderboard(force = false) {
         const playerRef = firestoreDoc(firestoreDb, "players", game.firebase_user_id);
         await firestoreSetDoc(playerRef, payload, { merge: true });
         leaderboardLastPushAt = Date.now();
+        leaderboardSyncDelay = nextLeaderboardSyncDelay();
     } catch (error) {
         console.error("Leaderboard update failed:", error);
         if ($("leaderboard-status")) $("leaderboard-status").textContent = "Leaderboard sync failed. Check your connection and try refresh.";
@@ -6110,6 +6173,13 @@ function withTimeout(promise, ms, message) {
     return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 }
 
+function describePlayerAxe(player, prefix) {
+    const skin = player[`${prefix}_skin`];
+    if (!skin) return null;
+    const mutation = player[`${prefix}_mutation`];
+    return `${mutation ? mutation + " " : ""}${skin}`;
+}
+
 async function loadLeaderboard() {
     const list = $("leaderboard-list");
     const status = $("leaderboard-status");
@@ -6118,20 +6188,21 @@ async function loadLeaderboard() {
         return;
     }
 
-    const orderColumn = leaderboardMetric;
+    const metric = leaderboardMetric;
     status.textContent = "Loading global standings...";
     list.replaceChildren();
     try {
         const playersRef = firestoreCollectionRef(firestoreDb, "players");
-        const leaderboardQuery = firestoreQuery(playersRef, firestoreOrderBy(orderColumn, "desc"), firestoreLimitFn(50));
+        const leaderboardQuery = firestoreQuery(playersRef, firestoreOrderBy(metric, "desc"), firestoreLimitFn(50));
         const snapshot = await withTimeout(firestoreGetDocs(leaderboardQuery), 15000, "The leaderboard server did not respond.");
-        const data = snapshot.docs.map(docSnap => docSnap.data());
+        const data = snapshot.docs.map(docSnap => ({ ...docSnap.data(), user_id: docSnap.id }));
 
         const fragment = document.createDocumentFragment();
         for (let index = 0; index < data.length; index++) {
             const player = data[index];
             const row = document.createElement("div");
             row.className = "leaderboard-row";
+            row.addEventListener("click", () => openProfile(player));
             const rank = document.createElement("span");
             rank.className = "leaderboard-rank";
             rank.textContent = `#${index + 1}`;
@@ -6140,12 +6211,16 @@ async function loadLeaderboard() {
             name.textContent = player.username;
             const axe = document.createElement("span");
             axe.className = "leaderboard-axe";
-            axe.textContent = `${player.rarest_axe_rarity} • ${player.rarest_axe_name}`;
+            axe.textContent = `${player.showcase_rarity || player.rarest_axe_rarity} • ${describePlayerAxe(player, "showcase") || player.rarest_axe_name}`;
             const value = document.createElement("span");
             value.className = "leaderboard-value";
-            value.textContent = leaderboardMetric === "rarest_axe_rank"
-                ? `${player.rarest_axe_rarity} • ${player.rarest_axe_name}`
-                : formatNumber(Number(player[leaderboardMetric]) || 0);
+            if (metric === "rarest_axe_rank") {
+                value.textContent = `${player.rarest_axe_rarity} • ${player.rarest_axe_name}`;
+            } else if (metric === "rebirth_rank") {
+                value.textContent = `Prestige ${Number(player.prestige) || 0} • Rebirth ${Number(player.rebirth) || 0}`;
+            } else {
+                value.textContent = formatNumber(Number(player[metric]) || 0);
+            }
             row.append(rank, name, axe, value);
             fragment.appendChild(row);
         }
@@ -6157,13 +6232,89 @@ async function loadLeaderboard() {
     }
 }
 
+let profilePlayer = null;
+
+function openProfile(player) {
+    profilePlayer = player;
+    $("profile-title").textContent = player.username || "Player";
+    const updated = player.updated_at ? new Date(player.updated_at).toLocaleString() : "unknown";
+    $("profile-sub").textContent = `Last synced ${updated}`;
+
+    const showcase = $("profile-showcase");
+    showcase.replaceChildren();
+    const skinName = player.showcase_skin || player.rarest_skin;
+    if (skinName && AXE_SKINS.some(skin => skin.name === skinName)) {
+        const img = document.createElement("img");
+        img.alt = `${skinName} preview`;
+        img.src = createAxeFallbackSnapshot(skinName, player.showcase_condition || "Factory New");
+        showcase.appendChild(img);
+    }
+    const info = document.createElement("div");
+    const axeName = document.createElement("div");
+    axeName.className = "profile-axe-name";
+    axeName.style.color = getRarityColor(player.showcase_rarity || player.rarest_axe_rarity);
+    axeName.textContent = describePlayerAxe(player, "showcase") || player.rarest_axe_name || "Default Axe";
+    const axeMeta = document.createElement("div");
+    axeMeta.className = "profile-axe-meta";
+    axeMeta.textContent = `Showcase • ${player.showcase_rarity || player.rarest_axe_rarity || "Common"}${player.showcase_condition ? " • " + player.showcase_condition : ""}`;
+    const rarest = document.createElement("div");
+    rarest.className = "profile-axe-meta";
+    rarest.textContent = `Rarest owned: ${player.rarest_axe_rarity || "Common"} • ${player.rarest_axe_name || "Default Axe"}`;
+    info.append(axeName, axeMeta, rarest);
+    showcase.appendChild(info);
+
+    const stats = [
+        ["Score", formatNumber(Number(player.score) || 0)],
+        ["Logs chopped", formatNumber(Number(player.total_chopped) || 0)],
+        ["Prestige", String(Number(player.prestige) || 0)],
+        ["Rebirths", String(Number(player.rebirth) || 0)],
+        ["Chickens", formatNumber(Number(player.chickens) || 0)],
+        ["Total clicks", formatNumber(Number(player.total_clicks) || 0)],
+        ["Achievements", String(Number(player.achievements) || 0)],
+        ["Axes owned", String(Number(player.axes_owned) || 0)]
+    ];
+    $("profile-stats").replaceChildren(...stats.map(([label, value]) => {
+        const cell = document.createElement("div");
+        cell.className = "profile-stat";
+        const strong = document.createElement("strong");
+        strong.textContent = value;
+        cell.append(strong, label);
+        return cell;
+    }));
+
+    const isSelf = player.user_id === game.firebase_user_id;
+    $("profile-trade").hidden = isSelf;
+    $("profile-overlay").classList.add("open");
+}
+
+function renderShowcaseOptions() {
+    const select = $("showcase-select");
+    if (!select) return;
+    select.replaceChildren();
+    const auto = document.createElement("option");
+    auto.value = "";
+    auto.textContent = "Auto (my rarest axe)";
+    select.appendChild(auto);
+    const sorted = [...game.axe_inventory].sort((a, b) => {
+        const rank = item => RARITY_ORDER.indexOf(getSkinDefinition(item.skinName).rarity);
+        return rank(b) - rank(a);
+    });
+    for (const item of sorted) {
+        const option = document.createElement("option");
+        option.value = item.id;
+        option.textContent = `${item.mutationName ? item.mutationName + " " : ""}${item.skinName} (${item.condition})`;
+        select.appendChild(option);
+    }
+    select.value = getAxeItemById(game.showcase_axe_id) ? game.showcase_axe_id : "";
+}
+
 
 /* =========================================================
    PLAYER TRADING (Firestore `trades` collection)
    Axes are escrowed locally while a trade is open. Status
    changes are one-way and enforced by firestore.rules.
 ========================================================= */
-const TRADE_POLL_INTERVAL_MS = 60 * 1000;
+const TRADE_POLL_INTERVAL_MS = 5 * 60 * 1000;
 let tradeLastPollAt = 0;
 let tradeBusy = false;
 let tradeCache = { incoming: [], outgoing: [] };
@@ -6726,6 +6877,30 @@ async function openOblivionCase() {
     if (button) { button.disabled = true; button.textContent = "OPENING..."; }
     updateUI();
 
+    // Open the same reel overlay the other cases use. The roll itself is
+    // decided by the server transaction, so ask for it now and spin once the
+    // answer is back (the reel is just the reveal).
+    if (caseAnimationFrame) {
+        cancelAnimationFrame(caseAnimationFrame);
+        caseAnimationFrame = null;
+    }
+    clearTimeout(caseRevealTimer);
+    $("case-close").disabled = true;
+    $("case-close").textContent = "OPENING...";
+    $("case-reveal-panel").classList.remove("open");
+    $("case-reveal-panel").setAttribute("aria-hidden", "true");
+
+    const overlay = $("case-overlay");
+    const trackList = $("case-track-list");
+    const track = trackList.querySelector(".case-track").cloneNode(true);
+    track.querySelector(".case-items").replaceChildren();
+    trackList.replaceChildren(track);
+    overlay.classList.remove("case-multi-open", "case-big-win");
+    overlay.classList.add("open");
+    $("case-result").textContent = "";
+    $("case-title").textContent = definition.title;
+    $("case-cost").textContent = "THE RELIC STIRS...";
+
     let result;
     try {
         result = await attemptOblivionClaim();
@@ -6736,6 +6911,9 @@ async function openOblivionCase() {
         oblivionOpening = false;
         caseOpening = false;
         saveGame();
+        overlay.classList.remove("open");
+        $("case-close").disabled = false;
+        $("case-close").textContent = "CLOSE";
         const resultEl = $("oblivion-result");
         if (resultEl) resultEl.textContent = `The relic service could not complete the roll: ${error.message || "unknown error"}. ${formatNumber(caseCost)} logs refunded.`;
         toast("Oblivion Case failed. Your logs were refunded.");
@@ -6744,39 +6922,49 @@ async function openOblivionCase() {
         return;
     }
 
-    oblivionState.claimedBy = result?.claimed_by || oblivionState.claimedBy;
-    oblivionState.claimedAt = result?.claimed_at || oblivionState.claimedAt;
-    oblivionState.totalAttempts = Number(result?.total_attempts) || oblivionState.totalAttempts;
+    const relicItem = { name: "??? Axe", kind: "skin", skinName: OBLIVION_RELIC_SKIN_NAME, rarity: "Hypergamous", color: "#f8fafc" };
+    const winningItem = result.won_claim
+        ? relicItem
+        : OBLIVION_JUNK_ITEMS[Math.floor(Math.random() * OBLIVION_JUNK_ITEMS.length)];
+
+    // Sprinkle ??? tiles through the reel so every roll is a near miss.
+    const pool = [...OBLIVION_JUNK_ITEMS];
+    const decoys = Math.max(3, Math.ceil(OBLIVION_JUNK_ITEMS.length / 4));
+    for (let i = 0; i < decoys; i++) pool.push(relicItem);
+
+    $("case-cost").textContent = "ROLLING...";
+    const revealed = await animateCaseTrack(track, winningItem, pool, result.won_claim ? 9500 : 7000);
+
+    caseAnimationFrame = null;
+    caseOpening = false;
+    $("case-close").disabled = false;
+    $("case-close").textContent = "CLOSE";
+
+    oblivionState.claimedBy = result.claimed_by || oblivionState.claimedBy;
+    oblivionState.claimedAt = result.claimed_at || oblivionState.claimedAt;
+    oblivionState.totalAttempts = Number(result.total_attempts) || oblivionState.totalAttempts;
     oblivionState.loaded = true;
 
-    let winningItem;
-    if (result?.won_claim) {
-        winningItem = { name: "??? Axe", kind: "skin", skinName: OBLIVION_RELIC_SKIN_NAME, rarity: "Hypergamous", color: "#f8fafc" };
-        toast("🌑 YOU CLAIMED THE OBLIVION RELIC. Only you will ever own this axe.");
-    } else {
-        winningItem = OBLIVION_JUNK_ITEMS[Math.floor(Math.random() * OBLIVION_JUNK_ITEMS.length)];
-    }
+    if (!revealed) $("case-cost").textContent = "OPENING INTERRUPTED";
 
     const inventoryItem = handleCaseReward(winningItem, "oblivion", { showAxeActions: false, showCaseResult: false, silent: true });
+    const won = !!result.won_claim;
+    const color = RARITY_COLORS[winningItem.rarity] || "#aeb8c7";
+    const mutationLabel = winningItem.mutationName ? ` • ${winningItem.mutationName}` : "";
+    const summary = won
+        ? `<div class="case-win-title" style="color:${RARITY_COLORS.Hypergamous}">${winningItem.name} — CLAIMED FOREVER</div><div class="case-win-subtitle">You are the only person who will ever own this axe.</div>`
+        : `<div class="case-win-title" style="color:${color}">${winningItem.name}</div><div class="case-win-subtitle">${winningItem.rarity}${mutationLabel}${inventoryItem ? " • Added to your locker" : ""}</div>`;
     const resultEl = $("oblivion-result");
-    if (resultEl) {
-        const mutationLabel = winningItem.mutationName ? ` • ${winningItem.mutationName}` : "";
-        resultEl.innerHTML = winningItem.rarity === "Hypergamous"
-            ? `<div class="case-win-title" style="color:${RARITY_COLORS.Hypergamous}">${winningItem.name} — CLAIMED FOREVER</div><div class="case-win-subtitle">You are the only person who will ever own this axe.</div>`
-            : `<div class="case-win-title" style="color:${RARITY_COLORS[winningItem.rarity] || "#aeb8c7"}">${winningItem.name}</div><div class="case-win-subtitle">${winningItem.rarity}${mutationLabel}${inventoryItem ? " • Added to your locker" : ""}</div>`;
-    }
+    if (resultEl) resultEl.innerHTML = summary;
+    $("case-result").innerHTML = summary;
+    $("case-cost").textContent = won ? "THE OBLIVION RELIC ANSWERED" : "CASE OPENED";
 
-    if (result?.won_claim) {
-        $("case-overlay").classList.add("open");
-        $("case-title").textContent = "??? CASE";
-        $("case-cost").textContent = "THE OBLIVION RELIC ANSWERED";
-        $("case-result").textContent = "??? Axe added to your locker.";
-        $("case-close").disabled = false;
+    if (won) {
+        toast("🌑 YOU CLAIMED THE OBLIVION RELIC. Only you will ever own this axe.");
         triggerCaseRevealEffect(winningItem);
     }
 
     oblivionOpening = false;
-    caseOpening = false;
     renderOblivionBanner();
     updateUI();
 }
@@ -9366,7 +9554,7 @@ function quickOpenCase(type) {
     updateUI();
 }
 
-function animateCaseTrack(track, winningItem, pool) {
+function animateCaseTrack(track, winningItem, pool, duration = 5600) {
     const items = track.querySelector(".case-items");
     const marker = track.querySelector(".case-marker");
     const totalItems = 72;
@@ -9391,7 +9579,6 @@ function animateCaseTrack(track, winningItem, pool) {
         const naturalCenter = trackCenter - itemCenter;
         const laneJitter = (Math.random() - 0.5) * Math.min(36, winning.offsetWidth * 0.24);
         const endX = naturalCenter + laneJitter;
-        const duration = 5600;
         const startTime = performance.now();
         let lastCard = -1;
 
@@ -9928,7 +10115,7 @@ document.querySelectorAll(".nav-btn").forEach(btn => {
 
         if (page === "worlds") renderForestAtlas();
         if (page === "achievements") renderAchievements();
-        if (page === "leaderboard") loadLeaderboard();
+        if (page === "leaderboard") { renderShowcaseOptions(); loadLeaderboard(); }
         if (page === "trading") refreshTrading(true);
         if (page === "market") loadOblivionStatus();
     });
@@ -9959,6 +10146,31 @@ document.querySelectorAll("[data-leaderboard-tab]").forEach(button => {
 $("leaderboard-refresh").addEventListener("click", () => loadLeaderboard());
 
 $("trade-send").addEventListener("click", sendTrade);
+
+if (!game.tree_store_banner_dismissed) $("tree-store-banner").hidden = false;
+$("tree-store-banner-close").addEventListener("click", () => {
+    game.tree_store_banner_dismissed = true;
+    saveGame();
+    $("tree-store-banner").hidden = true;
+});
+
+$("showcase-select").addEventListener("change", () => {
+    game.showcase_axe_id = $("showcase-select").value || null;
+    saveGame();
+    void publishLeaderboard(true);
+    toast(game.showcase_axe_id ? "Showcase axe updated." : "Showcasing your rarest axe.");
+});
+
+$("profile-close").addEventListener("click", () => $("profile-overlay").classList.remove("open"));
+$("profile-overlay").addEventListener("click", event => {
+    if (event.target === $("profile-overlay")) $("profile-overlay").classList.remove("open");
+});
+$("profile-trade").addEventListener("click", () => {
+    if (!profilePlayer) return;
+    $("profile-overlay").classList.remove("open");
+    document.querySelector('[data-page="trading"]').click();
+    $("trade-to").value = profilePlayer.username;
+});
 
 $("leaderboard-connect").addEventListener("click", () => {
     game.leaderboard_bypass = false;
