@@ -3701,6 +3701,11 @@ button {
 .leaderboard-tab { padding: 9px 12px; border: 1px solid #293544; border-radius: 6px; background: #101720; color: #aeb8c7; cursor: pointer; font-size: 10px; font-weight: 850; }
 .leaderboard-tab.active { border-color: #83a84d; background: #1d2a19; color: #e9f2dd; }
 .leaderboard-list { display: grid; gap: 6px; }
+.trade-form { display: grid; grid-template-columns: minmax(180px,1.4fr) minmax(120px,1fr) minmax(100px,.7fr) auto; gap: 8px; align-items: center; }
+.trade-row { display: grid; grid-template-columns: minmax(160px,1.5fr) minmax(100px,.8fr) minmax(90px,.6fr) auto; gap: 12px; align-items: center; min-height: 48px; padding: 8px 12px; border: 1px solid #252f3a; border-radius: 6px; background: #101720; color: #dce3e9; font-size: 11px; }
+.trade-row .buy-btn { padding: 6px 10px; margin-left: 6px; }
+.trade-badge { display: inline-block; min-width: 16px; padding: 0 5px; border-radius: 9px; background: #d94f4f; color: #fff; font-size: 10px; text-align: center; }
+@media (max-width: 700px) { .trade-form, .trade-row { grid-template-columns: 1fr; } }
 .leaderboard-row { display: grid; grid-template-columns: 44px minmax(140px,1fr) minmax(180px,1.2fr) minmax(100px,.7fr); gap: 12px; align-items: center; min-height: 48px; padding: 8px 12px; border: 1px solid #252f3a; border-radius: 6px; background: #101720; color: #dce3e9; font-size: 11px; }
 .leaderboard-rank { color: #9eba67; font-weight: 950; }
 .leaderboard-name { overflow: hidden; text-overflow: ellipsis; font-weight: 900; }
@@ -3766,6 +3771,11 @@ button {
         <button class="nav-btn" data-page="achievements">
             <span class="nav-icon">🏆</span>
             <span class="nav-text">Achievements</span>
+        </button>
+
+        <button class="nav-btn" data-page="trading">
+            <span class="nav-icon">🤝</span>
+            <span class="nav-text">Trading <span id="trade-badge" class="trade-badge" hidden>0</span></span>
         </button>
 
         <button class="nav-btn" data-page="leaderboard">
@@ -4294,9 +4304,26 @@ button {
                 <div class="achievement-grid" id="achievement-grid"></div>
             </section>
 
+            <section class="page" id="page-trading">
+                <div class="section-title">Send a Trade</div>
+                <div class="section-sub">The axe is held in escrow until the other player accepts or you cancel. Set a price in logs, or 0 for a gift.</div>
+                <div class="trade-form">
+                    <select class="account-input" id="trade-axe"></select>
+                    <input class="account-input" id="trade-to" placeholder="Player username" maxlength="20" autocomplete="off">
+                    <input class="account-input" id="trade-price" type="number" min="0" step="1" value="0" placeholder="Price in logs">
+                    <button class="buy-btn" id="trade-send" type="button">SEND TRADE</button>
+                </div>
+                <div class="leaderboard-status" id="trade-status" role="status"></div>
+                <div class="section-title" style="margin-top:18px">Incoming</div>
+                <div class="leaderboard-list" id="trade-incoming"></div>
+                <div class="section-title" style="margin-top:18px">Outgoing</div>
+                <div class="leaderboard-list" id="trade-outgoing"></div>
+            </section>
+
             <section class="page" id="page-leaderboard">
                 <div class="section-title">Global Leaderboard</div>
                 <div class="section-sub" id="leaderboard-player">Sign in with your unique player name to compete.</div>
+                <button class="buy-btn" id="leaderboard-connect" type="button" hidden>CONNECT TO LEADERBOARD</button>
                 <div class="leaderboard-toolbar">
                     <div class="leaderboard-tabs" role="tablist" aria-label="Leaderboard category">
                         <button class="leaderboard-tab active" data-leaderboard-tab="score" type="button">Score</button>
@@ -4858,6 +4885,7 @@ let firestoreOrderBy = null;
 let firestoreLimitFn = null;
 let firestoreGetDocs = null;
 let firestoreRunTransaction = null;
+let firestoreWhere = null;
 let firestoreServerTimestamp = null;
 try {
     const { initializeApp } = require("firebase/app");
@@ -4886,6 +4914,7 @@ try {
     firestoreLimitFn = firestoreModule.limit;
     firestoreGetDocs = firestoreModule.getDocs;
     firestoreRunTransaction = firestoreModule.runTransaction;
+    firestoreWhere = firestoreModule.where;
     firestoreServerTimestamp = firestoreModule.serverTimestamp;
 } catch (error) {
     console.error("Firebase client unavailable:", error);
@@ -5920,6 +5949,7 @@ async function initializePlayerAccount() {
     if (game.leaderboard_bypass) {
         overlay.classList.remove("open");
         $("leaderboard-player").textContent = "Local mode • Not connected to the global leaderboard";
+        updateLeaderboardConnectButton();
         return;
     }
 
@@ -5940,6 +5970,7 @@ async function initializePlayerAccount() {
         if (game.player_username && game.firebase_user_id === currentUser.uid) {
             overlay.classList.remove("open");
             $("leaderboard-player").textContent = `Playing as ${game.player_username}`;
+            updateLeaderboardConnectButton();
             void publishLeaderboard(true);
             return;
         }
@@ -5952,13 +5983,24 @@ async function initializePlayerAccount() {
             saveGame();
             overlay.classList.remove("open");
             $("leaderboard-player").textContent = `Playing as ${game.player_username}`;
+            updateLeaderboardConnectButton();
             await publishLeaderboard(true);
             return;
         }
 
-        setAccountStatus(game.player_username
-            ? `Your saved name is ${game.player_username}; reconnecting its account is required to continue.`
-            : "Choose a unique name to create your global player account.");
+        // This save has a name but no account behind it (e.g. the save came
+        // from before the Firebase move, or the sign-in was reset). Try to
+        // re-claim the same name; if someone else owns it, ask for a new one.
+        if (game.player_username) {
+            $("username-input").value = game.player_username;
+            const claimed = await claimPlayerUsername(game.player_username, true);
+            if (claimed) return;
+            $("username-input").value = "";
+            setAccountStatus(`"${game.player_username}" belongs to a different account. Choose a new name to continue.`, true);
+            return;
+        }
+
+        setAccountStatus("Choose a unique name to create your global player account.");
     } catch (error) {
         if (game.player_username && game.firebase_user_id) {
             overlay.classList.remove("open");
@@ -5969,15 +6011,20 @@ async function initializePlayerAccount() {
     }
 }
 
-async function claimPlayerUsername(rawUsername) {
+function updateLeaderboardConnectButton() {
+    const button = $("leaderboard-connect");
+    if (button) button.hidden = !(game.leaderboard_bypass || !game.firebase_user_id);
+}
+
+async function claimPlayerUsername(rawUsername, auto = false) {
     const username = String(rawUsername || "").trim();
     if (!/^[A-Za-z0-9_]{3,20}$/.test(username)) {
         setAccountStatus("Use 3-20 letters, numbers, or underscores.", true);
-        return;
+        return false;
     }
     if (!firestoreDb || !firebaseAuth) {
         setAccountStatus("Leaderboard service is unavailable. Try again when connected.", true);
-        return;
+        return false;
     }
 
     const submit = $("account-submit");
@@ -6016,13 +6063,26 @@ async function claimPlayerUsername(rawUsername) {
         saveGame();
         $("account-overlay").classList.remove("open");
         $("leaderboard-player").textContent = `Playing as ${game.player_username}`;
+        game.leaderboard_bypass = false;
+        saveGame();
+        updateLeaderboardConnectButton();
         await publishLeaderboard(true);
         updateUI();
+        return true;
     } catch (error) {
-        setAccountStatus(error.message || "Could not claim that username.", true);
+        if (!auto) setAccountStatus(error.message || "Could not claim that username.", true);
+        return false;
     } finally {
         submit.disabled = false;
     }
+}
+
+function withTimeout(promise, ms, message) {
+    let timer;
+    const timeout = new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error(message)), ms);
+    });
+    return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 }
 
 async function loadLeaderboard() {
@@ -6039,7 +6099,7 @@ async function loadLeaderboard() {
     try {
         const playersRef = firestoreCollectionRef(firestoreDb, "players");
         const leaderboardQuery = firestoreQuery(playersRef, firestoreOrderBy(orderColumn, "desc"), firestoreLimitFn(50));
-        const snapshot = await firestoreGetDocs(leaderboardQuery);
+        const snapshot = await withTimeout(firestoreGetDocs(leaderboardQuery), 15000, "The leaderboard server did not respond.");
         const data = snapshot.docs.map(docSnap => docSnap.data());
 
         const fragment = document.createDocumentFragment();
@@ -6067,7 +6127,326 @@ async function loadLeaderboard() {
         list.replaceChildren(fragment);
         status.textContent = data.length ? `Top ${data.length} players` : "No players have registered yet.";
     } catch (error) {
-        status.textContent = error.message || "Could not load the leaderboard.";
+        console.error("Leaderboard load failed:", error);
+        status.textContent = `Could not load the leaderboard (${error.code || error.message || "unknown error"}). Press REFRESH to retry.`;
+    }
+}
+
+
+/* =========================================================
+   PLAYER TRADING (Firestore `trades` collection)
+   Axes are escrowed locally while a trade is open. Status
+   changes are one-way and enforced by firestore.rules.
+========================================================= */
+const TRADE_POLL_INTERVAL_MS = 60 * 1000;
+let tradeLastPollAt = 0;
+let tradeBusy = false;
+let tradeCache = { incoming: [], outgoing: [] };
+let tradeSeenIncoming = new Set();
+
+function tradeReady() {
+    return !!(firestoreDb && firebaseAuth?.currentUser && game.player_username && game.firebase_user_id === firebaseAuth.currentUser.uid && !game.leaderboard_bypass);
+}
+
+function setTradeStatus(message, isError = false) {
+    const el = $("trade-status");
+    if (!el) return;
+    el.textContent = message;
+    el.style.color = isError ? "#ff8f8f" : "#a7b49f";
+}
+
+function describeTradeItem(item) {
+    return `${item.mutationName ? item.mutationName + " " : ""}${item.skinName} (${item.condition})`;
+}
+
+function isValidTradeItem(item) {
+    return !!item
+        && typeof item.skinName === "string"
+        && AXE_SKINS.some(skin => skin.name === item.skinName)
+        && item.skinName !== "Default Axe"
+        && AXE_CONDITIONS.some(condition => condition.name === item.condition)
+        && (item.mutationName == null || !!getMutationDefinition(item.mutationName));
+}
+
+function renderTradeAxeOptions() {
+    const select = $("trade-axe");
+    if (!select) return;
+    const previous = select.value;
+    select.replaceChildren();
+    const tradable = game.axe_inventory.filter(item => item.skinName !== "Default Axe");
+    if (!tradable.length) {
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = "No tradable axes";
+        select.appendChild(option);
+        return;
+    }
+    for (const item of tradable) {
+        const option = document.createElement("option");
+        option.value = item.id;
+        option.textContent = `${describeTradeItem(item)}${item.id === game.equipped_axe_item_id ? " • equipped" : ""}`;
+        select.appendChild(option);
+    }
+    if (tradable.some(item => item.id === previous)) select.value = previous;
+}
+
+async function sendTrade() {
+    if (tradeBusy) return;
+    if (!tradeReady()) {
+        setTradeStatus("Connect to the leaderboard first to trade.", true);
+        return;
+    }
+    const item = getAxeItemById($("trade-axe").value);
+    const toName = $("trade-to").value.trim();
+    const price = Math.floor(Number($("trade-price").value) || 0);
+    if (!item || item.skinName === "Default Axe") { setTradeStatus("Pick an axe to trade.", true); return; }
+    if (!/^[A-Za-z0-9_]{3,20}$/.test(toName)) { setTradeStatus("Enter the other player's exact username.", true); return; }
+    if (toName.toLowerCase() === String(game.player_username).toLowerCase()) { setTradeStatus("You can't trade with yourself.", true); return; }
+    if (price < 0 || price > Number.MAX_SAFE_INTEGER) { setTradeStatus("Invalid price.", true); return; }
+
+    tradeBusy = true;
+    setTradeStatus("Sending trade...");
+    try {
+        const nameSnap = await firestoreGetDoc(firestoreDoc(firestoreDb, "usernames", toName.toLowerCase()));
+        if (!nameSnap.exists()) throw new Error("No player with that username.");
+        const toUid = nameSnap.data().uid;
+        const playerSnap = await firestoreGetDoc(firestoreDoc(firestoreDb, "players", toUid));
+        const toDisplayName = playerSnap.exists() ? playerSnap.data().username : toName;
+
+        const tradeRef = firestoreDoc(firestoreCollectionRef(firestoreDb, "trades"));
+        await firestoreRunTransaction(firestoreDb, async transaction => {
+            transaction.set(tradeRef, {
+                from_uid: game.firebase_user_id,
+                from_name: game.player_username,
+                to_uid: toUid,
+                to_name: toDisplayName,
+                item: { skinName: item.skinName, condition: item.condition, mutationName: item.mutationName || null },
+                price,
+                status: "open",
+                settled: false,
+                created_at: new Date().toISOString()
+            });
+        });
+
+        // Escrow: the axe leaves the locker only after the offer exists.
+        const index = game.axe_inventory.findIndex(entry => entry.id === item.id);
+        if (index !== -1) game.axe_inventory.splice(index, 1);
+        if (game.equipped_axe_item_id === item.id) {
+            const fallback = game.axe_inventory.find(entry => entry.skinName === "Default Axe");
+            game.equipped_axe_item_id = fallback?.id || null;
+            game.equipped_axe_skin = fallback?.skinName || "Default Axe";
+            renderChopAxe(true);
+        }
+        syncAxeSkinCounts();
+        axeLockerDirty = true;
+        saveGame();
+        $("trade-to").value = "";
+        $("trade-price").value = "0";
+        setTradeStatus(`Offer sent to ${toDisplayName}.`);
+        toast(`🤝 Trade sent to ${toDisplayName}.`);
+        updateUI();
+        tradeBusy = false;
+        await refreshTrading(true);
+    } catch (error) {
+        console.error("Send trade failed:", error);
+        setTradeStatus(error.message || "Could not send the trade.", true);
+    } finally {
+        tradeBusy = false;
+    }
+}
+
+async function respondToTrade(tradeId, accept) {
+    if (tradeBusy || !tradeReady()) return;
+    const trade = tradeCache.incoming.find(entry => entry.id === tradeId);
+    if (!trade) return;
+    if (accept) {
+        if (!isValidTradeItem(trade.item)) { setTradeStatus("That trade contains an invalid item.", true); return; }
+        if ((Number(game.numOC) || 0) < trade.price) { setTradeStatus("You don't have enough logs for that trade.", true); return; }
+    }
+    tradeBusy = true;
+    try {
+        const tradeRef = firestoreDoc(firestoreDb, "trades", tradeId);
+        await firestoreRunTransaction(firestoreDb, async transaction => {
+            const snap = await transaction.get(tradeRef);
+            if (!snap.exists() || snap.data().status !== "open") throw new Error("That trade is no longer open.");
+            transaction.update(tradeRef, { status: accept ? "accepted" : "declined", resolved_at: new Date().toISOString() });
+        });
+        if (accept) {
+            game.numOC -= trade.price;
+            grantAxeSkin(trade.item.skinName, trade.item.condition, trade.item.mutationName || null);
+            toast(`🤝 Received ${describeTradeItem(trade.item)} from ${trade.from_name}.`);
+        } else {
+            toast("Trade declined.");
+        }
+        saveGame();
+        updateUI();
+        tradeBusy = false;
+        await refreshTrading(true);
+    } catch (error) {
+        console.error("Respond to trade failed:", error);
+        setTradeStatus(error.message || "Could not update that trade.", true);
+    } finally {
+        tradeBusy = false;
+    }
+}
+
+async function cancelTrade(tradeId) {
+    if (tradeBusy || !tradeReady()) return;
+    const trade = tradeCache.outgoing.find(entry => entry.id === tradeId);
+    if (!trade) return;
+    tradeBusy = true;
+    try {
+        const tradeRef = firestoreDoc(firestoreDb, "trades", tradeId);
+        await firestoreRunTransaction(firestoreDb, async transaction => {
+            const snap = await transaction.get(tradeRef);
+            if (!snap.exists() || snap.data().status !== "open") throw new Error("That trade was already answered.");
+            transaction.update(tradeRef, { status: "cancelled", settled: true, resolved_at: new Date().toISOString() });
+        });
+        returnTradeItem(trade);
+        saveGame();
+        updateUI();
+        tradeBusy = false;
+        await refreshTrading(true);
+    } catch (error) {
+        console.error("Cancel trade failed:", error);
+        setTradeStatus(error.message || "Could not cancel that trade.", true);
+        tradeBusy = false;
+        await refreshTrading(true);
+    } finally {
+        tradeBusy = false;
+    }
+}
+
+function returnTradeItem(trade) {
+    if (isValidTradeItem(trade.item)) {
+        grantAxeSkin(trade.item.skinName, trade.item.condition, trade.item.mutationName || null);
+        toast(`↩️ ${describeTradeItem(trade.item)} returned to your locker.`);
+    }
+}
+
+// Pay out / refund outgoing trades the other side has answered. The
+// settled flag flips false -> true exactly once (enforced by the rules).
+async function settleOutgoingTrades() {
+    for (const trade of tradeCache.outgoing) {
+        if (trade.settled || (trade.status !== "accepted" && trade.status !== "declined")) continue;
+        try {
+            const tradeRef = firestoreDoc(firestoreDb, "trades", trade.id);
+            await firestoreRunTransaction(firestoreDb, async transaction => {
+                const snap = await transaction.get(tradeRef);
+                if (!snap.exists() || snap.data().settled) throw new Error("already settled");
+                transaction.update(tradeRef, { settled: true });
+            });
+            trade.settled = true;
+            if (trade.status === "accepted") {
+                game.numOC += Math.max(0, Number(trade.price) || 0);
+                toast(`🤝 ${trade.to_name} accepted your trade${trade.price ? ` — +${formatNumber(trade.price)} logs` : ""}.`);
+            } else {
+                returnTradeItem(trade);
+                toast(`${trade.to_name} declined your trade.`);
+            }
+            saveGame();
+        } catch (error) {
+            if (error.message !== "already settled") console.error("Settle trade failed:", error);
+        }
+    }
+}
+
+function buildTradeRow(trade, kind) {
+    const row = document.createElement("div");
+    row.className = "trade-row";
+    const item = document.createElement("span");
+    item.textContent = describeTradeItem(trade.item);
+    const who = document.createElement("span");
+    who.textContent = kind === "incoming" ? `From ${trade.from_name}` : `To ${trade.to_name}`;
+    const price = document.createElement("span");
+    price.textContent = trade.price ? `${formatNumber(trade.price)} logs` : "Gift";
+    const actions = document.createElement("span");
+    if (kind === "incoming") {
+        const accept = document.createElement("button");
+        accept.className = "buy-btn";
+        accept.type = "button";
+        accept.textContent = "ACCEPT";
+        accept.addEventListener("click", () => respondToTrade(trade.id, true));
+        const decline = document.createElement("button");
+        decline.className = "buy-btn";
+        decline.type = "button";
+        decline.textContent = "DECLINE";
+        decline.addEventListener("click", () => respondToTrade(trade.id, false));
+        actions.append(accept, decline);
+    } else if (trade.status === "open") {
+        const cancel = document.createElement("button");
+        cancel.className = "buy-btn";
+        cancel.type = "button";
+        cancel.textContent = "CANCEL";
+        cancel.addEventListener("click", () => cancelTrade(trade.id));
+        actions.appendChild(cancel);
+    } else {
+        actions.textContent = trade.status;
+    }
+    row.append(item, who, price, actions);
+    return row;
+}
+
+function tradeEmptyNote(text) {
+    const note = document.createElement("div");
+    note.className = "leaderboard-status";
+    note.textContent = text;
+    return note;
+}
+
+function renderTrading() {
+    renderTradeAxeOptions();
+    const incoming = $("trade-incoming");
+    const outgoing = $("trade-outgoing");
+    if (!incoming || !outgoing) return;
+    const openIncoming = tradeCache.incoming.filter(trade => trade.status === "open");
+    const recentOutgoing = tradeCache.outgoing
+        .filter(trade => trade.status === "open" || !trade.settled || Date.now() - Date.parse(trade.resolved_at || trade.created_at) < 24 * 3600 * 1000)
+        .sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
+    incoming.replaceChildren(...(openIncoming.length
+        ? openIncoming.map(trade => buildTradeRow(trade, "incoming"))
+        : [tradeEmptyNote("No incoming trades.")]));
+    outgoing.replaceChildren(...(recentOutgoing.length
+        ? recentOutgoing.map(trade => buildTradeRow(trade, "outgoing"))
+        : [tradeEmptyNote("No outgoing trades.")]));
+    const badge = $("trade-badge");
+    if (badge) {
+        badge.textContent = String(openIncoming.length);
+        badge.hidden = openIncoming.length === 0;
+    }
+}
+
+async function refreshTrading(force = false) {
+    if (!tradeReady() || tradeBusy) {
+        if (force) {
+            renderTrading();
+            if (!tradeReady()) setTradeStatus("Connect to the leaderboard first to trade.", true);
+        }
+        return;
+    }
+    if (!force && Date.now() - tradeLastPollAt < TRADE_POLL_INTERVAL_MS) return;
+    tradeLastPollAt = Date.now();
+    try {
+        const tradesRef = firestoreCollectionRef(firestoreDb, "trades");
+        const uid = game.firebase_user_id;
+        const [inSnap, outSnap] = await withTimeout(Promise.all([
+            firestoreGetDocs(firestoreQuery(tradesRef, firestoreWhere("to_uid", "==", uid))),
+            firestoreGetDocs(firestoreQuery(tradesRef, firestoreWhere("from_uid", "==", uid)))
+        ]), 15000, "Trading server did not respond.");
+        tradeCache.incoming = inSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        tradeCache.outgoing = outSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        for (const trade of tradeCache.incoming) {
+            if (trade.status === "open" && !tradeSeenIncoming.has(trade.id)) {
+                tradeSeenIncoming.add(trade.id);
+                if (!force) toast(`🤝 ${trade.from_name} sent you a trade offer.`);
+            }
+        }
+        await settleOutgoingTrades();
+        renderTrading();
+        updateUI();
+    } catch (error) {
+        console.error("Trade refresh failed:", error);
+        if (force) setTradeStatus(`Could not load trades (${error.code || error.message}).`, true);
     }
 }
 
@@ -9474,6 +9853,11 @@ const pageInfo = {
         "Claim rewards for the milestones in your forestry career."
     ],
 
+    trading: [
+        "Player Trading",
+        "Send axes to other players for logs, or as gifts."
+    ],
+
     leaderboard: [
         "Global Leaderboard",
         "Compare your score, rarest axe, and forest milestones with every player."
@@ -9520,6 +9904,7 @@ document.querySelectorAll(".nav-btn").forEach(btn => {
         if (page === "worlds") renderForestAtlas();
         if (page === "achievements") renderAchievements();
         if (page === "leaderboard") loadLeaderboard();
+        if (page === "trading") refreshTrading(true);
         if (page === "market") loadOblivionStatus();
     });
 });
@@ -9534,6 +9919,7 @@ $("account-bypass").addEventListener("click", () => {
     saveGame();
     $("account-overlay").classList.remove("open");
     $("leaderboard-player").textContent = "Local mode • Not connected to the global leaderboard";
+    updateLeaderboardConnectButton();
     toast("Playing locally. Username registration skipped.");
 });
 
@@ -9546,6 +9932,14 @@ document.querySelectorAll("[data-leaderboard-tab]").forEach(button => {
 });
 
 $("leaderboard-refresh").addEventListener("click", () => loadLeaderboard());
+
+$("trade-send").addEventListener("click", sendTrade);
+
+$("leaderboard-connect").addEventListener("click", () => {
+    game.leaderboard_bypass = false;
+    saveGame();
+    initializePlayerAccount();
+});
 
 $("achievement-grid").addEventListener("click", event => {
     const button = event.target.closest("[data-claim-achievement]");
@@ -9887,6 +10281,7 @@ function gameLoop(now) {
 
     if (gameTick % 120 === 0) {
         publishLeaderboard();
+        refreshTrading();
     }
 
     /*

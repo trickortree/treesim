@@ -25,6 +25,47 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // Player-to-player axe trades. Only the two participants can read a trade.
+    // Status moves one way: open -> accepted/declined (recipient) or
+    // open -> cancelled (sender). `settled` flips false -> true once, which is
+    // what stops the sender from being paid / refunded twice.
+    match /trades/{tradeId} {
+      allow read: if request.auth != null
+        && (resource.data.from_uid == request.auth.uid || resource.data.to_uid == request.auth.uid);
+      allow create: if request.auth != null
+        && request.resource.data.from_uid == request.auth.uid
+        && request.resource.data.to_uid is string
+        && request.resource.data.to_uid != request.auth.uid
+        && request.resource.data.from_name is string
+        && request.resource.data.to_name is string
+        && request.resource.data.status == 'open'
+        && request.resource.data.settled == false
+        && request.resource.data.price is int
+        && request.resource.data.price >= 0
+        && request.resource.data.item.skinName is string
+        && request.resource.data.item.condition is string;
+      allow update: if request.auth != null && (
+        // recipient accepts or declines an open trade
+        (resource.data.to_uid == request.auth.uid
+          && resource.data.status == 'open'
+          && request.resource.data.status in ['accepted', 'declined']
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'resolved_at']))
+        // sender cancels an open trade (and takes the axe back in the same write)
+        || (resource.data.from_uid == request.auth.uid
+          && resource.data.status == 'open'
+          && request.resource.data.status == 'cancelled'
+          && request.resource.data.settled == true
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'settled', 'resolved_at']))
+        // sender collects payment / refund after the recipient answered
+        || (resource.data.from_uid == request.auth.uid
+          && resource.data.status in ['accepted', 'declined']
+          && resource.data.settled == false
+          && request.resource.data.settled == true
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['settled']))
+      );
+      allow delete: if false;
+    }
+
     // Oblivion relic status. No Cloud Functions on the free Spark plan, so
     // the roll happens client-side and this is the only server-enforced
     // guarantee left: total_attempts can only increase by exactly 1 per

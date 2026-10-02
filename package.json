@@ -1,6 +1,6 @@
 {
   "name": "hypergamous-tree-chopping-simulator-3",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Hypergamous Tree Chopping Simulator 3",
   "main": "main.js",
   "scripts": {
@@ -44,7 +44,7 @@
       "releaseType": "release"
     },
     "releaseInfo": {
-      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.2.1\n\n- NEW BACKEND: the leaderboard, usernames, and Oblivion Relic now run on Firebase (Auth + Firestore) instead of Supabase, with silent anonymous sign-in that persists across restarts.\n- OBLIVION OVERHAUL: unlock threshold raised to 50 billion logs, entry fee raised to 25% of your balance, and two new all-in options — OPEN 5 and OPEN 50 (which also resets your Auto Clickers, Sawmills, and Steam Engines), both spending your entire log balance. OPEN 50 requires a 5-second warning confirmation.\n- PRESTIGE EXPANDED: 5 new Prestige tiers (10 total). Each Prestige now also permanently reduces all earnings by 10%, stacking independently of the existing Prestige output bonus.\n- Leaderboard and username claiming are more reliable thanks to the new backend and a Content Security Policy fix."
+      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.2.2\n\n- PLAYER TRADING: new Trading tab. Send an axe to another player by username for logs (or as a gift). The axe is held in escrow until they accept, and you can cancel any open offer.\n- LEADERBOARD FIXES: saves that had a name but no linked account (or that chose \"play offline\") are no longer stuck. Added a Connect to Leaderboard button, automatic re-claim of your saved name, and clearer errors/timeouts when loading standings."
     }
   }
 }
