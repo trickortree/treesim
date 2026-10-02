@@ -89,5 +89,16 @@ service cloud.firestore {
       allow read: if true;
       allow write: if false;
     }
+
+    // Tree Lens feedback (thumbs up/down the user chose to send). Anyone may add one entry;
+    // nothing can be read back, changed or deleted from a client.
+    match /treelens_feedback/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['vote', 'question', 'answer', 'images', 'comment', 'chatId', 'context', 'version', 'model', 'ts'])
+        && request.resource.data.vote in ['up', 'down']
+        && request.resource.data.question is string && request.resource.data.question.size() <= 4000
+        && request.resource.data.answer is string && request.resource.data.answer.size() <= 8000
+        && (!('images' in request.resource.data) || (request.resource.data.images is list && request.resource.data.images.size() <= 2));
+      allow read, update, delete: if false;
+    }
   }
 }
