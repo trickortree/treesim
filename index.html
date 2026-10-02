@@ -4898,8 +4898,33 @@ try {
     // server context, silently falling back to in-memory (non-persistent)
     // auth. Forcing indexedDBLocalPersistence keeps anonymous sign-in across
     // app restarts.
+    // The Node build of firebase/auth (picked by require() under nodeIntegration)
+    // ships no-op browser persistences, so the anonymous account was lost on
+    // every restart and a new uid was minted each launch. Persist auth state
+    // in localStorage ourselves.
+    class LocalStorageAuthPersistence {
+        constructor() { this.type = "LOCAL"; }
+        async _isAvailable() {
+            try {
+                localStorage.setItem("__fb_auth_test", "1");
+                localStorage.removeItem("__fb_auth_test");
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+        async _set(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+        async _get(key) {
+            const raw = localStorage.getItem(key);
+            return raw ? JSON.parse(raw) : null;
+        }
+        async _remove(key) { localStorage.removeItem(key); }
+        _addListener() {}
+        _removeListener() {}
+    }
+    LocalStorageAuthPersistence.type = "LOCAL";
     firebaseAuth = authModule.initializeAuth(firebaseApp, {
-        persistence: authModule.indexedDBLocalPersistence
+        persistence: LocalStorageAuthPersistence
     });
     firestoreDb = firestoreModule.getFirestore(firebaseApp);
 

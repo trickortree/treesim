@@ -1,6 +1,6 @@
 {
   "name": "hypergamous-tree-chopping-simulator-3",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Hypergamous Tree Chopping Simulator 3",
   "main": "main.js",
   "scripts": {
@@ -44,7 +44,7 @@
       "releaseType": "release"
     },
     "releaseInfo": {
-      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.2.2\n\n- PLAYER TRADING: new Trading tab. Send an axe to another player by username for logs (or as a gift). The axe is held in escrow until they accept, and you can cancel any open offer.\n- LEADERBOARD FIXES: saves that had a name but no linked account (or that chose \"play offline\") are no longer stuck. Added a Connect to Leaderboard button, automatic re-claim of your saved name, and clearer errors/timeouts when loading standings."
+      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.2.3\n\n- FIXED: reopening the game said your username was already taken. The game now remembers your leaderboard account between restarts."
     }
   }
 }
