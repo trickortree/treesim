@@ -307,6 +307,25 @@ button {
     margin-bottom: 22px;
 }
 
+/* CONTRACTS, GOLDEN TREES, PERKS */
+.contracts-card { padding: 12px 14px; }
+.contracts-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.contracts-title { font-size: 12px; font-weight: 900; color: #f2d27b; }
+.golden-status { font-size: 10px; font-weight: 900; color: #ffd34d; }
+.contract { margin-top: 7px; font-size: 10px; color: #d4e5b5; }
+.contract-top { display: flex; justify-content: space-between; gap: 8px; }
+.contract-reward { color: #9fe0a5; white-space: nowrap; }
+.contract-bar { height: 5px; margin-top: 4px; border-radius: 3px; background: #1a2029; overflow: hidden; }
+.contract-bar > div { height: 100%; background: linear-gradient(90deg, #9f6b21, #f2d27b); }
+.golden-tree {
+    position: absolute; z-index: 30; font-size: 46px; cursor: pointer; user-select: none;
+    filter: drop-shadow(0 0 14px #ffd34d); animation: goldenPulse .9s ease-in-out infinite alternate;
+}
+@keyframes goldenPulse { from { transform: scale(.92) rotate(-4deg); } to { transform: scale(1.12) rotate(4deg); } }
+.perk-panel { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 8px; margin-top: 12px; }
+.perk-panel .perk-head { grid-column: 1 / -1; color: #f2d27b; font-size: 11px; font-weight: 900; }
+.perk-panel .buy-btn { text-align: left; font-size: 10px; }
+
 /* CHOP PAGE */
 
 .chop-layout {
@@ -3929,6 +3948,14 @@ button {
 
                         </div>
 
+                        <div class="contracts-card card" id="contracts-card">
+                            <div class="contracts-head">
+                                <span class="contracts-title">📜 Lumberjack Contracts</span>
+                                <span class="golden-status" id="golden-status"></span>
+                            </div>
+                            <div id="contracts-list"></div>
+                        </div>
+
                     </div>
 
                 </div>
@@ -4147,6 +4174,7 @@ button {
                     </div>
                     <button class="buy-btn prestige-btn" id="prestige-btn" type="button" disabled>PRESTIGE LOCKED</button>
                     <div class="prestige-milestones" id="prestige-milestones"></div>
+                    <div class="perk-panel" id="perk-panel"></div>
                 </div>
 
             </section>
@@ -5045,6 +5073,10 @@ const DEFAULT_DATA = {
     case_pity: { normal: 0, mutant: 0, mutatedAxe: 0, mutatedFlock: 0, worldtree: 0 },
     recent_discoveries: [],
     prestige_milestones: [],
+    contracts: [],
+    contracts_done: 0,
+    golden_clicked: 0,
+    perks: {},
     showcase_axe_id: null,
 
     achievements: [],
@@ -7117,7 +7149,8 @@ function getPassiveRate() {
         featherMult *
         sapResonanceMult *
         prestigeStudyMult *
-        mutationMult
+        mutationMult *
+        getBonusMultiplier()
     );
 }
 
@@ -7294,12 +7327,16 @@ function getPrestigeRebirthRequirement() {
     return Math.max(...Object.keys(REBIRTH_DATA).map(Number));
 }
 
+function getPrestigeLogCost() {
+    return REBIRTH_DATA[getPrestigeRebirthRequirement()].cost * (game.prestige + 2);
+}
+
 function canPrestige() {
     const requiredRebirth = getPrestigeRebirthRequirement();
     return game.prestige < PRESTIGE_LIMIT &&
         game.rebirth >= requiredRebirth &&
         game.current_axe_index >= getAvailableAxeCount() &&
-        game.numOC >= REBIRTH_DATA[requiredRebirth].cost * (game.prestige + 2);
+        game.numOC >= getPrestigeLogCost();
 }
 
 function getNextCost() {
@@ -7689,31 +7726,37 @@ function updateRebirth() {
     const availableAxes = getAvailableAxeCount();
     const axesRemaining = Math.max(0, availableAxes - game.current_axe_index);
     const prestigeReady = canPrestige();
+    const prestigeLogCost = getPrestigeLogCost();
     $("prestige-name").textContent =
         `Prestige ${game.prestige} / ${PRESTIGE_LIMIT}`;
     $("prestige-bonus").textContent =
         `Forest output x${getPrestigeMultiplier().toFixed(2)} • Case luck +${game.prestige * 10}% • Vault tokens ${game.prestige_tokens || 0} • Next prestige unlocks 5 axes`;
 
     if (game.prestige >= PRESTIGE_LIMIT) {
-        $("prestige-info").textContent = "All five prestige forests conquered. Prestige resets the current run and collection.";
+        $("prestige-info").textContent = "All ten prestige forests conquered. Prestige resets the current run and collection.";
         $("prestige-btn").textContent = "ALL PRESTIGES COMPLETE";
         $("prestige-btn").disabled = true;
     } else if (prestigeReady) {
-        $("prestige-info").textContent = `Rebirth ${prestigeRebirthRequirement} reached and all ${availableAxes} unlocked axes owned. Prestige to unlock the next five.`;
+        $("prestige-info").textContent = `Rebirth ${prestigeRebirthRequirement} reached and all ${availableAxes} unlocked axes owned. Prestige to unlock the next five axes.`;
         $("prestige-btn").textContent = `PRESTIGE ${game.prestige + 1}`;
         $("prestige-btn").disabled = false;
     } else if (game.rebirth < prestigeRebirthRequirement) {
-        $("prestige-info").textContent = `Reach rebirth ${prestigeRebirthRequirement}, then buy the remaining ${axesRemaining} unlocked axes.`;
+        $("prestige-info").textContent = `Reach rebirth ${prestigeRebirthRequirement}, then buy the remaining ${axesRemaining} unlocked axes and hold ${formatNumber(prestigeLogCost)} logs.`;
+        $("prestige-btn").textContent = "PRESTIGE LOCKED";
+        $("prestige-btn").disabled = true;
+    } else if (axesRemaining > 0) {
+        $("prestige-info").textContent = `Buy the remaining ${axesRemaining} unlocked axes, then hold ${formatNumber(prestigeLogCost)} logs to prestige.`;
         $("prestige-btn").textContent = "PRESTIGE LOCKED";
         $("prestige-btn").disabled = true;
     } else {
-        $("prestige-info").textContent = `Buy the remaining ${axesRemaining} unlocked axes to unlock prestige.`;
-        $("prestige-btn").textContent = "PRESTIGE LOCKED";
+        $("prestige-info").textContent = `All axes owned. Prestige also needs ${formatNumber(prestigeLogCost)} logs on hand (you have ${formatNumber(game.numOC)}).`;
+        $("prestige-btn").textContent = `NEED ${formatNumber(prestigeLogCost)} LOGS`;
         $("prestige-btn").disabled = true;
     }
 
     updateShardRelics();
     updatePrestigeMilestones();
+    renderPerks();
 }
 
 function renderForestAtlas() {
@@ -8017,11 +8060,13 @@ function chop() {
         game.egg_upgrades.click_boost * 2;
 
     const amount =
-        (game.addNum + eggBonus) * multiplier * (1 + (game.egg_upgrades.prestige_study || 0) * 0.1);
+        (game.addNum + eggBonus) * multiplier * (1 + (game.egg_upgrades.prestige_study || 0) * 0.1) * getBonusMultiplier();
 
     game.numOC += amount;
     game.total_chopped += amount;
     game.total_clicks++;
+    addContractProgress("clicks", 1);
+    addContractProgress("logs", amount);
     registerChopCombo();
 
     const tree =
@@ -10453,6 +10498,213 @@ document.addEventListener("keydown", event => {
 
 
 /* =========================================================
+   GOLDEN TREES, CONTRACTS, PRESTIGE PERKS
+========================================================= */
+
+const PERK_DEFS = {
+    golden_touch: { label: "Golden Touch", max: 5, desc: "Golden trees appear 20% more often and last 1s longer." },
+    contract_pay: { label: "Fat Contracts", max: 5, desc: "+25% contract rewards." },
+    seasoned_roots: { label: "Seasoned Roots", max: 10, desc: "+5% all log output." },
+    auto_axe: { label: "Foreman", max: 1, desc: "Automatically buys the next axe when you can afford it." }
+};
+
+function getPerkLevel(id) {
+    return Math.max(0, Math.floor(Number(game.perks?.[id]) || 0));
+}
+
+function getPerkPointsAvailable() {
+    const spent = Object.keys(PERK_DEFS).reduce((sum, id) => sum + getPerkLevel(id), 0);
+    return Math.max(0, (Number(game.prestige) || 0) - spent);
+}
+
+function buyPerk(id) {
+    const def = PERK_DEFS[id];
+    if (!def || getPerkLevel(id) >= def.max || getPerkPointsAvailable() < 1) return;
+    if (!game.perks || typeof game.perks !== "object") game.perks = {};
+    game.perks[id] = getPerkLevel(id) + 1;
+    saveGame();
+    toast(`✨ ${def.label} Lv. ${game.perks[id]}`);
+    renderPerks();
+}
+
+function renderPerks() {
+    const panel = $("perk-panel");
+    if (!panel) return;
+    const points = getPerkPointsAvailable();
+    const key = `${points}|${Object.keys(PERK_DEFS).map(getPerkLevel).join(",")}|${game.prestige}`;
+    if (panel.dataset.key === key) return;
+    panel.dataset.key = key;
+    if (!game.prestige) {
+        panel.innerHTML = '<div class="perk-head">✨ Prestige Perks unlock at Prestige 1 (one perk point per Prestige).</div>';
+        return;
+    }
+    panel.innerHTML = `<div class="perk-head">✨ Prestige Perks — ${points} point${points === 1 ? "" : "s"} to spend</div>` +
+        Object.entries(PERK_DEFS).map(([id, def]) => {
+            const level = getPerkLevel(id);
+            const maxed = level >= def.max;
+            return `<button class="buy-btn" type="button" data-perk="${id}" ${maxed || points < 1 ? "disabled" : ""}>` +
+                `${def.label} ${level}/${def.max}${maxed ? " MAXED" : " — 1 pt"}<br><span style="opacity:.75">${def.desc}</span></button>`;
+        }).join("");
+}
+
+$("perk-panel").addEventListener("click", event => {
+    const button = event.target.closest("[data-perk]");
+    if (button) buyPerk(button.dataset.perk);
+});
+
+function getBonusMultiplier() {
+    return (goldenFrenzyTime > 0 ? 7 : 1) * (1 + getPerkLevel("seasoned_roots") * 0.05);
+}
+
+// ---- Golden trees
+let goldenFrenzyTime = 0;
+let goldenTimeLeft = 0;
+let goldenSpawnIn = 45 + Math.random() * 60;
+let goldenElement = null;
+
+function removeGoldenTree() {
+    goldenElement?.remove();
+    goldenElement = null;
+    goldenTimeLeft = 0;
+    goldenSpawnIn = (40 + Math.random() * 60) / (1 + getPerkLevel("golden_touch") * 0.2);
+}
+
+function spawnGoldenTree() {
+    const stage = $("tree-stage");
+    goldenElement = document.createElement("div");
+    goldenElement.className = "golden-tree";
+    goldenElement.textContent = "🌟";
+    goldenElement.title = "Golden tree! Click it!";
+    goldenElement.style.left = `${10 + Math.random() * 75}%`;
+    goldenElement.style.top = `${12 + Math.random() * 65}%`;
+    goldenElement.addEventListener("click", event => {
+        event.stopPropagation();
+        clickGoldenTree();
+    });
+    stage.appendChild(goldenElement);
+    goldenTimeLeft = 9 + getPerkLevel("golden_touch");
+}
+
+function clickGoldenTree() {
+    removeGoldenTree();
+    game.golden_clicked = (Number(game.golden_clicked) || 0) + 1;
+    addContractProgress("golden", 1);
+    const roll = Math.random();
+    if (roll < 0.45) {
+        goldenFrenzyTime = 20;
+        toast("🌟 FRENZY! All log output x7 for 20 seconds!");
+    } else if (roll < 0.85 || totalChickens() <= 0) {
+        const gain = Math.max(game.addNum * 30, getPassiveRate() * 120);
+        game.numOC += gain;
+        game.total_chopped += gain;
+        addContractProgress("logs", gain);
+        toast(`🌟 LUCKY! +${formatNumber(gain)} logs`);
+    } else {
+        const eggs = Math.max(10, Math.floor(totalChickens() * 5));
+        game.eggs += eggs;
+        toast(`🌟 EGG BOUNTY! +${formatNumber(eggs)} eggs`);
+    }
+    updateUI();
+}
+
+function tickGolden(delta) {
+    if (goldenFrenzyTime > 0) goldenFrenzyTime = Math.max(0, goldenFrenzyTime - delta);
+    if (goldenElement) {
+        goldenTimeLeft -= delta;
+        if (goldenTimeLeft <= 0) removeGoldenTree();
+        return;
+    }
+    if (!$("page-chop")?.classList.contains("active")) return;
+    goldenSpawnIn -= delta;
+    if (goldenSpawnIn <= 0) spawnGoldenTree();
+}
+
+// ---- Contracts
+const CONTRACT_COUNT = 3;
+const pickOne = list => list[Math.floor(Math.random() * list.length)];
+
+function makeContract() {
+    const type = pickOne(["clicks", "clicks", "logs", "logs", "golden"]);
+    const tier = pickOne([1, 2, 3]);
+    const income = getPassiveRate() + game.addNum * 4;
+    let goal;
+    if (type === "clicks") goal = [40, 100, 250][tier - 1];
+    else if (type === "golden") goal = [1, 2, 3][tier - 1];
+    else goal = Math.max(1000, income * [90, 240, 600][tier - 1]);
+    const kind = pickOne(["shards", "eggs", "logs"]);
+    const scale = tier * (1 + (Number(game.rebirth) || 0) * 0.15);
+    const amount = kind === "shards" ? Math.ceil(4 * scale)
+        : kind === "eggs" ? Math.ceil(15 * scale)
+        : Math.max(1000, income * 45 * tier);
+    return { type, goal, progress: 0, kind, amount };
+}
+
+function normalizeContracts() {
+    if (!Array.isArray(game.contracts)) game.contracts = [];
+    game.contracts = game.contracts
+        .filter(c => c && Number(c.goal) > 0 && ["clicks", "logs", "golden"].includes(c.type))
+        .slice(0, CONTRACT_COUNT);
+    while (game.contracts.length < CONTRACT_COUNT) game.contracts.push(makeContract());
+}
+
+function describeContract(c) {
+    if (c.type === "clicks") return `Chop the tree ${formatNumber(c.goal)} times`;
+    if (c.type === "golden") return `Click ${c.goal} golden tree${c.goal === 1 ? "" : "s"}`;
+    return `Earn ${formatNumber(c.goal)} logs`;
+}
+
+function getContractReward(c) {
+    return c.amount * (1 + getPerkLevel("contract_pay") * 0.25);
+}
+
+function describeReward(c) {
+    const icon = c.kind === "shards" ? "💎" : c.kind === "eggs" ? "🥚" : "🪵";
+    return `${icon} ${formatNumber(Math.ceil(getContractReward(c)))}`;
+}
+
+function addContractProgress(type, amount) {
+    if (!Array.isArray(game.contracts) || !(amount > 0)) return;
+    for (let i = 0; i < game.contracts.length; i++) {
+        const c = game.contracts[i];
+        if (c.type !== type) continue;
+        c.progress = Math.min(c.goal, (Number(c.progress) || 0) + amount);
+        if (c.progress >= c.goal) completeContract(i);
+    }
+}
+
+function completeContract(index) {
+    const c = game.contracts[index];
+    const reward = Math.ceil(getContractReward(c));
+    if (c.kind === "shards") game.rebirth_shards += reward;
+    else if (c.kind === "eggs") game.eggs += reward;
+    else { game.numOC += reward; game.total_chopped += reward; }
+    game.contracts_done = (Number(game.contracts_done) || 0) + 1;
+    toast(`📜 Contract complete! +${describeReward(c)}`);
+    if (game.contracts_done % 25 === 0) {
+        game.prestige_tokens = (Number(game.prestige_tokens) || 0) + 1;
+        toast("🏆 25 contracts done! +1 Prestige Vault token");
+    }
+    game.contracts[index] = makeContract();
+}
+
+function renderContracts() {
+    const list = $("contracts-list");
+    if (!list) return;
+    normalizeContracts();
+    const done = game.contracts_done || 0;
+    list.innerHTML = game.contracts.map(c => `
+        <div class="contract">
+            <div class="contract-top"><span>${describeContract(c)}</span><span class="contract-reward">${describeReward(c)}</span></div>
+            <div class="contract-bar"><div style="width:${Math.min(100, c.progress / c.goal * 100)}%"></div></div>
+        </div>`).join("") +
+        `<div class="contract" style="opacity:.6">Completed: ${done} • next vault token at ${(Math.floor(done / 25) + 1) * 25}</div>`;
+    $("golden-status").textContent = goldenFrenzyTime > 0 ? `🔥 FRENZY x7 — ${Math.ceil(goldenFrenzyTime)}s` : "";
+}
+
+normalizeContracts();
+
+
+/* =========================================================
    GAME LOOP
 ========================================================= */
 
@@ -10473,8 +10725,11 @@ function gameLoop(now) {
 
     lastTime = now;
 
-    game.numOC +=
-        getPassiveRate() * delta;
+    const passiveGain = getPassiveRate() * delta;
+    game.numOC += passiveGain;
+    addContractProgress("logs", passiveGain);
+    tickGolden(delta);
+    if (getPerkLevel("auto_axe") > 0 && gameTick % 4 === 0) buyUpgrade();
 
     const flock = totalChickens();
 
@@ -10529,6 +10784,7 @@ function gameLoop(now) {
     if (uiAccumulator >= 0.14) {
         uiAccumulator = 0;
         updateUI();
+        renderContracts();
     }
 
     requestAnimationFrame(gameLoop);
