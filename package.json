@@ -1,6 +1,6 @@
 {
   "name": "hypergamous-tree-chopping-simulator-3",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "Hypergamous Tree Chopping Simulator 3",
   "main": "main.js",
   "scripts": {
@@ -44,7 +44,7 @@
       "releaseType": "release"
     },
     "releaseInfo": {
-      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.2.4\n\n- OBLIVION CASE now spins a full reel like the other cases, with ??? tiles flying past for suspense.\n- LEADERBOARD PROFILES: click any player to see their stats and showcase axe, and jump straight to a trade with them.\n- SHOWCASE AXE: pick any axe you own to show off on your profile and leaderboard row.\n- PRESTIGE now counts on the leaderboard: the Prestige / Rebirths tab ranks prestige first.\n- Leaderboard standings now refresh every 5-25 minutes. Trade offers are checked every 5 minutes and whenever you open the Trading tab.\n- Heads up: Tree App Store coming soon!"
+      "releaseNotes": "Hypergamous Tree Chopping Simulator 3 - Update 1.2.6\n\n- PRESTIGE FIX: the Prestige card now shows the log stockpile you need (rebirth 50 cost x (prestige+2)) and how many you have. It no longer says \"buy the remaining 0 axes\" when logs are the real blocker.\n- GOLDEN TREES: a glowing star appears on the chop screen every so often. Click it for a x7 log frenzy, a big log burst, or an egg bounty.\n- LUMBERJACK CONTRACTS: three rotating goals (chop, earn logs, click golden trees) paying shards, eggs or logs. Every 25th contract gives a Prestige Vault token.\n- PRESTIGE PERKS: each Prestige gives a perk point. Spend it on Golden Touch, Fat Contracts, Seasoned Roots or Foreman (auto-buys axes). Your existing prestiges already count.\n- Fixed text that said there were five prestiges (it is ten)."
     }
   }
 }
