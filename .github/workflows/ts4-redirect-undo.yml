@@ -1,0 +1,21 @@
+name: Undo the TS4 redirect release
+# Push a tag named ts4-undo-<anything> to run this. It deletes the v1.3.1 release
+# (and its tag) ONLY if that release is the TS4 redirect, so TS3 players go back
+# to seeing no update (latest release becomes v1.3.0 again).
+on:
+  push:
+    tags:
+      - "ts4-undo-*"
+permissions:
+  contents: write
+jobs:
+  undo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete the redirect release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view v1.3.1 --repo "$GITHUB_REPOSITORY" --json assets -q '.assets[].name' | grep -qx 'TreeChopSim4-Setup.exe' || { echo "v1.3.1 is not the TS4 redirect release; refusing to delete it"; exit 1; }
+          gh release delete v1.3.1 --repo "$GITHUB_REPOSITORY" --cleanup-tag --yes
+          gh release list --repo "$GITHUB_REPOSITORY" --limit 3
