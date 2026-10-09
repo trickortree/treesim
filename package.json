@@ -1,6 +1,6 @@
 {
   "name": "hypergamous-tree-chopping-simulator-3",
-  "version": "1.2.6",
+  "version": "1.3.0",
   "description": "Hypergamous Tree Chopping Simulator 3",
   "main": "main.js",
   "scripts": {
