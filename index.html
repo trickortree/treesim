@@ -4168,13 +4168,22 @@ button {
 
                 <div class="prestige-card card">
                     <div>
-                        <div class="prestige-title" id="prestige-name">Prestige 0 / 5</div>
-                        <div class="prestige-copy" id="prestige-info">Reach rebirth 25 for your first Prestige; later Prestiges require rebirth 50.</div>
+                        <div class="prestige-title" id="prestige-name">Super Rebirth 0 / 5</div>
+                        <div class="prestige-copy" id="prestige-info">Reach rebirth 15, own every unlocked axe, and hold the logs for your next Super Rebirth.</div>
                         <div class="prestige-bonus" id="prestige-bonus">Permanent forest power: x1.00</div>
                     </div>
-                    <button class="buy-btn prestige-btn" id="prestige-btn" type="button" disabled>PRESTIGE LOCKED</button>
+                    <button class="buy-btn prestige-btn" id="prestige-btn" type="button" disabled>SUPER REBIRTH LOCKED</button>
                     <div class="prestige-milestones" id="prestige-milestones"></div>
                     <div class="perk-panel" id="perk-panel"></div>
+                </div>
+
+                <div class="prestige-card card">
+                    <div>
+                        <div class="prestige-title" id="ultra-name">Ultra Rebirth 0 / 1</div>
+                        <div class="prestige-copy" id="ultra-info">Finish all five Super Rebirths to unlock the Ultra Rebirth.</div>
+                        <div class="prestige-bonus" id="ultra-bonus"></div>
+                    </div>
+                    <button class="buy-btn prestige-btn" id="ultra-btn" type="button" disabled>ULTRA REBIRTH LOCKED</button>
                 </div>
 
             </section>
@@ -4302,8 +4311,8 @@ button {
                     <div class="lab-card card">
                         <div class="lab-icon">✨</div>
                         <div class="lab-body">
-                            <div class="lab-name">Prestige Prism</div>
-                            <div class="lab-desc" id="prestige-study-desc">+10% log output per level • Unlocks at Prestige 1.</div>
+                            <div class="lab-name">Super Rebirth Prism</div>
+                            <div class="lab-desc" id="prestige-study-desc">+10% log output per level • Unlocks at Super Rebirth 1.</div>
                         </div>
                         <button class="buy-btn" id="prestige-study-btn" type="button"></button>
                         <button class="buy-btn" id="prestige-study-max-btn" type="button">MAX</button>
@@ -4383,7 +4392,7 @@ button {
                         <button class="leaderboard-tab active" data-leaderboard-tab="score" type="button">Score</button>
                         <button class="leaderboard-tab" data-leaderboard-tab="rarest_axe_rank" type="button">Rarest Axe</button>
                         <button class="leaderboard-tab" data-leaderboard-tab="total_chopped" type="button">Logs Chopped</button>
-                        <button class="leaderboard-tab" data-leaderboard-tab="rebirth_rank" type="button">Prestige / Rebirths</button>
+                        <button class="leaderboard-tab" data-leaderboard-tab="rebirth_rank" type="button">Ultra / Super / Rebirths</button>
                         <button class="leaderboard-tab" data-leaderboard-tab="chickens" type="button">Chickens</button>
                     </div>
                     <button class="buy-btn" id="leaderboard-refresh" type="button">REFRESH</button>
@@ -4518,10 +4527,10 @@ button {
 
                     <div class="market-card card" style="--case-accent:#d8c06a">
                         <div class="market-icon">👑</div>
-                        <div class="market-title">Prestige Vault</div>
-                        <div class="market-desc">Prestige-only rewards. Every pull is Ancient or better, but tokens are earned one per prestige.</div>
+                        <div class="market-title">Super Rebirth Vault</div>
+                        <div class="market-desc">Super Rebirth rewards. Every pull is Ancient or better, but tokens are earned one per Super Rebirth.</div>
                         <div class="market-case-metrics"><span>High-tier relics</span><span id="prestige-token-count">0 Tokens</span></div>
-                        <div class="market-result" id="prestige-vault-result">Earn a Prestige Token to open.</div>
+                        <div class="market-result" id="prestige-vault-result">Earn a Vault Token to open.</div>
                         <div class="market-actions">
                             <button class="buy-btn purple" id="prestige-vault-btn" type="button">OPEN — 1 TOKEN</button>
                             <button class="buy-btn case-open-three" id="prestige-vault-open-three-btn" type="button">OPEN 3 — 3 TOKENS</button>
@@ -5017,15 +5026,18 @@ const SAVE_FILE = IS_ELECTRON
 const BROWSER_SAVE_KEY = "hypergamous_tree_save_v7";
 
 const QUICK_OPEN_COOLDOWN_SECONDS = 60;
-const MAX_UPGRADE_LEVEL = 500;
+const MAX_UPGRADE_LEVEL = 1000;
+const MAX_CHICKENS = 10000;
+const REBIRTH_LIMIT = 15;
+const ULTRA_LIMIT = 1;
 const MAX_UPGRADE_BATCH = 25;
 const EGG_RESEARCH_DEFS = {
     click_boost: { baseCost: 15, description: "+2 logs to every manual chop per level." },
-    egg_mult: { baseCost: 100, unlockRebirth: 10, description: "+10% eggs from every flock drop per level." },
+    egg_mult: { baseCost: 100, unlockRebirth: 5, description: "+10% eggs from every flock drop per level." },
     feather_boost: { baseCost: 40, description: "Increases passive logs by 15% per level." },
-    sap_resonance: { baseCost: 250, unlockRebirth: 20, description: "Increases passive logs by 8% per level." },
+    sap_resonance: { baseCost: 250, unlockRebirth: 9, description: "Increases passive logs by 8% per level." },
     prestige_study: { baseCost: 500, unlockPrestige: 1, description: "Increases all log output by 10% per level." },
-    rebirth_resonance: { baseCost: 750, unlockRebirth: 30, description: "Increases rebirth shard gain by 10% per level." }
+    rebirth_resonance: { baseCost: 750, unlockRebirth: 13, description: "Increases rebirth shard gain by 10% per level." }
 };
 
 const DEFAULT_DATA = {
@@ -5034,6 +5046,7 @@ const DEFAULT_DATA = {
     upgrGoal: 10,
     rebirth: 0,
     prestige: 0,
+    ultra: 0,
     prestige_tokens: 0,
     player_username: null,
     supabase_user_id: null,
@@ -5499,7 +5512,7 @@ const AXE_UPGRADES = [
 ];
 
 const BASE_AXE_UPGRADE_COUNT = AXE_UPGRADES.length;
-const PRESTIGE_LIMIT = 10;
+const PRESTIGE_LIMIT = 5; // "Super Rebirths" in the UI
 const PRESTIGE_AXE_UPGRADES = [
     { name: "Rootbound Axe", cost: 1e35, base_add: 1e33 },
     { name: "Verdant Singularity", cost: 1e36, base_add: 1e34 },
@@ -5675,11 +5688,11 @@ const BASE_REBIRTH_DATA = {
 function generateRebirthData() {
     // Exponential curve (not the raw shards field, which crushed tiers 1-5 to a flat 1 via *0.02)
     // so every base tier gives a distinct, growing shard reward starting from tier 1.
-    const result = Object.fromEntries(Object.entries(BASE_REBIRTH_DATA).map(([tier, data]) => [
+    const result = Object.fromEntries(Object.entries(BASE_REBIRTH_DATA).filter(([tier]) => Number(tier) <= REBIRTH_LIMIT).map(([tier, data]) => [
         tier,
-        { ...data, cost: data.cost * 10, shards: Math.max(5, Math.round(5 * Math.pow(1.35, Number(tier) - 1))) }
+        { ...data, cost: data.cost * 3, shards: Math.max(5, Math.round(5 * Math.pow(1.35, Number(tier) - 1))) }
     ]));
-    const lastTier = Math.max(...Object.keys(BASE_REBIRTH_DATA).map(Number));
+    const lastTier = Math.max(...Object.keys(result).map(Number));
     // Adjective x noun pairing gives 30 x 30 = 900 unique frontier names, far more than the 34 needed.
     const adjectives = [
         "Looksmaxxed", "Mogbound", "Jawline", "Aura", "Chadlit", "Giga", "Zyzzborn", "Verdant",
@@ -5695,7 +5708,7 @@ function generateRebirthData() {
     ];
     const usedNames = new Set(Object.values(result).map(data => data.name));
     let cursor = 0;
-    for (let tier = lastTier + 1; tier <= lastTier + 34; tier++) {
+    for (let tier = lastTier + 1; tier <= lastTier; tier++) { // no generated tiers: the game now ends at REBIRTH_LIMIT
         const previous = result[tier - 1];
         const nextCost = Number(previous.cost) * 1.9;
         const nextPenalty = Number((previous.penalty * 1.015).toFixed(2));
@@ -5735,11 +5748,12 @@ const ACHIEVEMENT_DEFS = [
     { id: "axe-vault", name: "Axe Vault", description: "Keep fifty axes in your locker at once.", goal: 50, progress: () => game.axe_inventory.length, reward: { logs: 500000 } },
     { id: "world-walker", name: "World Walker", description: "Reach rebirth tier eight.", goal: 8, progress: () => game.rebirth, reward: { shards: 250 } },
     { id: "beyond-the-boughs", name: "Beyond the Boughs", description: "Reach rebirth tier twelve.", goal: 12, progress: () => game.rebirth, reward: { shards: 1000 } },
-    { id: "worldtree-keeper", name: "Worldtree Keeper", description: "Reach the final atlas frontier.", goal: 50, progress: () => game.rebirth, reward: { shards: 5000 } },
+    { id: "worldtree-keeper", name: "Worldtree Keeper", description: "Reach the final atlas frontier.", goal: REBIRTH_LIMIT, progress: () => game.rebirth, reward: { shards: 5000 } },
     { id: "into-the-void", name: "Into the Void", description: "Chop a total of 50 billion logs, enough to unlock the Oblivion Case.", goal: 50000000000, progress: () => game.total_chopped, reward: { shards: 300 } },
     { id: "relic-master", name: "Relic Master", description: "Max every shard relic upgrade in the Shard Shop.", goal: 25, progress: () => (game.shard_upgrades?.case_luck || 0) + (game.shard_upgrades?.pity || 0) + (game.shard_upgrades?.egg_yield || 0), reward: { logs: 2000000 } },
     { id: "lab-scholar", name: "Lab Scholar", description: "Reach a combined level of 50 across the original five Incubator Lab upgrades.", goal: 50, progress: () => ["click_boost", "egg_mult", "feather_boost", "sap_resonance", "prestige_study"].reduce((sum, key) => sum + (Number(game.egg_upgrades[key]) || 0), 0), reward: { logs: 1000000 } },
-    { id: "prestige-ascendant", name: "Prestige Ascendant", description: "Reach the maximum Prestige tier.", goal: PRESTIGE_LIMIT, progress: () => game.prestige, reward: { shards: 2000 } },
+    { id: "prestige-ascendant", name: "Super Rebirth Ascendant", description: "Complete all five Super Rebirths.", goal: PRESTIGE_LIMIT, progress: () => game.prestige + (game.ultra > 0 ? PRESTIGE_LIMIT : 0), reward: { shards: 2000 } },
+    { id: "ultra-ascendant", name: "Ultra Ascendant", description: "Perform the Ultra Rebirth.", goal: ULTRA_LIMIT, progress: () => game.ultra, reward: { shards: 10000 } },
     { id: "coop-architect", name: "Coop Architect", description: "Upgrade the Chicken Coop to level 25.", goal: 25, progress: () => game.coop_level, reward: { logs: 250000 } },
     { id: "mutation-collector", name: "Mutation Collector", description: "Own at least one Golden, Neon, and Void mutated chicken at the same time.", goal: 3, progress: () => ["golden", "neon", "void"].filter(key => (game.mutated_chickens[key] || 0) > 0).length, reward: { shards: 150 } },
     { id: "golden-axe-bonus", name: "Sharpest Edge", description: "Own an axe skin valuable enough to hit the maximum +20% output bonus.", goal: 1, progress: () => getAxeSkinOutputMultiplier() >= 1 + AXE_SKIN_OUTPUT_BONUS_CAP ? 1 : 0, reward: { shards: 400 } },
@@ -5747,7 +5761,8 @@ const ACHIEVEMENT_DEFS = [
 ];
 
 let game = loadGame();
-game.rebirth = Math.max(0, Math.min(50, Math.floor(Number(game.rebirth) || 0)));
+game.rebirth = Math.max(0, Math.min(REBIRTH_LIMIT, Math.floor(Number(game.rebirth) || 0)));
+game.ultra = Math.max(0, Math.min(ULTRA_LIMIT, Math.floor(Number(game.ultra) || 0)));
 game.prestige = Math.max(0, Math.min(PRESTIGE_LIMIT, Math.floor(Number(game.prestige) || 0)));
 game.axe_skins = game.axe_skins || {};
 game.axe_inventory = Array.isArray(game.axe_inventory) ? game.axe_inventory : [];
@@ -5884,7 +5899,7 @@ const lastCaseResults = {
     mutatedAxe: "Ready to open.",
     mutatedFlock: "Ready to open.",
     worldtree: "Ready to open.",
-    prestigeVault: "Earn a Prestige Token to open."
+    prestigeVault: "Earn a Vault Token to open."
 };
 let leaderboardMetric = "score";
 let leaderboardPushInFlight = false;
@@ -6037,8 +6052,9 @@ function getLeaderboardSnapshot(userId = game.firebase_user_id, usernameOverride
         total_chopped: Math.floor(Math.min(Number.MAX_SAFE_INTEGER, chopped)),
         rebirth: Math.max(0, Number(game.rebirth) || 0),
         prestige: Math.max(0, Number(game.prestige) || 0),
-        // Prestige outranks any rebirth count (rebirth caps at 50).
-        rebirth_rank: Math.max(0, Number(game.prestige) || 0) * 1000 + Math.max(0, Number(game.rebirth) || 0),
+        ultra: Math.max(0, Number(game.ultra) || 0),
+        // Ultra outranks Super Rebirths, which outrank normal rebirths (rebirth caps at 15).
+        rebirth_rank: Math.max(0, Number(game.ultra) || 0) * 100000 + Math.max(0, Number(game.prestige) || 0) * 1000 + Math.max(0, Number(game.rebirth) || 0),
         chickens: Math.max(0, totalChickens()),
         updated_at: new Date().toISOString()
     };
@@ -6249,7 +6265,7 @@ async function loadLeaderboard() {
             if (metric === "rarest_axe_rank") {
                 value.textContent = `${player.rarest_axe_rarity} • ${player.rarest_axe_name}`;
             } else if (metric === "rebirth_rank") {
-                value.textContent = `Prestige ${Number(player.prestige) || 0} • Rebirth ${Number(player.rebirth) || 0}`;
+                value.textContent = `Ultra ${Number(player.ultra) || 0} • Super ${Number(player.prestige) || 0} • Rebirth ${Number(player.rebirth) || 0}`;
             } else {
                 value.textContent = formatNumber(Number(player[metric]) || 0);
             }
@@ -6298,7 +6314,8 @@ function openProfile(player) {
     const stats = [
         ["Score", formatNumber(Number(player.score) || 0)],
         ["Logs chopped", formatNumber(Number(player.total_chopped) || 0)],
-        ["Prestige", String(Number(player.prestige) || 0)],
+        ["Ultra Rebirths", String(Number(player.ultra) || 0)],
+        ["Super Rebirths", String(Number(player.prestige) || 0)],
         ["Rebirths", String(Number(player.rebirth) || 0)],
         ["Chickens", formatNumber(Number(player.chickens) || 0)],
         ["Total clicks", formatNumber(Number(player.total_clicks) || 0)],
@@ -7094,8 +7111,12 @@ function applyOfflineEarnings() {
     saveGame();
 }
 
+function getUltraMultiplier() {
+    return 1 + Math.max(0, Number(game.ultra) || 0);
+}
+
 function getPrestigeMultiplier() {
-    return 1 + Math.max(0, Number(game.prestige) || 0) * 0.1;
+    return (1 + Math.max(0, Number(game.prestige) || 0) * 0.1) * getUltraMultiplier();
 }
 
 function clampUpgradeLevel(level) {
@@ -7285,12 +7306,12 @@ function buyMaxLogUpgrade(type) {
             game.pet_level++;
         } else if (type === "chicken") {
             const cost = 100 * (game.chickens + 1);
-            if (game.chickens >= MAX_UPGRADE_LEVEL || game.numOC < cost) break;
+            if (game.chickens >= MAX_CHICKENS || game.numOC < cost) break;
             game.numOC -= cost;
             game.chickens++;
             coopVisualDirty = true;
         } else if (type === "hatch") {
-            if (game.chickens >= MAX_UPGRADE_LEVEL || game.eggs < 5) break;
+            if (game.chickens >= MAX_CHICKENS || game.eggs < 5) break;
             game.eggs -= 5;
             game.chickens++;
             coopVisualDirty = true;
@@ -7313,18 +7334,26 @@ function buyMaxLogUpgrade(type) {
 }
 
 function getAvailableAxeCount() {
-    const rebirthAxes = Math.max(0, game.rebirth - 16) * 5;
     return Math.min(
         AXE_UPGRADES.length,
-        BASE_AXE_UPGRADE_COUNT + game.prestige * 5 + Math.min(500, rebirthAxes)
+        BASE_AXE_UPGRADE_COUNT + game.prestige * 5
     );
 }
 
-const FIRST_PRESTIGE_REBIRTH_REQUIREMENT = 25;
-
 function getPrestigeRebirthRequirement() {
-    if (game.prestige === 0) return FIRST_PRESTIGE_REBIRTH_REQUIREMENT;
     return Math.max(...Object.keys(REBIRTH_DATA).map(Number));
+}
+
+function getUltraLogCost() {
+    return REBIRTH_DATA[getPrestigeRebirthRequirement()].cost * (PRESTIGE_LIMIT + 5);
+}
+
+function canUltra() {
+    return game.ultra < ULTRA_LIMIT &&
+        game.prestige >= PRESTIGE_LIMIT &&
+        game.rebirth >= getPrestigeRebirthRequirement() &&
+        game.current_axe_index >= getAvailableAxeCount() &&
+        game.numOC >= getUltraLogCost();
 }
 
 function getPrestigeLogCost() {
@@ -7478,11 +7507,13 @@ function updateProgress() {
     if (!nextCost) {
 
         $("goal-text").textContent =
-            canPrestige()
-                ? `🌳 PRESTIGE ${game.prestige + 1} READY`
-                : game.prestige >= PRESTIGE_LIMIT
-                    ? "🌳 ALL PRESTIGES COMPLETE"
-                    : "✨ MAX LEVEL REACHED";
+            canUltra()
+                ? "🌌 ULTRA REBIRTH READY"
+                : canPrestige()
+                    ? `🌳 SUPER REBIRTH ${game.prestige + 1} READY`
+                    : game.prestige >= PRESTIGE_LIMIT
+                        ? (game.ultra >= ULTRA_LIMIT ? "🌌 EVERYTHING COMPLETE" : "🌳 ALL SUPER REBIRTHS COMPLETE")
+                        : "✨ MAX LEVEL REACHED";
 
         $("goal-percent").textContent =
             "100%";
@@ -7728,30 +7759,55 @@ function updateRebirth() {
     const prestigeReady = canPrestige();
     const prestigeLogCost = getPrestigeLogCost();
     $("prestige-name").textContent =
-        `Prestige ${game.prestige} / ${PRESTIGE_LIMIT}`;
+        `Super Rebirth ${game.prestige} / ${PRESTIGE_LIMIT}`;
     $("prestige-bonus").textContent =
-        `Forest output x${getPrestigeMultiplier().toFixed(2)} • Case luck +${game.prestige * 10}% • Vault tokens ${game.prestige_tokens || 0} • Next prestige unlocks 5 axes`;
+        `Forest output x${getPrestigeMultiplier().toFixed(2)} • Case luck +${game.prestige * 10}% • Vault tokens ${game.prestige_tokens || 0} • Keeps your axe skins • Next Super Rebirth unlocks 5 axes`;
 
     if (game.prestige >= PRESTIGE_LIMIT) {
-        $("prestige-info").textContent = "All ten prestige forests conquered. Prestige resets the current run and collection.";
-        $("prestige-btn").textContent = "ALL PRESTIGES COMPLETE";
+        $("prestige-info").textContent = "All five Super Rebirths complete. Each one resets the run but keeps your axe skins.";
+        $("prestige-btn").textContent = "ALL SUPER REBIRTHS COMPLETE";
         $("prestige-btn").disabled = true;
     } else if (prestigeReady) {
-        $("prestige-info").textContent = `Rebirth ${prestigeRebirthRequirement} reached and all ${availableAxes} unlocked axes owned. Prestige to unlock the next five axes.`;
-        $("prestige-btn").textContent = `PRESTIGE ${game.prestige + 1}`;
+        $("prestige-info").textContent = `Rebirth ${prestigeRebirthRequirement} reached and all ${availableAxes} unlocked axes owned. Super Rebirth to unlock the next five axes (you keep your skins).`;
+        $("prestige-btn").textContent = `SUPER REBIRTH ${game.prestige + 1}`;
         $("prestige-btn").disabled = false;
     } else if (game.rebirth < prestigeRebirthRequirement) {
         $("prestige-info").textContent = `Reach rebirth ${prestigeRebirthRequirement}, then buy the remaining ${axesRemaining} unlocked axes and hold ${formatNumber(prestigeLogCost)} logs.`;
-        $("prestige-btn").textContent = "PRESTIGE LOCKED";
+        $("prestige-btn").textContent = "SUPER REBIRTH LOCKED";
         $("prestige-btn").disabled = true;
     } else if (axesRemaining > 0) {
-        $("prestige-info").textContent = `Buy the remaining ${axesRemaining} unlocked axes, then hold ${formatNumber(prestigeLogCost)} logs to prestige.`;
-        $("prestige-btn").textContent = "PRESTIGE LOCKED";
+        $("prestige-info").textContent = `Buy the remaining ${axesRemaining} unlocked axes, then hold ${formatNumber(prestigeLogCost)} logs for a Super Rebirth.`;
+        $("prestige-btn").textContent = "SUPER REBIRTH LOCKED";
         $("prestige-btn").disabled = true;
     } else {
-        $("prestige-info").textContent = `All axes owned. Prestige also needs ${formatNumber(prestigeLogCost)} logs on hand (you have ${formatNumber(game.numOC)}).`;
+        $("prestige-info").textContent = `All axes owned. A Super Rebirth also needs ${formatNumber(prestigeLogCost)} logs on hand (you have ${formatNumber(game.numOC)}).`;
         $("prestige-btn").textContent = `NEED ${formatNumber(prestigeLogCost)} LOGS`;
         $("prestige-btn").disabled = true;
+    }
+
+    const ultraCost = getUltraLogCost();
+    $("ultra-name").textContent = `Ultra Rebirth ${game.ultra} / ${ULTRA_LIMIT}`;
+    $("ultra-bonus").textContent = `Permanent output x${getUltraMultiplier().toFixed(2)} • Keeps your axe skins • Resets Super Rebirths to 0`;
+    if (game.ultra >= ULTRA_LIMIT) {
+        $("ultra-info").textContent = "Ultra Rebirth complete. Climb the Super Rebirths again with the permanent x2 bonus.";
+        $("ultra-btn").textContent = "ULTRA REBIRTH COMPLETE";
+        $("ultra-btn").disabled = true;
+    } else if (game.prestige < PRESTIGE_LIMIT) {
+        $("ultra-info").textContent = `Finish all ${PRESTIGE_LIMIT} Super Rebirths first (${game.prestige}/${PRESTIGE_LIMIT}).`;
+        $("ultra-btn").textContent = "ULTRA REBIRTH LOCKED";
+        $("ultra-btn").disabled = true;
+    } else if (canUltra()) {
+        $("ultra-info").textContent = `Ready. The Ultra Rebirth resets your Super Rebirths to 0 and the whole run, but you keep your axe skins.`;
+        $("ultra-btn").textContent = "ULTRA REBIRTH";
+        $("ultra-btn").disabled = false;
+    } else if (game.rebirth < prestigeRebirthRequirement || axesRemaining > 0) {
+        $("ultra-info").textContent = `Reach rebirth ${prestigeRebirthRequirement}, own all ${availableAxes} unlocked axes (${axesRemaining} left), and hold ${formatNumber(ultraCost)} logs.`;
+        $("ultra-btn").textContent = "ULTRA REBIRTH LOCKED";
+        $("ultra-btn").disabled = true;
+    } else {
+        $("ultra-info").textContent = `All axes owned. The Ultra Rebirth needs ${formatNumber(ultraCost)} logs on hand (you have ${formatNumber(game.numOC)}).`;
+        $("ultra-btn").textContent = `NEED ${formatNumber(ultraCost)} LOGS`;
+        $("ultra-btn").disabled = true;
     }
 
     updateShardRelics();
@@ -7923,8 +7979,8 @@ function updateCoop() {
 
     const chickenCost = 100 * (game.chickens + 1);
     $("chicken-btn").textContent = `🐔 Buy Chicken — ${formatNumber(chickenCost)} Logs`;
-    $("chicken-btn").disabled = game.chickens >= MAX_UPGRADE_LEVEL || game.numOC < chickenCost;
-    $("chicken-max-btn").disabled = game.chickens >= MAX_UPGRADE_LEVEL || game.numOC < chickenCost;
+    $("chicken-btn").disabled = game.chickens >= MAX_CHICKENS || game.numOC < chickenCost;
+    $("chicken-max-btn").disabled = game.chickens >= MAX_CHICKENS || game.numOC < chickenCost;
 
     const sellOneButton = $("sell-chicken-btn");
     sellOneButton.textContent = `SELL ONE — ${formatNumber(getChickenSaleValue(1))} LOGS`;
@@ -7934,8 +7990,8 @@ function updateCoop() {
     sellAllButton.disabled = game.chickens <= 0;
 
     $("hatch-btn").textContent = "🐣 Hatch Chicken — 5 Eggs";
-    $("hatch-btn").disabled = game.chickens >= MAX_UPGRADE_LEVEL || game.eggs < 5;
-    $("hatch-max-btn").disabled = game.chickens >= MAX_UPGRADE_LEVEL || game.eggs < 5;
+    $("hatch-btn").disabled = game.chickens >= MAX_CHICKENS || game.eggs < 5;
+    $("hatch-max-btn").disabled = game.chickens >= MAX_CHICKENS || game.eggs < 5;
 
     const coopCost = 250 * (game.coop_level + 1);
     $("coop-btn").textContent = `🛖 Upgrade Coop Lv.${game.coop_level} — ${formatNumber(coopCost)} Logs`;
@@ -7975,7 +8031,7 @@ function updateLab() {
 
         if (control.description) {
             const requirement = definition.unlockPrestige
-                ? `Prestige ${definition.unlockPrestige}`
+                ? `Super Rebirth ${definition.unlockPrestige}`
                 : definition.unlockRebirth ? `Rebirth ${definition.unlockRebirth}` : null;
             $(control.description).textContent = `${definition.description}${requirement ? ` • Unlocks at ${requirement}.` : ""}${lock ? ` • Locked until ${lock}.` : ""}`;
         }
@@ -8277,6 +8333,24 @@ function buySteam() {
    REBIRTH
 ========================================================= */
 
+function hasWipeableSkins() {
+    return game.axe_inventory.some(item => item.skinName !== "Default Axe" && item.skinName !== OBLIVION_RELIC_SKIN_NAME);
+}
+
+function wipeAxeSkinsKeepRelic() {
+    const kept = game.axe_inventory.filter(item => item.skinName === "Default Axe" || item.skinName === OBLIVION_RELIC_SKIN_NAME);
+    if (!kept.some(item => item.skinName === "Default Axe")) kept.unshift(createAxeInventoryItem("Default Axe", "Factory New"));
+    game.axe_inventory = kept;
+    if (!kept.some(item => item.id === game.equipped_axe_item_id)) {
+        const fallback = kept.find(item => item.skinName === "Default Axe");
+        game.equipped_axe_item_id = fallback.id;
+        game.equipped_axe_skin = fallback.skinName;
+    }
+    syncAxeSkinCounts();
+    axeLockerDirty = true;
+    renderedChopAxeItemId = null;
+}
+
 function doRebirth() {
 
     const next =
@@ -8293,6 +8367,11 @@ function doRebirth() {
         return;
     }
 
+    if (hasWipeableSkins() && !confirm("Rebirthing resets your axe skins (the Default Axe and the Oblivion relic axe are kept). Super and Ultra Rebirths keep skins. Rebirth anyway?")) {
+        return;
+    }
+
+    wipeAxeSkinsKeepRelic();
     game.rebirth++;
     game.rebirth_shards += Math.floor(data.shards * (1 + (game.egg_upgrades.rebirth_resonance || 0) * 0.1));
 
@@ -8355,10 +8434,7 @@ function doPrestige() {
     game.sawmill_cost = 250;
     game.steam_engines = 0;
     game.steam_cost = 2500;
-    game.axe_inventory = [createAxeInventoryItem("Default Axe", "Factory New")];
-    game.equipped_axe_item_id = game.axe_inventory[0].id;
-    game.equipped_axe_skin = "Default Axe";
-    game.axe_skins = {};
+    // Super and Ultra Rebirths keep the axe collection (only normal rebirths wipe skins).
     game.quick_open_cooldown_until = 0;
     lastCrateResult = "Ready to open.";
     lastDarkwebResult = "Ready to open.";
@@ -8378,7 +8454,52 @@ function doPrestige() {
     }
 
     saveGame();
-    toast(`🌳 PRESTIGE ${game.prestige}! The entire forest was reset.`);
+    toast(`🌳 SUPER REBIRTH ${game.prestige}! The forest was reset, your axe skins were kept.`);
+    updateUI();
+}
+
+function doUltra() {
+    if (!canUltra()) return;
+    if (!confirm("Ultra Rebirth resets your Super Rebirths to 0 and restarts the run. You keep your axe skins and gain a permanent x2 output bonus. Continue?")) return;
+
+    game.ultra++;
+    game.prestige = 0;
+    game.prestige_milestones = [];
+    game.prestige_tokens = (Number(game.prestige_tokens) || 0) + 5;
+    game.perks = {};
+    game.rebirth = 0;
+    game.rebirth_shards = 25000;
+    game.rebirth_upgrades = { mult: 0, speed: 0, start_logs: 0 };
+    game.egg_upgrades = { click_boost: 0, hunger_slow: 0, egg_mult: 0, feather_boost: 0, sap_resonance: 0, prestige_study: 0 };
+    game.numOC = 0;
+    game.eggs = 0;
+    game.chickens = 0;
+    game.mutated_chickens = { neon: 0, void: 0, golden: 0 };
+    game.chicken_variants = {};
+    game.chicken_hunger = 100;
+    game.chicken_food = 10;
+    game.pet_level = 0;
+    game.coop_level = 0;
+    game.achievements = [];
+    game.total_chopped = 0;
+    game.total_clicks = 0;
+    game.current_axe_index = 0;
+    game.auto_clickers = 0;
+    game.auto_clicker_cost = 25;
+    game.sawmills = 0;
+    game.sawmill_cost = 250;
+    game.steam_engines = 0;
+    game.steam_cost = 2500;
+    game.quick_open_cooldown_until = 0;
+    coopVisualDirty = true;
+    axeLockerDirty = true;
+    game.treeName = "hypergamous trees";
+    game.addNum = getRebirthPenalty();
+    game.upgrGoal = AXE_UPGRADES[0].cost;
+
+    saveGame();
+    toast("🌌 ULTRA REBIRTH! Permanent x2 output, +5 vault tokens, +25,000 shards. Skins kept.");
+    void publishLeaderboard(true);
     updateUI();
 }
 
@@ -8418,7 +8539,7 @@ function updatePrestigeMilestones() {
     const rewards = { 1: "250 Shards", 3: "1,000 Shards", 5: "5,000 Shards" };
     const claimed = new Set(game.prestige_milestones || []);
     $("prestige-milestones").innerHTML = Object.entries(rewards)
-        .map(([milestone, reward]) => `<div>${claimed.has(Number(milestone)) ? "✓" : "○"} Prestige ${milestone}: ${reward}</div>`)
+        .map(([milestone, reward]) => `<div>${claimed.has(Number(milestone)) ? "✓" : "○"} Super Rebirth ${milestone}: ${reward}</div>`)
         .join("");
 }
 
@@ -8468,7 +8589,7 @@ function buyRebirthUpgrade(type) {
 
 function buyChicken() {
 
-    if (game.chickens >= MAX_UPGRADE_LEVEL) return;
+    if (game.chickens >= MAX_CHICKENS) return;
 
     const cost =
         100 * (game.chickens + 1);
@@ -8488,7 +8609,7 @@ function buyChicken() {
 
 function hatchChicken() {
 
-    if (game.chickens >= MAX_UPGRADE_LEVEL || game.eggs < 5) {
+    if (game.chickens >= MAX_CHICKENS || game.eggs < 5) {
         return;
     }
 
@@ -8547,7 +8668,7 @@ function getEggResearchLock(type) {
     const definition = EGG_RESEARCH_DEFS[type];
     if (!definition) return "UNAVAILABLE";
     if (definition.unlockRebirth && game.rebirth < definition.unlockRebirth) return `REBIRTH ${definition.unlockRebirth}`;
-    if (definition.unlockPrestige && game.prestige < definition.unlockPrestige) return `PRESTIGE ${definition.unlockPrestige}`;
+    if (definition.unlockPrestige && game.prestige < definition.unlockPrestige) return `SUPER REBIRTH ${definition.unlockPrestige}`;
     return null;
 }
 
@@ -8959,7 +9080,7 @@ const CASE_DEFINITIONS = {
     mutatedAxe: { title: "Mutated Axe Case", cost: 12000, kind: "mutated-axe" },
     mutatedFlock: { title: "Mutated Flock Case", cost: 10000, kind: "mutated-chicken" },
     worldtree: { title: "Worldtree Cache", cost: 50000, kind: "mixed" },
-    prestigeVault: { title: "Prestige Vault", cost: 1, currency: "prestige_tokens", kind: "prestige" },
+    prestigeVault: { title: "Super Rebirth Vault", cost: 1, currency: "prestige_tokens", kind: "prestige" },
     oblivion: { title: "Oblivion Case", unlockLogs: OBLIVION_UNLOCK_LOGS, costRate: OBLIVION_COST_RATE, kind: "oblivion" }
 };
 
@@ -10350,6 +10471,8 @@ $("rebirth-btn")
 $("prestige-btn")
     .addEventListener("click", doPrestige);
 
+$("ultra-btn").addEventListener("click", doUltra);
+
 $("mult-btn")
     .addEventListener("click", () => {
         buyRebirthUpgrade("mult");
@@ -10535,10 +10658,10 @@ function renderPerks() {
     if (panel.dataset.key === key) return;
     panel.dataset.key = key;
     if (!game.prestige) {
-        panel.innerHTML = '<div class="perk-head">✨ Prestige Perks unlock at Prestige 1 (one perk point per Prestige).</div>';
+        panel.innerHTML = '<div class="perk-head">✨ Super Rebirth Perks unlock at Super Rebirth 1 (one perk point per Super Rebirth).</div>';
         return;
     }
-    panel.innerHTML = `<div class="perk-head">✨ Prestige Perks — ${points} point${points === 1 ? "" : "s"} to spend</div>` +
+    panel.innerHTML = `<div class="perk-head">✨ Super Rebirth Perks — ${points} point${points === 1 ? "" : "s"} to spend</div>` +
         Object.entries(PERK_DEFS).map(([id, def]) => {
             const level = getPerkLevel(id);
             const maxed = level >= def.max;
@@ -10682,7 +10805,7 @@ function completeContract(index) {
     toast(`📜 Contract complete! +${describeReward(c)}`);
     if (game.contracts_done % 25 === 0) {
         game.prestige_tokens = (Number(game.prestige_tokens) || 0) + 1;
-        toast("🏆 25 contracts done! +1 Prestige Vault token");
+        toast("🏆 25 contracts done! +1 Super Rebirth Vault token");
     }
     game.contracts[index] = makeContract();
 }
